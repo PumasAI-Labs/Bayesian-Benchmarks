@@ -1,0 +1,13 @@
+Torsten 0.90.0
+CmdStan 2.29.2
+
+Install openMPI
+
+Create a local file in cmdstan/make folder with:
+STAN_THREADS=true
+TORSTEN_MPI=1
+
+Then rebuild CmdStan in cmdstanr:
+library(cmdstanr)
+set_cmdstan_path("Torsten/cmdstan") # Torsten CmdStan path
+rebuild_cmdstan()
