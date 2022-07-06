@@ -1,0 +1,3 @@
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Pumas = "4f2c3c20-a4ac-11e9-067b-e5872d3484cf"
