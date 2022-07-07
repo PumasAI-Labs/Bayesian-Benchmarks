@@ -1,7 +1,6 @@
 using Pumas
 using DataFrames
 
-
 pk2cpt = @model begin
     @param begin
         tvcl ~ LogNormal(log(10), 0.25)
@@ -9,8 +8,11 @@ pk2cpt = @model begin
         tvq ~ LogNormal(log(15), 0.5)
         tvvp ~ LogNormal(log(105), 0.5)
         tvka ~ LogNormal(log(2.5), 1)
-        # Cauchy is TDist with ν=1
-        σ ~ truncated(TDist(1), 0, Inf)
+        σ ~ Cauchy()
+    end
+
+    @random begin
+        η ~ Normal()
     end
 
     @pre begin
@@ -24,6 +26,8 @@ pk2cpt = @model begin
     @dynamics Depots1Central1Periph1
 
     @derived begin
+        # TODO: fix σ
+        # Torsten uses log(dv) ~ Normal(log(cp), sigma)
         cp = @. Central/Vc
         dv ~ @. Normal(cp, σ)
     end
@@ -77,6 +81,7 @@ time = [0, 0.083, 0.167, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12,
 
 df = DataFrame(; time, id=1, ii, evid, dv=cObs, cmt, addl, amt)
 
+
 # Pumas Population
 pop = read_pumas(df)
 
@@ -90,4 +95,4 @@ init_params = (;
     σ=0.589695154260051,
 )
 
-pk2cpt_fit = fit(pk2cpt, pop, init_params, Pumas.BayesMCMC())
+pk2cpt_fit = fit(pk2cpt, pop, init_params, Pumas.BayesMCMC(nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=1))
