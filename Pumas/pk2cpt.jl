@@ -8,7 +8,7 @@ pk2cpt = @model begin
         tvvc ~ LogNormal(log(35), 0.25) # V1
         tvvp ~ LogNormal(log(105), 0.5) # V2
         tvka ~ LogNormal(log(2.5), 1)   # ka
-        σ ~ Cauchy()                    # sigma
+        σ ~ truncated(Cauchy(), 0, Inf) # sigma
     end
 
     @random begin
@@ -28,7 +28,7 @@ pk2cpt = @model begin
     @derived begin
         # TODO: fix σ
         # Torsten uses log(dv) ~ Normal(log(cp), sigma)
-        cp = @. Central/Vc
+        cp := @. Central/Vc
         dv ~ @. LogNormal(log(cp), σ)
     end
 end
@@ -86,13 +86,19 @@ df = DataFrame(; time, id=1, ii, evid, dv=cObs, cmt, addl, amt)
 pop = read_pumas(df)
 
 # Inits from Torsten
+# TODO: After fix bug order inits same as Torsten
 init_params = (;
     tvcl=7.4367958406427,
-    tvvc=78.4460632446725,
     tvq=28.0799996152587,
+    tvvc=78.4460632446725,
     tvvp=68.1255965629187,
     tvka=1.0811298754049,
     σ=0.589695154260051,
 )
 
-pk2cpt_fit = fit(pk2cpt, pop, init_params, Pumas.BayesMCMC(nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=1))
+pk2cpt_fit = fit(pk2cpt,
+                 pop,
+                 init_params,
+                 Pumas.BayesMCMC(nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4))
+
+Pumas.truncate(pk2cpt_fit; burnin=1_000)
