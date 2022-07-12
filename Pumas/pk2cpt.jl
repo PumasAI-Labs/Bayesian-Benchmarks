@@ -3,12 +3,12 @@ using DataFrames
 
 pk2cpt = @model begin
     @param begin
-        tvcl ~ LogNormal(log(10), 0.25)
-        tvvc ~ LogNormal(log(35), 0.25)
-        tvq ~ LogNormal(log(15), 0.5)
-        tvvp ~ LogNormal(log(105), 0.5)
-        tvka ~ LogNormal(log(2.5), 1)
-        σ ~ Cauchy()
+        tvcl ~ LogNormal(log(10), 0.25) # CL
+        tvq ~ LogNormal(log(15), 0.5)   # Q
+        tvvc ~ LogNormal(log(35), 0.25) # V1
+        tvvp ~ LogNormal(log(105), 0.5) # V2
+        tvka ~ LogNormal(log(2.5), 1)   # ka
+        σ ~ Cauchy()                    # sigma
     end
 
     @random begin
@@ -29,7 +29,7 @@ pk2cpt = @model begin
         # TODO: fix σ
         # Torsten uses log(dv) ~ Normal(log(cp), sigma)
         cp = @. Central/Vc
-        dv ~ @. Normal(cp, σ)
+        dv ~ @. LogNormal(log(cp), σ)
     end
 end
 
