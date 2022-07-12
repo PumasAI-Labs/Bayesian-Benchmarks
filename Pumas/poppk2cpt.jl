@@ -363,6 +363,10 @@ time = [0, 0.083, 0.167, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12, 12.083,
 168.083, 168.167, 168.25, 168.5, 168.75, 169, 169.5, 170, 171, 172, 174, 176, 180,
 186, 192]
 
+# sanity check because I've added `missing` by hand in the cObs
+evid1s = findall(i -> i == 1, evid)
+@assert all((ismissing(cObs[i]) for i in evid1s)) # this should pass
+
 df = DataFrame(; time, id=repeat(1:nSubjects; inner=54), ii, evid, dv=cObs, cmt, addl, amt)
 
 # Pumas Population
