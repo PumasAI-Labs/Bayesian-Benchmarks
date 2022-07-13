@@ -26,7 +26,6 @@ pk2cpt = @model begin
     @dynamics Depots1Central1Periph1
 
     @derived begin
-        # TODO: fix σ
         # Torsten uses log(dv) ~ Normal(log(cp), sigma)
         cp := @. Central/Vc
         dv ~ @. LogNormal(log(cp), σ)
