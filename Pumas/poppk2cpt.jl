@@ -2,35 +2,37 @@ using Pumas
 using DataFrames
 
 poppk2cpt = @model begin
-    @param begin
-        tvcl ~ LogNormal(log(10), 0.25) # CL
-        tvq ~ LogNormal(log(15), 0.5)   # Q
-        tvvc ~ LogNormal(log(35), 0.25) # V1
-        tvvp ~ LogNormal(log(105), 0.5) # V2
-        tvka ~ LogNormal(log(2.5), 1)   # ka
-        σ ~ truncated(Cauchy(0, 5), 0, Inf) # sigma
-        Ω ~ LKJ(5, 2.0)
-    end
+  @param begin
+    tvcl ~ LogNormal(log(10), 0.25) # CL
+    tvq ~ LogNormal(log(15), 0.5)   # Q
+    tvvc ~ LogNormal(log(35), 0.25) # V1
+    tvvp ~ LogNormal(log(105), 0.5) # V2
+    tvka ~ LogNormal(log(2.5), 1)   # ka
+    σ ~ truncated(Cauchy(0, 5), 0, Inf) # sigma
+    C ~ LKJCholesky(5, 1.0)
+    ω ∈ VectorDomain(5, lower = 0.01, upper = 2.0)
+  end
 
-    @random begin
-        η ~ MvNormal(Ω)
-    end
+  @random begin
+    ηstd ~ MvNormal(I(5))
+  end
 
-    @pre begin
-        CL = tvcl * exp(η[1])
-        Q = tvq * exp(η[2])
-        Vc = tvvc * exp(η[3])
-        Vp = tvvp * exp(η[4])
-        Ka = tvka * exp(η[5])
-    end
+  @pre begin
+    η = ω .* (C.L * ηstd)
+    CL = tvcl * exp(η[1])
+    Q = tvq * exp(η[2])
+    Vc = tvvc * exp(η[3])
+    Vp = tvvp * exp(η[4])
+    Ka = tvka * exp(η[5])
+  end
 
-    @dynamics Depots1Central1Periph1
+  @dynamics Depots1Central1Periph1
 
-    @derived begin
-        # Torsten uses log(dv) ~ Normal(log(cp), sigma)
-        cp := @. Central/Vc
-        dv ~ @. LogNormal(log(cp), σ)
-    end
+  @derived begin
+    # Torsten uses log(dv) ~ Normal(log(cp), sigma)
+    cp := @. Central/Vc
+    dv ~ @. LogNormal(log(cp), σ)
+  end
 end
 
 # Torsten Data
@@ -375,14 +377,14 @@ pop = read_pumas(df)
 # Inits from Torsten
 # TODO: After fix bug order inits same as Torsten
 init_params = (;
-    tvcl=9.03101310740243,
-    tvq=14.0196613638163,
-    tvvc=84.7122459708543,
-    tvvp=78.8103049860171,
-    tvka=1.00344648906815,
-    σ=1.23593237181194,
-    Ω=Diagonal([0.802001132862642, 1.09233685361687, 1.7213969589211, 1.08648055442609,
-                0.694992449134588])
+  tvcl=9.03101310740243,
+  tvq=14.0196613638163,
+  tvvc=84.7122459708543,
+  tvvp=78.8103049860171,
+  tvka=1.00344648906815,
+  σ=1.23593237181194,
+  C=cholesky(float.(Matrix(I(5)))),
+  ω=[0.802001132862642, 1.09233685361687, 1.7213969589211, 1.08648055442609, 0.694992449134588],
 )
 
 poppk2cpt_fit = fit(poppk2cpt,
