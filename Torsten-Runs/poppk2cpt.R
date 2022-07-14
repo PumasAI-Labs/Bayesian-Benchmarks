@@ -399,3 +399,5 @@ fit_poppk2cpt <- m$sample(
     iter_sampling=1000,
     iter_warmup=1000
 )
+
+C <- fit_poppk2cpt$summary(variables="C")

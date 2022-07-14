@@ -105,3 +105,7 @@ model{
   sigma ~ cauchy(0, 5);
   logCObs ~ normal(log(cHatObs), sigma);
 }
+generated quantities {
+  // we need the C matrix to compare with Pumas
+  matrix[nIIV, nIIV] C = L * L';
+}
