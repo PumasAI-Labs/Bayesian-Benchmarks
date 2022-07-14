@@ -387,9 +387,10 @@ init_params = (;
   ω=[0.802001132862642, 1.09233685361687, 1.7213969589211, 1.08648055442609, 0.694992449134588],
 )
 
+# max_chunk_size is number of fixed effects + number of random effects
 poppk2cpt_fit = fit(poppk2cpt,
                  pop,
                  init_params,
-                 Pumas.BayesMCMC(nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4))
+                 Pumas.BayesMCMC(nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4, max_chunk_size=15))
 
 Pumas.truncate(poppk2cpt_fit; burnin=1_000)
