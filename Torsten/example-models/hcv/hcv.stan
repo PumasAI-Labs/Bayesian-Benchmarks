@@ -43,8 +43,8 @@ data{
   array[nt] real time;
   array[nt] real rate;
   array[nt] real ii;
-  vector<lower=0>[nObs] yPK;
-  vector<lower=0>[nObs] yPD;
+  vector[nObs] yPK;
+  vector[nObs] yPD;
 }
 parameters{
   // fixed effects
