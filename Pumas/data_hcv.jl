@@ -82,8 +82,8 @@ hcv_model = @model begin
     @derived begin
         conc := @. A / exp(logVd)
         log10W := @. log10(W)
-        yPK ~ @. Normal(A / exp(logVd), sqrt(σ²PK))
-        yPD ~ @. Normal(log10W, sqrt(σ²PD))
+        yPK ~ @. TruncatedNormal(A / exp(logVd), sqrt(σ²PK), 0, Inf)
+        yPD ~ @. TruncatedNormal(log10W, sqrt(σ²PD), 0, Inf)
     end
 end
 
@@ -124,5 +124,8 @@ df = DataFrame(data)
 
 # converting "X" to 1 in :cmt
 df[!, :cmt] = ifelse.(ismissing.(df.cmt), missing, 1)
+
+@assert all(skipmissing(df.yPD) .>= 0)
+@assert all(skipmissing(df.yPK) .>= 0)
 
 CSV.write(joinpath(pwd(), "data", "hcv.csv"), df)

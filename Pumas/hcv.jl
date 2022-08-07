@@ -81,8 +81,8 @@ hcv_model = @model begin
     @derived begin
         conc := @. A / exp(logVd)
         log10W := @. log10(W)
-        yPK ~ @. Normal(A / exp(logVd), sqrt(σ²PK))
-        yPD ~ @. Normal(log10W, sqrt(σ²PD))
+        yPK ~ @. TruncatedNormal(A / exp(logVd), sqrt(σ²PK), 0, Inf)
+        yPD ~ @. TruncatedNormal(log10W, sqrt(σ²PD), 0, Inf)
     end
 end
 
@@ -93,11 +93,14 @@ select!(df, Not(:route))
 # population
 pop = read_pumas(df; observations=[:yPK, :yPD])
 
+# params
+parms = init_params(hcv_model)
+
 # Fit
 hcv_fit = fit(
     hcv_model,
     pop,
-    init_params(hcv_model),
+    parms,
     Pumas.BayesMCMC(; nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4);
     diffeq_options=(; alg=Rodas5())
 )
