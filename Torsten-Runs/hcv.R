@@ -50,15 +50,34 @@ stan_data <- list(
   yPD = yPD
 )
 
+stan_inits <- function() {
+  list(
+    logthetaKa = -0.2231435513142097,
+    logthetaKe = -1.8971199848858813,
+    logthetaVd = 4.605170185988092,
+    logthetan = 0.6931471805599453,
+    logthetaδ = -1.6094379124341003,
+    logthetac = 1.9459101490553132,
+    logthetaEC50 = -2.120263536200091,
+    omegaKa = 0.776261792561888,
+    omegaKe = 0.776261792561888,
+    omegaVd = 0.776261792561888,
+    omegan = 0.776261792561888,
+    omegaδ = 0.776261792561888,
+    omegac = 0.776261792561888,
+    omegaEC50 = 0.776261792561888,
+    sigmaPK = 0.6895956605642456,
+    sigmaPD = 0.6895956605642456)
+}
 
 # Stan fit
 fit_poppk2cpt <- m$sample(
-    data=stan_data,
-    # init=stan_inits,
-    parallel_chains=4,
-    adapt_delta=0.8,
-    iter_sampling=1000,
-    iter_warmup=1000
+    data = stan_data,
+    init = stan_inits,
+    parallel_chains = 4,
+    adapt_delta = 0.8,
+    iter_sampling = 1000,
+    iter_warmup = 1000
 )
 
 results <- fit_poppk2cpt$summary()
