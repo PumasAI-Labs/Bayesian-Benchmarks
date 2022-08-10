@@ -17,13 +17,21 @@ functions{
 
     vector[5] y;
 
-    y[1] = -exp(logKa) * x[1];                                            // X'
-    y[2] = exp(logKa) * x[1] - exp(logKe) * x[2];                         // A'
-    y[3] = s - x[3] * (e * x[5] + d);                                     // T'
-    y[4] = e * x[5] * x[3] - exp(logdelta) * x[4];                        // I'
+    // custom inits
+    real init_T = fmax(machine_precision(),
+                       exp(logc + logdelta) / (p * e));
+    real init_I = fmax(machine_precision(),
+                       (s * e * p - d * exp(logc + logdelta)) / (p * exp(logdelta) * e));
+    real init_W = fmax(machine_precision(),
+                       (s * e * p - d * exp(logc + logdelta)) / (exp(logc + logdelta) * e));
+
+    y[1] = -exp(logKa) * x[1];                                                      // X'
+    y[2] = exp(logKa) * x[1] - exp(logKe) * x[2];                                   // A'
+    y[3] = s - (x[3] + init_T) * (e * (x[5] + init_W) + d);                         // T'
+    y[4] = e * (x[5] + init_W) * (x[3] + init_T) - exp(logdelta) * (x[4] + init_I); // I'
     y[5] =
-        p / ((x[1] / exp(logVd) / exp(logEC50) + 1e-100)^exp(logn) + 1) * // W'
-          x[4] - exp(logc) * x[5];
+        p / ((x[1] / exp(logVd) / exp(logEC50) + 1e-100)^exp(logn) + 1) *           // W'
+          (x[4] + init_I) - exp(logc) * (x[5] + init_W);
 
     return y;
   }
@@ -83,7 +91,7 @@ transformed parameters{
     parms[1] = logthetaKa + omegaKa; // Ka
     parms[2] = logthetaKe + omegaKe; // Ke
     parms[3] = logthetaVd + omegaVd; // Vd
-    parms[4] =  logthetan + omegan; // n
+    parms[4] = logthetan + omegan; // n
     parms[5] = logthetadelta + omegadelta; // delta
     parms[6] = logthetac + omegac; // c
     parms[7] = logthetaEC50 + omegaEC50; // EC50
@@ -95,8 +103,17 @@ transformed parameters{
                       1e5   // max_step
                       );
 
-    conc[start[j]:end[j]] = x[2, start[j]:end[j]] ./ exp(parms[3]); // divide by exp(logVd)
-    log10W[start[j]:end[j]] = log10(x[5, start[j]:end[j]]);         // log10(W)
+    // constants
+    real p = 100.0;
+    real d = 0.001;
+    real e = 1e-7;
+    real s = 20000.0;
+
+    // inital conditions to W (x[5])
+    real init_W = fmax(machine_precision(),
+                       (s * e * p - d * exp(parms[6] + parms[5])) / (exp(parms[6] + parms[7]) * e));
+    conc[start[j]:end[j]] = x[2, start[j]:end[j]] ./ exp(parms[3]);     // divide by exp(logVd)
+    log10W[start[j]:end[j]] = log10(x[5, start[j]:end[j]] + init_W);    // log10(W)
   }
 
   concObs  = conc[iObs];

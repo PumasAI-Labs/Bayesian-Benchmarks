@@ -81,3 +81,13 @@ fit_poppk2cpt <- m$sample(
 )
 
 results <- fit_poppk2cpt$summary()
+# All 4 chains finished successfully.
+# Mean chain execution time: 5938.1 seconds.
+# Total execution time: 8135.3 seconds.
+
+# Warning: 1444 of 4000 (36.0%) transitions ended with a divergence.
+# See https://mc-stan.org/misc/warnings for details.
+
+# Warning: 2556 of 4000 (64.0%) transitions hit the maximum treedepth limit of 10.
+# See https://mc-stan.org/misc/warnings for details.
+results %>% write_csv("Torsten-Runs/hcv_results.csv")
