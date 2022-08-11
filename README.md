@@ -21,3 +21,5 @@ library(cmdstanr)
 set_cmdstan_path("Torsten/cmdstan") # Torsten CmdStan path
 rebuild_cmdstan()
 ```
+
+Additionally, we removed the `generated quantities` block from all Stan/Torsten models for a fair comparison.
