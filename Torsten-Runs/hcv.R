@@ -6,7 +6,7 @@ library(readr)
 set_cmdstan_path("Torsten/cmdstan")
 
 # Compile Stan model
-m <- cmdstan_model("Torsten/example-models/hcv/hcv.stan")
+m <- cmdstan_model("Torsten/example-models/hcv/hcv_vanilla_ode.stan")
 
 # data
 df <- read_csv("data/hcv.csv")
@@ -25,7 +25,7 @@ nObs <- df %>% filter(evid == 0) %>% nrow
 iObs <- df %>% mutate(iObs = row_number()) %>% filter(evid == 0) %>% pull(iObs)
 # 3 subjects
 nSubjects <- df %>% pull(id) %>% unique %>% length
-step <- 15
+step <- 11
 start <- c(1, 1+step, 1+step+step)
 end <- c(15, 15+step, 15+step+step)
 yPK <- df$yPK %>% na.omit
