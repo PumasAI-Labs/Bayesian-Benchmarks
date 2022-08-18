@@ -1,5 +1,4 @@
 library(cmdstanr)
-library(loo)
 
 # Setting CmdStan path to Torsten intall
 set_cmdstan_path("Torsten/cmdstan")
