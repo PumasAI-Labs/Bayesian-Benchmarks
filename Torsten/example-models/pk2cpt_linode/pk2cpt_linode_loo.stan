@@ -1,10 +1,10 @@
-// TwoCptModel.stan
-// Run two compartment model using built-in analytical solution 
+// LinTwoCptModelExample.stan
+// Run two compartment model using matrix exponential solution
 // Heavily anotated to help new users
 
 data{
   int<lower = 1> nt;  // number of events
-  int<lower = 1> nObs;  // number of observation
+  int<lower = 1> nObs;  // number of observations
   array[nObs] int<lower = 1> iObs;  // index of observation
   
   // NONMEM data
@@ -17,13 +17,19 @@ data{
   array[nt] real rate;
   array[nt] real ii;
   
-  vector<lower = 0>[nObs] cObs;  // observed concentration (Dependent Variable)
+  row_vector<lower = 0>[nObs] cObs;  // observed concentration (dependent variable)
 }
 
 transformed data{
-  vector[nObs] logCObs = log(cObs);
-  int nTheta = 5;  // number of ODE parameters in Two Compartment Model
-  int nCmt = 3;  // number of compartments in model
+  row_vector[nObs] logCObs = log(cObs);
+  int nCmt = 3;
+  array[nCmt] real biovar;
+  array[nCmt] real tlag;
+
+  for (i in 1:nCmt) {
+    biovar[i] = 1;
+    tlag[i] = 0;
+  }
 }
 
 parameters{
@@ -36,22 +42,30 @@ parameters{
 }
 
 transformed parameters{
-  array[nTheta] real theta;  // ODE parameters
+  matrix[3, 3] K;
+  real k10 = CL / V1;
+  real k12 = Q / V1;
+  real k21 = Q / V2;
   row_vector<lower = 0>[nt] cHat;
-  vector<lower = 0>[nObs] cHatObs;
-  matrix<lower = 0>[nCmt, nt] x;
+  row_vector<lower = 0>[nObs] cHatObs;
+  matrix<lower = 0>[3, nt] x;
 
-  theta[1] = CL;
-  theta[2] = Q;
-  theta[3] = V1;
-  theta[4] = V2;
-  theta[5] = ka;
+  K = rep_matrix(0, 3, 3);
+  
+  K[1, 1] = -ka;
+  K[2, 1] = ka;
+  K[2, 2] = -(k10 + k12);
+  K[2, 3] = k21;
+  K[3, 2] = k12;
+  K[3, 3] = -k21;
 
-  x = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
+  x = pmx_solve_linode(time, amt, rate, ii, evid, cmt, addl, ss, K, biovar, tlag);
 
-  cHat = x[2, :] ./ V1; // we're interested in the amount in the second compartment
+  cHat = row(x, 2) ./ V1;
 
-  cHatObs = cHat'[iObs]; // predictions for observed data recors
+  for(i in 1:nObs){
+    cHatObs[i] = cHat[iObs[i]];  // predictions for observed data records
+  }
 }
 
 model{
