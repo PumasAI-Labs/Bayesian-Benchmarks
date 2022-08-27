@@ -111,12 +111,12 @@ stan_data <- with(
   )
 )
 
-model <- cmdstan_model(
-  "Torsten/example-models/poppk2cpt/depot_2cmt_match_metrum.stan",
+model_normal <- cmdstan_model(
+  "Torsten/example-models/poppk2cpt/depot_2cmt_match_metrum_half_normal_omega.stan",
   cpp_options = list(stan_threads = TRUE)
 )
 
-fit <- model$sample(
+fit_normal <- model_normal$sample(
   data = stan_data,
   chains = 4,
   parallel_chains = 2,
@@ -126,15 +126,25 @@ fit <- model$sample(
   adapt_delta = 0.8,
   refresh = 100,
   max_treedepth = 15,
-  init = function() {
-    list(
-      TVCL = rlnorm(1, log(10), 0.2),
-      TVVC = rlnorm(1, log(70), 0.2),
-      TVQ = rlnorm(1, log(20), 0.2),
-      TVVP = rlnorm(1, log(70), 0.2),
-      TVKA = rlnorm(1, log(1), 0.2),
-      omega = rlnorm(5, log(0.3), 0.3),
-      sigma = rlnorm(1, log(1), 0.3)
-    )
-  }
+  init = file.path("Torsten", "example-models" , "poppk2cpt", 
+                   "poppk2cpt.init_cd.R") 
+)
+
+model_uniform <- cmdstan_model(
+  "Torsten/example-models/poppk2cpt/depot_2cmt_match_metrum_uniform_omega.stan",
+  cpp_options = list(stan_threads = TRUE)
+)
+
+fit_uniform <- model_uniform$sample(
+  data = stan_data,
+  chains = 4,
+  parallel_chains = 2,
+  threads_per_chain = 16,
+  iter_warmup = 1000,
+  iter_sampling = 1000,
+  adapt_delta = 0.8,
+  refresh = 100,
+  max_treedepth = 15,
+  init = file.path("Torsten", "example-models" , "poppk2cpt", 
+                   "poppk2cpt.init_cd.R")
 )
