@@ -1,4 +1,4 @@
-using Pumas # branch mt/corr_cholesky2
+using Pumas # branch mt/corr_cholesky3
 using DataFrames
 
 poppk2cpt = @model begin
@@ -10,7 +10,12 @@ poppk2cpt = @model begin
     tvka ~ LogNormal(log(2.5), 1)   # ka
     σ ~ truncated(Cauchy(0, 5), 0, Inf) # sigma
     C ~ LKJCholesky(5, 1.0)
-    ω ∈ VectorDomain(5; lower=0.01, upper=2.0)
+    ω ∈ Constrained(
+      MvNormal(zeros(5), Diagonal(0.4^2 * ones(5))),
+      lower=zeros(5),
+      upper=fill(Inf, 5),
+      init=ones(5),
+    )
   end
 
   @random begin
@@ -377,14 +382,14 @@ pop = read_pumas(df)
 # Inits from Torsten
 # TODO: After fix bug order inits same as Torsten
 init_params = (;
-  tvcl=9.03101310740243,
-  tvq=14.0196613638163,
-  tvvc=84.7122459708543,
-  tvvp=78.8103049860171,
-  tvka=1.00344648906815,
-  σ=1.23593237181194,
+  tvcl=9.50301610504439,
+  tvq=18.9335747112952,
+  tvvc=66.9091096385085,
+  tvvp=101.71093214261,
+  tvka=1.16007855212285,
+  σ=0.836479665129445,
   C=float.(Matrix(I(5))),
-  ω=[0.802001132862642, 1.09233685361687, 1.7213969589211, 1.08648055442609, 0.694992449134588]
+  ω=[0.806724882873241, 0.1044097127649, 1.80419025635114, 1.98649488193681, 0.549933646323625]
 )
 
 poppk2cpt_fit = fit(poppk2cpt,
