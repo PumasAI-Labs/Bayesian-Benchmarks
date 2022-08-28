@@ -112,7 +112,7 @@ stan_data <- with(
 )
 
 model_normal <- cmdstan_model(
-  "Torsten/example-models/poppk2cpt/depot_2cmt_match_metrum_half_normal_omega.stan",
+  "Torsten/example-models/poppk2cpt/depot_2cmt_match_metrum_half_normal_omega.stan", # nolint
   cpp_options = list(stan_threads = TRUE)
 )
 
@@ -126,8 +126,10 @@ fit_normal <- model_normal$sample(
   adapt_delta = 0.8,
   refresh = 100,
   max_treedepth = 15,
-  init = file.path("Torsten", "example-models" , "poppk2cpt", 
-                   "poppk2cpt.init_cd.R") 
+  init = file.path(
+    "Torsten", "example-models", "poppk2cpt",
+    "poppk2cpt.init_cd.R"
+  )
 )
 
 model_uniform <- cmdstan_model(
@@ -145,6 +147,8 @@ fit_uniform <- model_uniform$sample(
   adapt_delta = 0.8,
   refresh = 100,
   max_treedepth = 15,
-  init = file.path("Torsten", "example-models" , "poppk2cpt", 
-                   "poppk2cpt.init_cd.R")
+  init = file.path(
+    "Torsten", "example-models", "poppk2cpt",
+    "poppk2cpt.init_cd.R"
+  )
 )
