@@ -119,13 +119,13 @@ model_normal <- cmdstan_model(
 fit_normal <- model_normal$sample(
   data = stan_data,
   chains = 4,
-  parallel_chains = 2,
-  threads_per_chain = 16,
+  parallel_chains = 4,
+  threads_per_chain = 8,
   iter_warmup = 1000,
   iter_sampling = 1000,
   adapt_delta = 0.8,
   refresh = 100,
-  max_treedepth = 15,
+  max_treedepth = 10,
   init = file.path(
     "Torsten", "example-models", "poppk2cpt",
     "poppk2cpt.init_cd.R"
@@ -140,13 +140,13 @@ model_uniform <- cmdstan_model(
 fit_uniform <- model_uniform$sample(
   data = stan_data,
   chains = 4,
-  parallel_chains = 2,
-  threads_per_chain = 16,
+  parallel_chains = 4,
+  threads_per_chain = 8,
   iter_warmup = 1000,
   iter_sampling = 1000,
   adapt_delta = 0.8,
   refresh = 100,
-  max_treedepth = 15,
+  max_treedepth = 10,
   init = file.path(
     "Torsten", "example-models", "poppk2cpt",
     "poppk2cpt.init_cd.R"

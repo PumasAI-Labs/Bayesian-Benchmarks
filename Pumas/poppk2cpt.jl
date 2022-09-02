@@ -395,6 +395,14 @@ init_params = (;
 poppk2cpt_fit = fit(poppk2cpt,
   pop,
   init_params,
-  Pumas.BayesMCMC(nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4))
+  Pumas.BayesMCMC(
+    nsamples=2_000,
+    nadapts=1_000,
+    target_accept=0.8,
+    nchains=4,
+    parallel_subjects=true,
+    parallel_chains=true,
+  )
+)
 
 Pumas.truncate(poppk2cpt_fit; burnin=1_000)
