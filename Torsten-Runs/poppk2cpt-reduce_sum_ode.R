@@ -166,3 +166,12 @@ fit_normal_bdf <- model_normal$sample(
     "poppk2cpt.init_cd.R"
   )
 )
+
+fit_normal_lin$time()$total # 290s  for 2 parallel chains, 8 threads/chain, 200 warmup, 400 sampling
+fit_normal_rk45$time()      # 1922s  "     "                      "            "            " 
+fit_normal_bdf$time()       # 4611s  "     "                      "            "            " 
+
+parameters_to_summarize <- c("TVCL", "TVVC", "TVQ", "TVVP", "TVKA")
+fit_normal_lin$summary(parameters_to_summarize)
+fit_normal_rk45$summary(parameters_to_summarize)
+fit_normal_bdf$summary(parameters_to_summarize)
