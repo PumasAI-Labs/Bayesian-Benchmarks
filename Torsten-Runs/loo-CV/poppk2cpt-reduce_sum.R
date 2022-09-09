@@ -1,4 +1,5 @@
 library(dplyr)
+library(readr)
 library(tibble)
 library(cmdstanr)
 
@@ -132,8 +133,38 @@ fit_normal <- model_normal$sample(
   )
 )
 
+fit_normal$save_object(file.path(
+  "Torsten-Runs",
+  "poppk2cpt_fit_normal.rds"
+))
+
 # ELPD
-fit_normal$loo()
+fit_normal_loo <- fit_normal$loo()
+loo_df <- fit_normal_loo$pointwise %>%
+  as_data_frame() %>%
+  mutate(
+    row_number = row_number()
+  ) %>%
+  left_join(
+    nonmem_data %>%
+      filter(evid == 0) %>%
+      transmute(
+        row_number = row_number(),
+        ID, time, DV, bloq
+      ),
+    by = "row_number"
+  ) %>%
+  relocate(
+    row_number,
+    .before = elpd_loo
+  )
+
+loo_df %>% write_csv(file.path(
+  "Torsten-Runs",
+  "loo-CV",
+  "loo_poppk2cpt-reduce_sum.csv"
+))
+
 
 # Computed from 4000 by 530 log-likelihood matrix
 
