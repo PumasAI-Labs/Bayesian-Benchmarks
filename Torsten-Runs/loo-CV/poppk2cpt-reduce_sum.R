@@ -133,6 +133,11 @@ fit_normal <- model_normal$sample(
   )
 )
 
+fit_normal$save_object(file.path(
+  "Torsten-Runs",
+  "poppk2cpt_fit_normal.rds"
+))
+
 # ELPD
 fit_normal_loo <- fit_normal$loo()
 loo_df <- fit_normal_loo$pointwise %>%
@@ -154,7 +159,11 @@ loo_df <- fit_normal_loo$pointwise %>%
     .before = elpd_loo
   )
 
-loo_df %>% write_csv("Torsten-Runs/loo-CV/loo_poppk2cpt-reduce_sum.csv")
+loo_df %>% write_csv(file.path(
+  "Torsten-Runs",
+  "loo-CV",
+  "loo_poppk2cpt-reduce_sum.csv"
+))
 
 
 # Computed from 4000 by 530 log-likelihood matrix
