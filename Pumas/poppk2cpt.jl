@@ -40,6 +40,47 @@ poppk2cpt = @model begin
   end
 end
 
+poppk2cpt_numeric = @model begin
+  @param begin
+    tvcl ~ LogNormal(log(10), 0.25) # CL
+    tvq ~ LogNormal(log(15), 0.5)   # Q
+    tvvc ~ LogNormal(log(35), 0.25) # V1
+    tvvp ~ LogNormal(log(105), 0.5) # V2
+    tvka ~ LogNormal(log(2.5), 1)   # ka
+    σ ~ truncated(Cauchy(0, 5), 0, Inf) # sigma
+    C ~ LKJCholesky(5, 1.0)
+    ω ∈ Constrained(
+      MvNormal(zeros(5), Diagonal(0.4^2 * ones(5))),
+      lower=zeros(5),
+      upper=fill(Inf, 5),
+      init=ones(5),
+    )
+  end
+
+  @random begin
+    ηstd ~ MvNormal(I(5))
+  end
+
+  @pre begin
+    η = ω .* (getchol(C).L * ηstd)
+    CL = tvcl * exp(η[1])
+    Q = tvq * exp(η[2])
+    Vc = tvvc * exp(η[3])
+    Vp = tvvp * exp(η[4])
+    Ka = tvka * exp(η[5])
+  end
+
+  @dynamics Depots1Central1Periph1
+
+  @options checklinear = false
+
+  @derived begin
+    # Torsten uses log(dv) ~ Normal(log(cp), sigma)
+    cp := @. Central / Vc
+    dv ~ @. LogNormal(log(cp), σ)
+  end
+end
+
 # Torsten Data
 addl = [14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -392,7 +433,9 @@ init_params = (;
   ω=[0.806724882873241, 0.1044097127649, 1.80419025635114, 1.98649488193681, 0.549933646323625]
 )
 
-poppk2cpt_fit = fit(poppk2cpt,
+# Linear ODE (matrix exp)
+poppk2cpt_fit = fit(
+  poppk2cpt,
   pop,
   init_params,
   Pumas.BayesMCMC(
@@ -403,6 +446,38 @@ poppk2cpt_fit = fit(poppk2cpt,
     parallel_subjects=true,
     parallel_chains=true,
   )
+)
+
+# Non-Stiff Numeric Solver 
+poppk2cpt_fit_tsit5 = fit(
+  poppk2cpt_numeric, # checklinear=false
+  pop,
+  init_params,
+  Pumas.BayesMCMC(
+    nsamples=2_000,
+    nadapts=1_000,
+    target_accept=0.8,
+    nchains=4,
+    parallel_subjects=true,
+    parallel_chains=true,
+  );
+  diffeq_options=(; alg=Tsit5()) # similar to rk45
+)
+
+# Rodas5P Stiff Numeric Solver
+poppk2cpt_fit_rodas5p = fit(
+  poppk2cpt_numeric, # checklinear=false
+  pop,
+  init_params,
+  Pumas.BayesMCMC(
+    nsamples=2_000,
+    nadapts=1_000,
+    target_accept=0.8,
+    nchains=4,
+    parallel_subjects=true,
+    parallel_chains=true,
+  );
+  diffeq_options=(; alg=Rodas5P())
 )
 
 Pumas.truncate(poppk2cpt_fit; burnin=1_000)
