@@ -70,7 +70,11 @@ poppk2cpt_numeric = @model begin
     Ka = tvka * exp(η[5])
   end
 
-  @dynamics Depots1Central1Periph1
+  @dynamics begin
+    Depot' = -Ka * Depot
+    Central' = Ka * Depot - (CL + Q) / Vc * Central + Q / Vp * Peripheral
+    Peripheral' = Q / Vc * Central - Q / Vp * Peripheral
+  end
 
   @options checklinear = false
 
