@@ -101,7 +101,7 @@ fit_normal <- readRDS(
     )
 )
 
-# ELPD
+# ELPD (which is the mean of the log_lik)
 fit_normal_loo <- fit_normal$loo()
 loo_df <- fit_normal_loo$pointwise %>%
     as_data_frame() %>%
@@ -122,11 +122,34 @@ loo_df <- fit_normal_loo$pointwise %>%
         .before = elpd_loo
     )
 
-# Exact M-step-ahead (SAP) predictions
+
+# log_lik matrix
+log_lik_matrix <- fit_normal$draws("log_lik", format = "draws_matrix")
+loo(log_lik_matrix) # "Vanilla" LOO
+dim(log_lik_matrix) # 4000 by 530
+nrow(log_lik_matrix)
+
+# Approximate M-step-ahead (SAP) predictions
 # set `M` to have 1-SAP
 M <- 1
-N <- length(i_obs)
-loglikm <- matrix(nrow = nsamples(fit), ncol = N)
+N <- length(i_obs) # the same numbers of cols as `log_lik_matrix`
+n_time <- unique(loo_df$time) %>% length()
+loglikm <- matrix(nrow = n_time, ncol = N)
+
+# L is the number of
+future_loo <- function(log_lik_matrix,
+                       n_time, subj_start, subj_end,
+                       N = ncol(log_lik_matrix),
+                       nsamples = nrow(log_lik_matrix),
+                       M = 1, L = 20, n_subj = 10) {
+    loglikm <- matrix(nrow = nsamples, ncol = N)
+    for (s in 1:n_subj) { # loop over subjects
+        for (i in L:n_time) { # loop over n_time
+            past <- (subj_start[s]):(subj_start[s] + i)
+            oos <- (subj_start[s] + i):(subj_start[s] + i + M)
+        }
+    }
+}
 # TODO: nested for loop for subjects
 for (i in L:(N - M)) {
     past <- 1:i
@@ -137,3 +160,6 @@ for (i in L:(N - M)) {
     loglik <- log_lik(fit_past, newdata = df_oos, oos = oos)
     loglikm[, i + 1] <- rowSums(loglik[, oos])
 }
+
+exact_elpds_sap <- apply(loglikm, 2, log_mean_exp)
+exact_elpd_sap <- c(ELPD = sum(exact_elpds_4sap, na.rm = TRUE))
