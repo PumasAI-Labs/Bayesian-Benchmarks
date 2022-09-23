@@ -82,8 +82,8 @@ hcv_model = @model begin
     @derived begin
         conc := @. A / exp(logVd)
         log10W := @. log10(W)
-        yPK ~ @. TruncatedNormal(A / exp(logVd), sqrt(σ²PK), 0, Inf)
-        yPD ~ @. TruncatedNormal(log10W, sqrt(σ²PD), 0, Inf)
+        yPK ~ @. truncated(Normal(A / exp(logVd), sqrt(σ²PK)), 0, Inf)
+        yPD ~ @. truncated(Normal(log10W, sqrt(σ²PD)), 0, Inf)
     end
 end
 

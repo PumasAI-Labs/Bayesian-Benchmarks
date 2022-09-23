@@ -447,6 +447,7 @@ poppk2cpt_fit = fit(
     nadapts=1_000,
     target_accept=0.8,
     nchains=4,
+    ensemblealg = EnsembleThreads(),
     parallel_subjects=true,
     parallel_chains=true,
   )
@@ -462,10 +463,11 @@ poppk2cpt_fit_tsit5 = fit(
     nadapts=1_000,
     target_accept=0.8,
     nchains=4,
+    ensemblealg = EnsembleThreads(),
     parallel_subjects=true,
     parallel_chains=true,
+    diffeq_options=(; alg=Tsit5()) # similar to rk45
   );
-  diffeq_options=(; alg=Tsit5()) # similar to rk45
 )
 
 # Rodas5P Stiff Numeric Solver
@@ -478,10 +480,11 @@ poppk2cpt_fit_rodas5p = fit(
     nadapts=1_000,
     target_accept=0.8,
     nchains=4,
+    ensemblealg = EnsembleThreads(),
     parallel_subjects=true,
     parallel_chains=true,
+    diffeq_options=(; alg=Rodas5P())
   );
-  diffeq_options=(; alg=Rodas5P())
 )
 
 Pumas.truncate(poppk2cpt_fit; burnin=1_000)
