@@ -454,38 +454,38 @@ poppk2cpt_fit = fit(
 )
 
 # # Non-Stiff Numeric Solver 
-# poppk2cpt_fit_tsit5 = fit(
-#   poppk2cpt_numeric, # checklinear=false
-#   pop,
-#   init_params,
-#   Pumas.BayesMCMC(
-#     nsamples=2_000,
-#     nadapts=1_000,
-#     target_accept=0.8,
-#     nchains=4,
-#     ensemblealg = EnsembleThreads(),
-#     parallel_subjects=true,
-#     parallel_chains=true,
-#     diffeq_options=(; alg=Tsit5()) # similar to rk45
-#   );
-# )
+poppk2cpt_fit_tsit5 = fit(
+  poppk2cpt_numeric, # checklinear=false
+  pop,
+  init_params,
+  Pumas.BayesMCMC(
+    nsamples=2_000,
+    nadapts=1_000,
+    target_accept=0.8,
+    nchains=4,
+    ensemblealg = EnsembleThreads(),
+    parallel_subjects=true,
+    parallel_chains=true,
+    diffeq_options=(; alg=Tsit5()) # similar to rk45
+  );
+)
 
 # Rodas5P Stiff Numeric Solver
-# poppk2cpt_fit_rodas5p = fit(
-#   poppk2cpt_numeric, # checklinear=false
-#   pop,
-#   init_params,
-#   Pumas.BayesMCMC(
-#     nsamples=2_000,
-#     nadapts=1_000,
-#     target_accept=0.8,
-#     nchains=4,
-#     ensemblealg = EnsembleThreads(),
-#     parallel_subjects=true,
-#     parallel_chains=true,
-#     diffeq_options=(; alg=Rodas5P())
-#   );
-# )
+poppk2cpt_fit_rodas5p = fit(
+  poppk2cpt_numeric, # checklinear=false
+  pop,
+  init_params,
+  Pumas.BayesMCMC(
+    nsamples=2_000,
+    nadapts=1_000,
+    target_accept=0.8,
+    nchains=4,
+    ensemblealg = EnsembleThreads(),
+    parallel_subjects=true,
+    parallel_chains=true,
+    diffeq_options=(; alg=Rodas5P())
+  );
+)
 
 truncated_fit = Pumas.truncate(poppk2cpt_fit; burnin=1_000)
 
