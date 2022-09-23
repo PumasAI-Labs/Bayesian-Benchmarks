@@ -11,10 +11,6 @@ pk2cpt_ode = @model begin
         σ ~ truncated(Cauchy(), 0, Inf) # sigma
     end
 
-    @random begin
-        η ~ Normal()
-    end
-
     @pre begin
         CL = tvcl
         Vc = tvvc
@@ -75,17 +71,25 @@ init_params = (;
     σ=0.589695154260051,
 )
 
-pk2cpt_ode_fit = fit(pk2cpt_ode,
-                 pop,
-                 init_params,
-                 Pumas.BayesMCMC(nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4);
-                 # Same options as Torsten: pmx_solve_rk45(..., 1e-5, 1e-8, 1e5)
-                 diffeq_options=(;
-                                 alg=Tsit5(), # 4th/5th order RK Solver
-                                 reltol=1e-5,
-                                 abstol=1e-8,
-                                 maxiters=Int(1e5),
-                                 )
+pk2cpt_ode_fit = fit(
+    pk2cpt_ode,
+    pop,
+    init_params,
+    Pumas.BayesMCMC(
+        nsamples=2_000,
+        nadapts=1_000,
+        target_accept=0.8,
+        nchains=4,
+        ensemblealg = EnsembleThreads(),
+        parallel_chains = true,
+        # Same options as Torsten: pmx_solve_rk45(..., 1e-5, 1e-8, 1e5)
+        diffeq_options = (;
+            alg=Tsit5(), # 4th/5th order RK Solver
+            reltol=1e-5,
+            abstol=1e-8,
+            maxiters=Int(1e5),
+        )
+    );
 )
 
 Pumas.truncate(pk2cpt_ode_fit; burnin=1_000)

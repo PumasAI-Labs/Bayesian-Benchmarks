@@ -19,16 +19,16 @@ hcv_model = @model begin
         logθc ~ Normal(log(7.0), 1)
         logθEC50 ~ Normal(log(0.12), 1)
         # random effects variance parameters, must be posisitive
-        ω²Ka ~ TruncatedNormal(0.25, 1, 0, Inf)
-        ω²Ke ~ TruncatedNormal(0.25, 1, 0, Inf)
-        ω²Vd ~ TruncatedNormal(0.25, 1, 0, Inf)
-        ω²n ~ TruncatedNormal(0.25, 1, 0, Inf)
-        ω²δ ~ TruncatedNormal(0.25, 1, 0, Inf)
-        ω²c ~ TruncatedNormal(0.25, 1, 0, Inf)
-        ω²EC50 ~ TruncatedNormal(0.25, 1, 0, Inf)
+        ω²Ka ~ truncated(Normal(0.25, 1), 0.0, Inf)
+        ω²Ke ~ truncated(Normal(0.25, 1), 0.0, Inf)
+        ω²Vd ~ truncated(Normal(0.25, 1), 0.0, Inf)
+        ω²n ~ truncated(Normal(0.25, 1), 0.0, Inf)
+        ω²δ ~ truncated(Normal(0.25, 1), 0.0, Inf)
+        ω²c ~ truncated(Normal(0.25, 1), 0.0, Inf)
+        ω²EC50 ~ truncated(Normal(0.25, 1), 0.0, Inf)
         # variance parameter in proportional error model
-        σ²PK ~ TruncatedNormal(0.04, 1, 0, Inf)
-        σ²PD ~ TruncatedNormal(0.04, 1, 0, Inf)
+        σ²PK ~ truncated(Normal(0.04, 1), 0.0, Inf)
+        σ²PD ~ truncated(Normal(0.04, 1), 0.0, Inf)
     end
 
     # The random block allows us to specify variances for, and covariances
@@ -81,8 +81,8 @@ hcv_model = @model begin
     @derived begin
         conc := @. A / exp(logVd)
         log10W := @. log10(W)
-        yPK ~ @. TruncatedNormal(A / exp(logVd), sqrt(σ²PK), 0, Inf)
-        yPD ~ @. TruncatedNormal(log10W, sqrt(σ²PD), 0, Inf)
+        yPK ~ @. truncated(Normal(A / exp(logVd), sqrt(σ²PK)), 0, Inf)
+        yPD ~ @. truncated(Normal(log10W, sqrt(σ²PD)), 0, Inf)
     end
 end
 
@@ -94,14 +94,21 @@ select!(df, Not(:route))
 pop = read_pumas(df; observations=[:yPK, :yPD])
 
 # params
-parms = init_params(hcv_model)
+parms = Pumas.init_params(hcv_model)
 
 # Fit
 hcv_fit = fit(
     hcv_model,
     pop,
     parms,
-    Pumas.BayesMCMC(; nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4, progress = false);
+    Pumas.BayesMCMC(;
+        nsamples=2_000,
+        nadapts=1_000,
+        target_accept=0.8,
+        nchains=4,
+        parallel_subjects = true,
+        parallel_chains = true,
+    );
     diffeq_options=(; alg=Rodas5())
 )
 

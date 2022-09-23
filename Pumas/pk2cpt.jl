@@ -11,10 +11,6 @@ pk2cpt = @model begin
         σ ~ truncated(Cauchy(), 0, Inf) # sigma
     end
 
-    @random begin
-        η ~ Normal()
-    end
-
     @pre begin
         CL = tvcl
         Vc = tvvc
@@ -95,9 +91,18 @@ init_params = (;
     σ=0.589695154260051,
 )
 
-pk2cpt_fit = fit(pk2cpt,
-                 pop,
-                 init_params,
-                 Pumas.BayesMCMC(nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4))
+pk2cpt_fit = fit(
+    pk2cpt,
+    pop,
+    init_params,
+    Pumas.BayesMCMC(
+        nsamples=2_000,
+        nadapts=1_000,
+        target_accept=0.8,
+        nchains=4,
+        ensemblealg = EnsembleThreads(),
+        parallel_chains = true,
+    ),
+)
 
 Pumas.truncate(pk2cpt_fit; burnin=1_000)
