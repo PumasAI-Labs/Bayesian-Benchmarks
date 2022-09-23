@@ -28,3 +28,7 @@ rc = stan_sample(
 if success(rc)
     summary_df = read_summary(m, false)
 end
+
+parameters_to_summarize = [:TVCL, :TVVC, :TVQ, :TVVP, :TVKA]
+
+@rsubset summary_df :parameters ∈ parameters_to_summarize
