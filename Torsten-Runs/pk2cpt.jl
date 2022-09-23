@@ -23,5 +23,5 @@ rc = stan_sample(
 )
 
 if success(rc)
-    read_summary(m, false)
+    summary_df = read_summary(m, false)
 end
