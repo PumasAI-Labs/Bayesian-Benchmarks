@@ -14,12 +14,11 @@ STAN_THREADS=true
 TORSTEN_MPI=1
 ```
 
-Then rebuild `CmdStan` in `cmdstanr`:
+Then build `CmdStan`:
 
-```R
-library(cmdstanr)
-set_cmdstan_path("Torsten/cmdstan") # Torsten CmdStan path
-rebuild_cmdstan()
+```bash
+cd Torsten/cmdstan
+make build -jN
 ```
 
-Additionally, we removed the `generated quantities` block from all Stan/Torsten models for a fair comparison.
+where `N` is the number of threads.
