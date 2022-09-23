@@ -453,7 +453,7 @@ poppk2cpt_fit = fit(
   )
 )
 
-# # Non-Stiff Numeric Solver 
+# Non-Stiff Numeric Solver 
 poppk2cpt_fit_tsit5 = fit(
   poppk2cpt_numeric, # checklinear=false
   pop,
