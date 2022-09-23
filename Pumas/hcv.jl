@@ -101,7 +101,7 @@ hcv_fit = fit(
     hcv_model,
     pop,
     parms,
-    Pumas.BayesMCMC(; nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4);
+    Pumas.BayesMCMC(; nsamples=2_000, nadapts=1_000, target_accept=0.8, nchains=4, progress = false);
     diffeq_options=(; alg=Rodas5())
 )
 

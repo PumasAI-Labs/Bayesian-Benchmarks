@@ -79,7 +79,7 @@ pop = read_pumas(df;
 )
 
 # Inits from Pumas
-init_params = (
+iparams = (
     θ = [
          2.29293650954706,
          2.78187002197878,
@@ -135,13 +135,14 @@ init_params = (
 
 friberg_fit = fit(friberg,
                  pop,
-                 init_params,
+                 iparams,
                  Pumas.BayesMCMC(nsamples=2_000,
                                  nadapts=1_000,
                                  target_accept=0.8,
                                  nchains=4,
                                  parallel_subjects=true,
-                                 parallel_chains=true))
+                                 parallel_chains=true,
+                                 progress = false))
 
 Pumas.truncate(friberg_fit; burnin=1_000)
 

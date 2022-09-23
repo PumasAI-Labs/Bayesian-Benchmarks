@@ -449,6 +449,7 @@ poppk2cpt_fit = fit(
     nchains=4,
     parallel_subjects=true,
     parallel_chains=true,
+    progress = false,
   )
 )
 
@@ -464,6 +465,7 @@ poppk2cpt_fit_tsit5 = fit(
     nchains=4,
     parallel_subjects=true,
     parallel_chains=true,
+    progress = false,
   );
   diffeq_options=(; alg=Tsit5()) # similar to rk45
 )
@@ -480,6 +482,7 @@ poppk2cpt_fit_rodas5p = fit(
     nchains=4,
     parallel_subjects=true,
     parallel_chains=true,
+    progress = false,
   );
   diffeq_options=(; alg=Rodas5P())
 )
