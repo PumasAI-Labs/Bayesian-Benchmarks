@@ -7,7 +7,7 @@ using DataFramesMeta
 Stan.set_cmdstan_home!(joinpath(@__DIR__, "..", "Torsten", "cmdstan"))
 
 m_str = read(joinpath(@__DIR__, "..", "Torsten", "example-models", "poppk2cpt", "depot_2cmt_match_metrum_half_normal_omega_ode.stan"), String)
-m = SampleModel("pk2cpt", m_str)
+m = SampleModel("poppk2cpt", m_str)
 
 # data and inits
 # 1 => linode (matrix exponential), 2 => general ode (rk45), 3 => general ode (bdf)
