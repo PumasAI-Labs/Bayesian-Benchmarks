@@ -553,3 +553,13 @@ ridgeline_plot(truncated_fit; subject = 1)
 
 parameters = Symbol.(["C₂,₁", "C₃,₁", "C₄,₁", "C₅,₁"])
 corner_plot(truncated_fit; subject = 1)
+
+# Simulation from the posterior for subject 1
+sims = simobs(truncated_fit, subject = 1, samples = 500)
+vpc_res = vpc(sims)
+vpc_plot(vpc_res)
+
+# Simulation from the posterior from a new subject
+sims = simobs(truncated_fit, pop[1], samples = 500)
+vpc_res = vpc(sims)
+vpc_plot(vpc_res)
