@@ -489,6 +489,8 @@ poppk2cpt_fit_rodas5p = fit(
 
 truncated_fit = Pumas.truncate(poppk2cpt_fit; burnin=1_000)
 
+# PSIS LOO crossvalidation
+
 cv_method = Pumas.PSISCrossvalidation(
   Pumas.LeaveFutureK(K = 1),
   Pumas.BySubject(),
@@ -519,3 +521,35 @@ ax3 = Axis(fig[1,3])
 scatter!(ax3, y1, y2)
 fig
 save("Pumas/psis_loo_elpd.png", fig)
+
+# MCMC diagnostic plots
+
+parameters = [:tvcl]
+trace_plot(truncated_fit; parameters)
+
+parameters = Symbol.(["C₂,₁", "C₃,₁", "C₄,₁", "C₅,₁"])
+trace_plot(truncated_fit; parameters)
+
+parameters = [:ω₁, :ω₂]
+trace_plot(truncated_fit; parameters)
+
+subjects = [1, 2]
+trace_plot(truncated_fit; subjects)
+
+parameters = [:ω₁, :ω₂]
+subjects = [1, 2]
+
+cummean_plot(truncated_fit; parameters)
+cummean_plot(truncated_fit; subjects)
+
+density_plot(truncated_fit; parameters)
+density_plot(truncated_fit; subjects)
+
+autocor_plot(truncated_fit; parameters)
+autocor_plot(truncated_fit; subjects)
+
+ridgeline_plot(truncated_fit; parameters)
+ridgeline_plot(truncated_fit; subject = 1)
+
+parameters = Symbol.(["C₂,₁", "C₃,₁", "C₄,₁", "C₅,₁"])
+corner_plot(truncated_fit; subject = 1)
