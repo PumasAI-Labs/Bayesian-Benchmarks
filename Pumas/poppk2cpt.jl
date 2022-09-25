@@ -490,6 +490,11 @@ poppk2cpt_fit_rodas5p = fit(
 truncated_fit = Pumas.truncate(poppk2cpt_fit; burnin=1_000)
 
 cv_method = Pumas.PSISCrossvalidation(
+  Pumas.LeaveFutureK(K = 1),
+  Pumas.BySubject(),
+)
+
+cv_method = Pumas.PSISCrossvalidation(
   Pumas.LeaveK(K = 1),
   Pumas.ByObservation(allsubjects = false),
 )
@@ -497,3 +502,20 @@ cv_res = Pumas.crossvalidate(truncated_fit, cv_method);
 pointwise = DataFrame(cv_res.psis_cv.psis_cv.pointwise);
 upointwise = unstack(pointwise, :statistic, :value)
 Pumas.elpd(cv_res)
+
+using CSV, CairoMakie
+
+torsten_loo = DataFrame(CSV.File("Torsten-Runs/loo-CV/loo_poppk2cpt-reduce_sum.csv"))
+
+y1 = upointwise.cv_elpd
+y2 = torsten_loo.elpd_loo
+
+fig = Figure()
+ax1 = Axis(fig[1,1])
+hist!(ax1, y1, color = :red)
+ax2 = Axis(fig[1,2])
+hist!(ax2, y2, color = :blue)
+ax3 = Axis(fig[1,3])
+scatter!(ax3, y1, y2)
+fig
+save("Pumas/psis_loo_elpd.png", fig)
