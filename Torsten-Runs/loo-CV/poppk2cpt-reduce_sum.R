@@ -117,7 +117,7 @@ model_normal <- cmdstan_model(
   cpp_options = list(stan_threads = TRUE)
 )
 
-fit_normal <- model_normal$sample(
+fit_normal_run1 <- model_normal$sample(
   data = stan_data,
   chains = 4,
   parallel_chains = 4,
@@ -127,20 +127,62 @@ fit_normal <- model_normal$sample(
   adapt_delta = 0.8,
   refresh = 100,
   max_treedepth = 10,
+  seed=1,
   init = file.path(
     "Torsten", "example-models", "poppk2cpt",
     "poppk2cpt.init_cd.R"
   )
 )
 
-fit_normal$save_object(file.path(
+fit_normal_run2 <- model_normal$sample(
+  data = stan_data,
+  chains = 4,
+  parallel_chains = 4,
+  threads_per_chain = 8,
+  iter_warmup = 1000,
+  iter_sampling = 1000,
+  adapt_delta = 0.8,
+  refresh = 100,
+  max_treedepth = 10,
+  seed=2,
+  init = file.path(
+    "Torsten", "example-models", "poppk2cpt",
+    "poppk2cpt.init_cd.R"
+  )
+)
+
+fit_normal_run1$save_object(file.path(
   "Torsten-Runs",
-  "poppk2cpt_fit_normal.rds"
+  "poppk2cpt_fit_normal_run1.rds"
+))
+
+fit_normal_run2$save_object(file.path(
+  "Torsten-Runs",
+  "poppk2cpt_fit_normal_run2.rds"
 ))
 
 # ELPD
-fit_normal_loo <- fit_normal$loo()
-loo_df <- fit_normal_loo$pointwise %>%
+fit_normal_loo_run1 <- fit_normal_run1$loo()
+fit_normal_loo_run2 <- fit_normal_run2$loo()
+loo_df_run1 <- fit_normal_loo_run1$pointwise %>%
+  as_data_frame() %>%
+  mutate(
+    row_number = row_number()
+  ) %>%
+  left_join(
+    nonmem_data %>%
+      filter(evid == 0) %>%
+      transmute(
+        row_number = row_number(),
+        ID, time, DV, bloq
+      ),
+    by = "row_number"
+  ) %>%
+  relocate(
+    row_number,
+    .before = elpd_loo
+  )
+loo_df_run2 <- fit_normal_loo_run2$pointwise %>%
   as_data_frame() %>%
   mutate(
     row_number = row_number()
@@ -159,10 +201,16 @@ loo_df <- fit_normal_loo$pointwise %>%
     .before = elpd_loo
   )
 
-loo_df %>% write_csv(file.path(
+loo_df_run1 %>% write_csv(file.path(
   "Torsten-Runs",
   "loo-CV",
-  "loo_poppk2cpt-reduce_sum.csv"
+  "loo_poppk2cpt-reduce_sum_run1.csv"
+))
+
+loo_df_run2 %>% write_csv(file.path(
+  "Torsten-Runs",
+  "loo-CV",
+  "loo_poppk2cpt-reduce_sum_run2.csv"
 ))
 
 
