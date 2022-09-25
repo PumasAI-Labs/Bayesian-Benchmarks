@@ -559,6 +559,26 @@ sims = simobs(truncated_fit, subject = 1, samples = 500)
 vpc_res = vpc(sims)
 vpc_plot(vpc_res)
 
+# Mean of predictions
+mean(sims) do sim, data
+  sim.dv
+end
+
+# Probability of prediction > data
+mean(sims) do sim, data
+  mean(sim.dv .> data.dv)
+end
+
+# Mean of Cholesky factor of correlation matrix
+mean(sims) do sim, data
+  cholesky(sim.C.mat).L
+end
+
+# Mean of subject specific parameters
+mean(sims) do sim, data
+  sim.ηstd
+end
+
 # Simulation from the posterior from a new subject
 sims = simobs(truncated_fit, pop[1], samples = 500)
 vpc_res = vpc(sims)
