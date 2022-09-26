@@ -13,10 +13,13 @@ include(joinpath(@__DIR__, "pk2cpt_data.jl"))
 
 rc = stan_sample(
     m;
-    use_cpp_chains=true,
     data=stan_data,
     init=stan_init,
     num_chains=4,
+    use_cpp_chains=true,
+    check_num_chains=false,
+    num_cpp_chains=4,
+    num_threads=Threads.nthreads(),
     num_samples=1_000,
     num_warmups=1_000,
     delta=0.8
