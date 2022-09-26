@@ -1,5 +1,12 @@
+*
+!*.*
+!*/
+*.exe
+
 Manifest.toml
 .vscode/
 *.Rproj.user
 *.Rproj
 *.rds
+.Rproj.user
+
