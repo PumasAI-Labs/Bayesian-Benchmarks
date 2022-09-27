@@ -1,4 +1,5 @@
 ENV["CMDSTAN"] = joinpath(@__DIR__, "..", "Torsten", "cmdstan")
+ENV["STAN_NUM_THREADS"] = Threads.nthreads()
 using Stan
 using StanSample
 
@@ -16,11 +17,15 @@ rc = stan_sample(
     use_cpp_chains=true,
     data=stan_data,
     init=stan_init,
-    num_chains=4,
+    num_cpp_chains=4,
+    num_threads=Threads.nthreads(),
     num_samples=1_000,
     num_warmups=1_000,
     delta=0.8
 )
+
+# to see the logs while sampling do in a terminal:
+# ;cat "$(joinpath(m.tmpdir, m.name*"_log_1.log"))"
 
 if success(rc)
     summary_df = read_summary(m, false)
