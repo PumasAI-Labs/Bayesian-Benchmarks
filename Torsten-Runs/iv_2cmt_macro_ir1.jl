@@ -18,15 +18,17 @@ rc = stan_sample(
     data=stan_data,
     init=stan_init,
     num_chains=4,
-    num_samples=1_000,
-    num_warmups=1_000,
-    delta=0.8
+    num_samples=500,
+    num_warmups=100,
+    delta=0.98,
+    max_depth=15,
+    refresh=5
 )
 
 if success(rc)
     summary_df = read_summary(m, false)
 end
 
-parameters_to_summarize = [:TVCL, :TVVC, :TVQ, :TVVP, :TVKA]
+parameters_to_summarize = [:TVCL, :TVVC, :TVQ, :TVVP, :TVKIN, :TVKOUT, :TVIC50]
 
 @rsubset summary_df :parameters ∈ parameters_to_summarize
