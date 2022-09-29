@@ -8,30 +8,35 @@ $INPUT TIME ID II EVID DV CMT ADDL AMT
 $SUB ADVAN4 TRANS4 	;; 2-comp with first order absorption
 
 $PK
-  TVKA = THETA(5)
-  KA = TVKA
 
-  TVCL = THETA(1) * EXP(ETA(1))
-  CL = TVCL
-  MU_1 = LOG(TVCL)
+  MU_1 = THETA(1)
+  TVCL = EXP(MU_1)
+  CL = TVCL * EXP(ETA(1))
 
-  TVV2  = THETA(3)
+  MU_2 = THETA(2)
+  TVV2  = EXP(MU_2)
   V2 = TVV2
 
-  TVQ = THETA(2)
+  MU_3 = THETA(3)
+  TVQ = EXP(MU_3)
   Q = TVQ
 
-  TVV3  = THETA(4)
+  MU_4 = THETA(4)
+  TVV3  = EXP(MU_4)
   V3 = TVV3
+  
+  MU_5 = THETA(5)
+  TVKA = EXP(MU_5)
+  KA = TVKA
 
   S2 = V2  ;; Scaling compartment (check units of dose and observations)
 
 $THETA     ;; initial values
-  7.4367958406427  	   ;1 CL
-  28.0799996152587     ;2 Q
-  78.4460632446725     ;3 Vc
-  68.1255965629187     ;4 Vp
-  1.0811298754049      ;5 Ka
+  2.0           	   ;1 CL log(7.4367958406427)
+  3.33                 ;2 Q  log(28.0799996152587)
+  4.36                 ;3 Vc log(78.4460632446725)
+  4.22                 ;4 Vp log(68.1255965629187)
+  0.078                ;5 Ka log(1.0811298754049)
 
 $OMEGA
  0.0 FIX  ;; one subject
@@ -39,9 +44,9 @@ $OMEGA
 $SIGMA
   0.589695154260051  ;residual variability
 
-$ERROR  	;; Calculation based on linear (non log-transformed) data
-  IPRED = F
-  Y= IPRED+ERR(1)
+$ERROR  	;; Calculation based on linear (log-transformed) data
+  IPRED = log(F)
+  Y = IPRED + ERR(1)
 
 ;; bayesian part
 $PRIOR NWPRI
@@ -63,7 +68,7 @@ $OMEGAPD (1.0 FIX) ;; df for OMEGA prior
 $SIGMAP (0.0 FIX)  ;; prior information for SIGMA
 $SIGMAPD (1.0 FIX) ;; df for SIGMA prior
 
-;;$EST MAXEVAL=99999 SIG=3 PRINT=5 NOABORT INTERACTION  	;; Estimation method
-$EST METHOD=NUTS AUTO=0 PRINT=20 NBURN=1000 NITER=2000 NUTS_MAXDEPTH=10 NUTS_DELTA=0.8
+;; 4 chains in parallels
+$EST METHOD=NUTS AUTO=0 PRINT=100 NBURN=1000 SEED=1 NITER=1000 NUTS_MAXDEPTH=10 NUTS_DELTA=0.8 FILE = /dev/null
 
 $COV PRINT=E UNCONDITIONAL
