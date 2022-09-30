@@ -11,7 +11,7 @@ $PK
 
   MU_1 = THETA(1)
   TVCL = EXP(MU_1)
-  CL = TVCL * EXP(ETA(1))
+  CL = TVCL
 
   MU_2 = THETA(2)
   TVV2  = EXP(MU_2)
@@ -32,14 +32,14 @@ $PK
   S2 = V2  ;; Scaling compartment (check units of dose and observations)
 
 $THETA     ;; initial values
-  2.0           	   ;1 CL log(7.4367958406427)
+  2.0           	     ;1 CL log(7.4367958406427)
   3.33                 ;2 Q  log(28.0799996152587)
   4.36                 ;3 Vc log(78.4460632446725)
   4.22                 ;4 Vp log(68.1255965629187)
   0.078                ;5 Ka log(1.0811298754049)
 
 $OMEGA
- 0.0 FIX  ;; one subject
+ 0.4 FIX  ;; one subject
 
 $SIGMA
   0.589695154260051  ;residual variability
@@ -69,6 +69,7 @@ $SIGMAP (0.0 FIX)  ;; prior information for SIGMA
 $SIGMAPD (1.0 FIX) ;; df for SIGMA prior
 
 ;; 4 chains in parallels
-$EST METHOD=NUTS AUTO=0 PRINT=100 NBURN=1000 SEED=1 NITER=1000 NUTS_MAXDEPTH=10 NUTS_DELTA=0.8 FILE = /dev/null
+$EST METHOD=NUTS AUTO=0 PRINT=100 NBURN=1000 SEED=1 NITER=1000 NUTS_MAXDEPTH=10 NUTS_DELTA=0.8 FILE=/dev/null
+;;$EST METHOD=BAYES AUTO=1 PRINT=100 NBURN=1000 NITER=1000
 
 $COV PRINT=E UNCONDITIONAL
