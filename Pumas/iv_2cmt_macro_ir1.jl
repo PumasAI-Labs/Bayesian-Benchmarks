@@ -68,7 +68,7 @@ iv_2cmt_macro_ir1 = @model begin
     conc := @. Central / Vc
     resp := Resp
     # censoring for lloq and bloq
-    dv_PK ~ @. censored(LogNormal(log(conc), sqrt(σ_a^2 + (conc * σ_p)^2)), 0.5, Inf)
+    dv_PK ~ @. censored(truncated(Normal(log(conc), sqrt(σ_a^2 + (conc * σ_p)^2)), 0, Inf), 0.5, Inf)
     dv_PD ~ @. censored(LogNormal(log(resp), sqrt(σ_PD)), 3.0, Inf)
   end
 end
@@ -163,12 +163,12 @@ df_temp_PK = @rsubset df :cmt == 2
 df_temp_PD = @rsubset df :cmt == 4
 rename!(df_temp_PK, :dv => :dv_PK)
 rename!(df_temp_PD, :dv => :dv_PD)
-# changing dosing evids
-@rtransform! df_temp_PK :dv_PK = :evid == 1 ? missing : :dv_PK
 # adding `lloq` manually
 @rtransform! df_temp_PK :dv_PK = :dv_PK >= 5.5e6 ? 0.5 : :dv_PK
 @rtransform! df_temp_PD :dv_PD = :dv_PD >= 5.5e6 ? 3.0 : :dv_PD
 @rselect! df_temp_PK $(Not([:lloq, :bloq]))
+# changing dosing evids
+@rtransform! df_temp_PK :dv_PK = :evid == 1 ? missing : :dv_PK
 # dropping additional stuff from df_temp_PD
 @select! df_temp_PD :id :time :evid :dv_PD
 # join them together
