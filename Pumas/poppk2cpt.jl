@@ -1,5 +1,7 @@
 using Pumas # branch mt/corr_cholesky3
 using DataFrames
+using CSV
+using CairoMakie
 
 poppk2cpt = @model begin
   @param begin
@@ -447,7 +449,7 @@ poppk2cpt_fit = fit(
     nadapts=1_000,
     target_accept=0.8,
     nchains=4,
-    ensemblealg = EnsembleThreads(),
+    ensemblealg=EnsembleThreads(),
     parallel_subjects=true,
     parallel_chains=true,
   )
@@ -463,7 +465,7 @@ poppk2cpt_fit_tsit5 = fit(
     nadapts=1_000,
     target_accept=0.8,
     nchains=4,
-    ensemblealg = EnsembleThreads(),
+    ensemblealg=EnsembleThreads(),
     parallel_subjects=true,
     parallel_chains=true,
     diffeq_options=(; alg=Tsit5()) # similar to rk45
@@ -480,11 +482,114 @@ poppk2cpt_fit_rodas5p = fit(
     nadapts=1_000,
     target_accept=0.8,
     nchains=4,
-    ensemblealg = EnsembleThreads(),
+    ensemblealg=EnsembleThreads(),
     parallel_subjects=true,
     parallel_chains=true,
     diffeq_options=(; alg=Rodas5P())
   );
 )
 
-Pumas.truncate(poppk2cpt_fit; burnin=1_000)
+truncated_fit = Pumas.truncate(poppk2cpt_fit; burnin=1_000)
+
+# PSIS LOO crossvalidation
+
+cv_method = Pumas.PSISCrossvalidation(
+  Pumas.LeaveFutureK(K=1),
+  Pumas.BySubject(),
+)
+
+cv_method = Pumas.PSISCrossvalidation(
+  Pumas.LeaveK(K=1),
+  Pumas.ByObservation(allsubjects=false),
+)
+cv_res = Pumas.crossvalidate(truncated_fit, cv_method);
+pointwise = DataFrame(cv_res.psis_cv.psis_cv.pointwise);
+upointwise = unstack(pointwise, :statistic, :value)
+Pumas.elpd(cv_res)
+
+# Images
+torsten_loo = DataFrame(CSV.File("Torsten-Runs/loo-CV/loo_poppk2cpt-reduce_sum.csv"))
+
+y1 = upointwise.cv_elpd
+y2 = torsten_loo.elpd_loo
+
+fig = Figure()
+supertitle = fig[0, 1:3] = Label(fig, "Cross-validation ELPD - Pumas versus Torsten(Stan)", textsize=26)
+ax1 = Axis(fig[1, 1]; title="Pumas")
+hist!(ax1, y1, color=:red)
+ax2 = Axis(fig[2, 1], title="Torsten (Stan)")
+hist!(ax2, y2, color=:blue)
+ax3 = Axis(fig[1:2, 2:3]; title="Comparison", xlabel="Pumas", ylabel="Torsten")
+scatter!(ax3, y1, y2)
+linkaxes!(ax1, ax2)
+hidexdecorations!(ax1, grid=false)
+label_a = fig[1, 1, TopLeft()] = Label(fig, "A", textsize=24,
+  halign=:right)
+label_b = fig[2, 1, TopLeft()] = Label(fig, "B", textsize=24,
+  halign=:right)
+label_c = fig[1, 2, TopLeft()] = Label(fig, "C", textsize=24,
+  halign=:right)
+fig
+save("Pumas/psis_loo_elpd.png", fig; px_per_unit=3)
+
+# MCMC diagnostic plots
+
+parameters = [:tvcl]
+trace_plot(truncated_fit; parameters)
+
+parameters = Symbol.(["C₂,₁", "C₃,₁", "C₄,₁", "C₅,₁"])
+trace_plot(truncated_fit; parameters)
+
+parameters = [:ω₁, :ω₂]
+trace_plot(truncated_fit; parameters)
+
+subjects = [1, 2]
+trace_plot(truncated_fit; subjects)
+
+parameters = [:ω₁, :ω₂]
+subjects = [1, 2]
+
+cummean_plot(truncated_fit; parameters)
+cummean_plot(truncated_fit; subjects)
+
+density_plot(truncated_fit; parameters)
+density_plot(truncated_fit; subjects)
+
+autocor_plot(truncated_fit; parameters)
+autocor_plot(truncated_fit; subjects)
+
+ridgeline_plot(truncated_fit; parameters)
+ridgeline_plot(truncated_fit; subject=1)
+
+parameters = Symbol.(["C₂,₁", "C₃,₁", "C₄,₁", "C₅,₁"])
+corner_plot(truncated_fit; subject=1)
+
+# Simulation from the posterior for subject 1
+sims = simobs(truncated_fit, subject=1, samples=500)
+vpc_res = vpc(sims)
+vpc_plot(vpc_res)
+
+# Mean of predictions
+mean(sims) do sim, data
+  sim.dv
+end
+
+# Probability of prediction > data
+mean(sims) do sim, data
+  mean(sim.dv .> data.dv)
+end
+
+# Mean of Cholesky factor of correlation matrix
+mean(sims) do sim, data
+  cholesky(sim.C.mat).L
+end
+
+# Mean of subject specific parameters
+mean(sims) do sim, data
+  sim.ηstd
+end
+
+# Simulation from the posterior from a new subject
+sims = simobs(truncated_fit, pop[1], samples=500)
+vpc_res = vpc(sims)
+vpc_plot(vpc_res)
