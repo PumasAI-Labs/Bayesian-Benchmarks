@@ -42,7 +42,7 @@ data{
   int<lower=1> nSubjects;
   array[nObs] int<lower=1> iObs;
   array[nSubjects] int<lower=1> start;
-  array[nSubjects] int<lower=1> finish;
+  array[nSubjects] int<lower=1> end;
   array[nt] int<lower=1> cmt;
   array[nt] int evid;
   array[nt] int addl;
@@ -112,8 +112,8 @@ transformed parameters{
     // inital conditions to W (x[5])
     real init_W = fmax(machine_precision(),
                        (s * e * p - d * exp(parms[6] + parms[5])) / (exp(parms[6] + parms[7]) * e));
-    conc[start[j]:finish[j]] = x[2, start[j]:finish[j]] ./ exp(parms[3]);     // divide by exp(logVd)
-    log10W[start[j]:finish[j]] = log10(x[5, start[j]:finish[j]] + init_W);    // log10(W)
+    conc[start[j]:end[j]] = x[2, start[j]:end[j]] ./ exp(parms[3]);     // divide by exp(logVd)
+    log10W[start[j]:end[j]] = log10(x[5, start[j]:end[j]] + init_W);    // log10(W)
   }
 
   concObs  = conc[iObs];
