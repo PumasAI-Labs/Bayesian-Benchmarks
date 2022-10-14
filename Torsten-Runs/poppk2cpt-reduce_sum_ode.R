@@ -1,0 +1,177 @@
+library(dplyr)
+library(tibble)
+library(cmdstanr)
+
+set_cmdstan_path("Torsten/cmdstan")
+
+data <- rstan::read_rdump("Torsten/example-models/poppk2cpt/poppk2cpt.data.R")
+
+nonmem_data <- tibble(
+  c = NA_real_,
+  time = data$time,
+  amt = data$amt,
+  evid = data$evid,
+  rate = data$rate,
+  addl = data$addl,
+  ii = data$ii,
+  cmt = data$cmt,
+  bloq = 0,
+  lloq = 0,
+  ss = data$ss
+) %>%
+  mutate(
+    i = 1:n(),
+    ID = cut(1:n(),
+             breaks = c(data$start, last(data$end)),
+             labels = FALSE, right = FALSE, include.lowest = TRUE
+    )
+  ) %>%
+  left_join(tibble(
+    DV = data$cObs,
+    i = data$iObs
+  ),
+  by = "i"
+  ) %>%
+  mutate(DV = if_else(is.na(DV),
+                      5555555,
+                      DV
+  )) %>% # This value can be anything > 0. It'll be indexed away
+  select(c, ID, everything(), -i)
+
+n_subjects <- nonmem_data %>% # number of individuals
+  distinct(ID) %>%
+  count() %>%
+  deframe()
+
+n_total <- nrow(nonmem_data) # total number of records
+
+i_obs <- nonmem_data %>%
+  mutate(row_num = 1:n()) %>%
+  filter(evid == 0) %>%
+  select(row_num) %>%
+  deframe()
+
+n_obs <- length(i_obs)
+
+subj_start <- nonmem_data %>%
+  mutate(row_num = 1:n()) %>%
+  group_by(ID) %>%
+  slice_head(n = 1) %>%
+  ungroup() %>%
+  select(row_num) %>%
+  deframe()
+
+subj_end <- c(subj_start[-1] - 1, n_total)
+
+## Fit the same model that Metrum fits (exponential error, lognormal priors).
+## The few differences are:
+## 1) Half-normal prior with no upper bound on omegas rather than uniform on
+##        (0.01, 2)
+## 2) No upper bound on the population parameters
+##
+
+stan_data <- with(
+  nonmem_data,
+  list(
+    n_subjects = n_subjects,
+    n_total = n_total,
+    n_obs = n_obs,
+    i_obs = i_obs,
+    ID = ID,
+    amt = amt,
+    cmt = cmt,
+    evid = evid,
+    rate = rate,
+    ii = ii,
+    addl = addl,
+    ss = ss,
+    time = time,
+    dv = DV,
+    subj_start = subj_start,
+    subj_end = subj_end,
+    lloq = lloq,
+    bloq = bloq,
+    location_tvcl = 10,
+    location_tvvc = 35,
+    location_tvq = 15,
+    location_tvvp = 105,
+    location_tvka = 2.5,
+    scale_tvcl = 0.25,
+    scale_tvvc = 0.25,
+    scale_tvq = 0.5,
+    scale_tvvp = 0.5,
+    scale_tvka = 1,
+    scale_omega_cl = 0.4,
+    scale_omega_vc = 0.4,
+    scale_omega_q = 0.4,
+    scale_omega_vp = 0.4,
+    scale_omega_ka = 0.4,
+    lkj_df_omega = 2,
+    scale_sigma = 5,
+    solver = 1 # 1 => linode (matrix exponential), 2 => general ode (rk45), 3 => general ode (bdf)
+  )
+)
+
+model_normal <- cmdstan_model(
+  "Torsten/example-models/poppk2cpt/depot_2cmt_match_metrum_half_normal_omega_ode.stan", 
+  cpp_options = list(stan_threads = TRUE)
+)
+
+fit_normal_lin <- model_normal$sample(
+  data = stan_data,
+  chains = 4,
+  parallel_chains = 4,
+  threads_per_chain = 8,
+  iter_warmup = 1000,
+  iter_sampling = 1000,
+  adapt_delta = 0.8,
+  refresh = 100,
+  max_treedepth = 10,
+  init = file.path(
+    "Torsten", "example-models", "poppk2cpt",
+    "poppk2cpt.init_cd.R"
+  )
+)
+
+stan_data$solver <- 2
+fit_normal_rk45 <- model_normal$sample(
+  data = stan_data,
+  chains = 4,
+  parallel_chains = 4,
+  threads_per_chain = 8,
+  iter_warmup = 1000,
+  iter_sampling = 1000,
+  adapt_delta = 0.8,
+  refresh = 100,
+  max_treedepth = 10,
+  init = file.path(
+    "Torsten", "example-models", "poppk2cpt",
+    "poppk2cpt.init_cd.R"
+  )
+)
+
+stan_data$solver <- 3
+fit_normal_bdf <- model_normal$sample(
+  data = stan_data,
+  chains = 4,
+  parallel_chains = 4,
+  threads_per_chain = 8,
+  iter_warmup = 1000,
+  iter_sampling = 1000,
+  adapt_delta = 0.8,
+  refresh = 100,
+  max_treedepth = 10,
+  init = file.path(
+    "Torsten", "example-models", "poppk2cpt",
+    "poppk2cpt.init_cd.R"
+  )
+)
+
+fit_normal_lin$time()$total # 290s  for 2 parallel chains, 8 threads/chain, 200 warmup, 400 sampling
+fit_normal_rk45$time()      # 1922s  "     "                      "            "            " 
+fit_normal_bdf$time()       # 4611s  "     "                      "            "            " 
+
+parameters_to_summarize <- c("TVCL", "TVVC", "TVQ", "TVVP", "TVKA")
+fit_normal_lin$summary(parameters_to_summarize)
+fit_normal_rk45$summary(parameters_to_summarize)
+fit_normal_bdf$summary(parameters_to_summarize)
