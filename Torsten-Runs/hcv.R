@@ -27,7 +27,7 @@ iObs <- df %>% mutate(iObs = row_number()) %>% filter(evid == 0) %>% pull(iObs)
 nSubjects <- df %>% pull(id) %>% unique %>% length
 step <- 15
 start <- c(1, 1+step, 1+step+step)
-end <- c(15, 15+step, 15+step+step)
+finish <- c(15, 15+step, 15+step+step)
 yPK <- df$yPK %>% na.omit
 yPD <- df$yPD %>% na.omit
 
@@ -37,7 +37,7 @@ stan_data <- list(
   nSubjects = nSubjects,
   iObs = iObs,
   start = start,
-  end = end,
+  finish = finish,
   cmt = cmt,
   evid = evid,
   addl = addl,
