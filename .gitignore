@@ -11,5 +11,5 @@ Manifest.toml
 .vscode/
 *.Rproj.user
 *.Rproj
-# *.rds
+*.rds
 .Rproj.user
