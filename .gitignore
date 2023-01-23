@@ -1,5 +1,15 @@
+*
+!*.*
+!*/
+*.exe 
+
+*_cache
+*_files
+
 Manifest.toml
+*.DS_Store
 .vscode/
 *.Rproj.user
 *.Rproj
-*.rds
+# *.rds
+.Rproj.user
