@@ -6,7 +6,7 @@ library(tidybayes)
 library(cmdstanr)
 library(tidyverse)
 
-set_cmdstan_path("~/Torsten/cmdstan")
+set_cmdstan_path("Torsten/cmdstan")
 
 model_simulate <- 
   cmdstan_model("Model1/Stan/Torsten/Simulate/depot_1cmt_ppa.stan") 
@@ -125,7 +125,8 @@ data <- simulated_data$draws(c("dv"), format = "draws_df") %>%
              by = "i") %>%
   select(TRIAL, ID, AMT, RATE, II, ADDL, CMT, EVID, SS, TIME, DV = "dv")
   
-  
+dir.create(file.path("Model1", "Data"))
+
 data %>% 
   group_split(TRIAL) %>% 
   walk(~ write_csv(.x, file.path("Model1", "Data", 

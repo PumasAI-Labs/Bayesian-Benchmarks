@@ -6,7 +6,7 @@ library(tidybayes)
 library(posterior)
 library(tidyverse)
 
-set_cmdstan_path("~/Torsten/cmdstan")
+set_cmdstan_path("Torsten/cmdstan")
 
 fit <- read_rds("Model1/Stan/Torsten/Fits/001.rds")
 

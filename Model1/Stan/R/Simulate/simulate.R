@@ -6,7 +6,7 @@ library(tidybayes)
 library(cmdstanr)
 library(tidyverse)
 
-set_cmdstan_path("~/Torsten/cmdstan")
+set_cmdstan_path("Torsten/cmdstan")
 
 model_simulate <- 
   cmdstan_model("Model1/Stan/Torsten/Simulate/depot_1cmt_ppa.stan") 
@@ -133,6 +133,7 @@ simulate_data_and_write_csv <- function(trial_number, nonmem_data_simulate){
   
 }
 
+dir.create(file.path("Model1", "Data"))
 
 params_ind <- map_dfr(1:n_trials, simulate_data_and_write_csv,
                       nonmem_data_simulate = nonmem_data_simulate)

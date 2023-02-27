@@ -7,7 +7,7 @@ library(tidybayes)
 library(cmdstanr)
 library(tidyverse)
 
-set_cmdstan_path("~/Torsten/cmdstan")
+set_cmdstan_path("Torsten/cmdstan")
 
 model_simulate <- cmdstan_model(
     "Model2/depot_2cmt_linear/Stan/Torsten/Simulate/depot_2cmt_ppa.stan") 

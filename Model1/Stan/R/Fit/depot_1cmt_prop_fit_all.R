@@ -4,7 +4,7 @@ cat("\014")
 library(cmdstanr)
 library(tidyverse)
 
-set_cmdstan_path("~/Torsten/cmdstan")
+set_cmdstan_path("Torsten/cmdstan")
 
 read_data_and_fit <- function(trial_number, model){
   

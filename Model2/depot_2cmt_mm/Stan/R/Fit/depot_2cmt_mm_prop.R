@@ -4,7 +4,7 @@ cat("\014")
 library(cmdstanr)
 library(tidyverse)
 
-# set_cmdstan_path("~/Torsten/cmdstan")
+# set_cmdstan_path("Torsten/cmdstan")
 set_cmdstan_path("/opt/Torsten/cmdstan")
 
 nonmem_data <- read_csv("Model2/depot_2cmt_mm/Data/single_dose.csv",
