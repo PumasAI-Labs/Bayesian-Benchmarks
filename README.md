@@ -1,8 +1,6 @@
-# ACoP 13 Bayesian Workshop
+# Bayesian Benchmarks
 
-## Benchmarks
-
-### `Torsten` Setup
+## `Torsten` Setup
 
 - `Torsten` version 0.90.0, which comes with `CmdStan` 2.29.2.
 - `OpenMPI` version 4.1.2.
