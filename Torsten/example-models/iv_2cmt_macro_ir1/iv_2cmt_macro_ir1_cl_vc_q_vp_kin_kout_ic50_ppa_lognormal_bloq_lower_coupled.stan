@@ -306,8 +306,8 @@ transformed data{
   real imax = 1.0;
   real hill = 1.0;
   
-  array[n_cmt] real bioav = rep_array(1.0, 10);
-  array[n_cmt] real tlag = rep_array(0.0, 10);
+  array[n_cmt + n_ode] real bioav = rep_array(1.0, n_cmt + n_ode);
+  array[n_cmt + n_ode] real tlag = rep_array(0.0, n_cmt + n_ode);
 }
 parameters{ 
   
