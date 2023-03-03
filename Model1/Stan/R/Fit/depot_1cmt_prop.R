@@ -120,5 +120,7 @@ fit <- model$sample(data = stan_data,
                                            omega = rlnorm(3, log(0.3), 0.3),
                                            sigma_p = rlnorm(1, log(0.2), 0.3)))
 
-convert_csv_to_arrow(fit$output_files(), file.path("Model1/Stan/Torsten/Fits/"))
+time_chains <- fit$time()$chains
+time <- mean(time_chains$total)
+convert_csv_to_arrow(fit$output_files(), file.path("Model1/Stan/Torsten/Fits/"), time)
 # fit$save_object("Model1/Stan/Torsten/Fits/001.rds")
