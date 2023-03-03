@@ -1,7 +1,7 @@
 library(arrow)
 library(readr)
 
-convert_csv_to_arrow <- function(csv_files, arrow_dir) {
+convert_csv_to_arrow <- function(csv_files, arrow_dir, time_stamp) {
   # Create output directory if it doesn't exist
   if (!dir.exists(arrow_dir)) {
     dir.create(arrow_dir)
@@ -11,6 +11,7 @@ convert_csv_to_arrow <- function(csv_files, arrow_dir) {
   for (csv_file in csv_files) {
     # Read CSV file
     df <- read_csv(csv_file, comment = "#")
+    df$time <- time_stamp
     
     # Define Arrow file name and path
     arrow_file <- file.path(arrow_dir, paste0(basename(csv_file), ".arrow"))
@@ -19,4 +20,3 @@ convert_csv_to_arrow <- function(csv_files, arrow_dir) {
     arrow::write_feather(df, arrow_file)
   }
 }
-
