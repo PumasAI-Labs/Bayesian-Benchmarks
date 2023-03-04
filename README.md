@@ -15,7 +15,7 @@ TORSTEN_MPI=1
 Then build `CmdStan`:
 
 ```bash
-cd Torsten/cmdstan
+cd cmdstan
 make build -jN
 ```
 
