@@ -22,4 +22,4 @@ The code in this repository is meant to be as minimal as possible to compare
 performance. For a more thorough workflow that one might use in practice see
 [here for NONMEM](https://github.com/metrumresearchgroup/iu-ctsi-2023-merge),
 [here for Pumas](https://docs.pumas.ai/stable/basics/bayesian/), and
-[here for Stan/Torsten](stanpmx.github.io).
+[here for Stan/Torsten](https://stanpmx.github.io/).
