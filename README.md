@@ -10,13 +10,15 @@ This repo contains code for all 3 of the above-mentioned software to implement
 Bayesian estimation for some commonly used models:
   
 + A one-compartment model with IV infusion and first-order elimination 
+(Gabrielsson and Weiner, 2000)
 + A one-compartment model with first-order absorption and first-order 
-elimination 
+elimination (Gabrielsson and Weiner, 2000)
 + A two-compartment model with first-order absorption and first-order 
-elimination 
+elimination (Gabrielsson and Weiner, 2000)
 + A two-compartment model with first-order absorption and Michaelis-Menten 
-elimination
+elimination (Gabrielsson and Weiner, 2000)
 + A two-compartment PK model with IV infusion and a Friberg-Karlsson PD model
+(see Friberg 2002)
 
 The code in this repository is meant to be as minimal as possible to compare 
 performance. For a more thorough workflow that one might use in practice see
