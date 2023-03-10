@@ -10,13 +10,13 @@ This repo contains code for all 3 of the above-mentioned software to implement
 Bayesian estimation for some commonly used models:
   
 + A one-compartment model with IV infusion and first-order elimination 
-(Gabrielsson and Weiner, 2000)
+([Gabrielsson and Weiner, 2000](https://www.amazon.com/Pharmacokinetic-Pharmacodynamic-Data-Analysis-Applications/dp/9198299107))
 + A one-compartment model with first-order absorption and first-order 
-elimination (Gabrielsson and Weiner, 2000)
+elimination ([Gabrielsson and Weiner, 2000](https://www.amazon.com/Pharmacokinetic-Pharmacodynamic-Data-Analysis-Applications/dp/9198299107))
 + A two-compartment model with first-order absorption and first-order 
-elimination (Gabrielsson and Weiner, 2000)
+elimination ([Gabrielsson and Weiner, 2000](https://www.amazon.com/Pharmacokinetic-Pharmacodynamic-Data-Analysis-Applications/dp/9198299107))
 + A two-compartment model with first-order absorption and Michaelis-Menten 
-elimination (Gabrielsson and Weiner, 2000)
+elimination ([Gabrielsson and Weiner, 2000](https://www.amazon.com/Pharmacokinetic-Pharmacodynamic-Data-Analysis-Applications/dp/9198299107))
 + A two-compartment PK model with IV infusion and a Friberg-Karlsson PD model
 (see Friberg 2002)
 
