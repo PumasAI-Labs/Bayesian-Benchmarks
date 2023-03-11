@@ -6,14 +6,14 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-nonmem_data <- read_csv("iv_1cmt_linear/Data/single_dose.csv",
+nonmem_data <- read_csv("Model2/depot_1cmt_linear/Data/single_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
          DV = "dv") %>% 
   mutate(DV = if_else(is.na(DV), 5555555, DV),    # This value can be anything except NA. It'll be indexed away 
-         bloq = if_else(is.na(bloq), -999, bloq), # This value can be anything except NA. It'll be indexed away 
-         cmt = 2) # Torsten conventions 
+         bloq = if_else(is.na(bloq), -999, bloq)) # This value can be anything except NA. It'll be indexed away 
+
 
 (p1 <- ggplot(nonmem_data %>%
                 mutate(ID = factor(ID)) %>%
@@ -45,12 +45,12 @@ nonmem_data <- read_csv("iv_1cmt_linear/Data/single_dose.csv",
 #              linetype = 2, color = "red", alpha = 0.5) +
 #   facet_wrap(~ID, labeller = label_both, scales = "free_y")
 
-nonmem_data %>%	
-  filter(evid== 0) %>% 	
-  group_by(ID) %>% 	
-  summarize(lloq = unique(lloq),	
-            n_obs = n(),	
-            n_bloq = sum(bloq == 1)) %>% 	
+nonmem_data %>%
+  filter(evid== 0) %>% 
+  group_by(ID) %>% 
+  summarize(lloq = unique(lloq),
+            n_obs = n(),
+            n_bloq = sum(bloq == 1)) %>% 
   filter(n_bloq > 0)
 
 n_subjects <- nonmem_data %>%  # number of individuals
@@ -98,15 +98,18 @@ stan_data <- list(n_subjects = n_subjects,
                   bloq = nonmem_data$bloq,
                   location_tvcl = 4,
                   location_tvvc = 70,
+                  location_tvka = 1,
                   scale_tvcl = 1,
                   scale_tvvc = 1,
+                  scale_tvka = 1,
                   scale_omega_cl = 0.4,
                   scale_omega_vc = 0.4,
+                  scale_omega_ka = 0.4,
                   lkj_df_omega = 2,
                   scale_sigma_p = 0.5)
 
 model <- cmdstan_model(
-  "iv_1cmt_linear/Stan/Torsten/Fit/iv_1cmt_prop.stan",
+  "depot_1cmt_linear/Stan/Torsten/Fit/depot_1cmt_prop_mat_exp.stan",
   cpp_options = list(stan_threads = TRUE))
 
 fit <- model$sample(data = stan_data,
@@ -121,7 +124,8 @@ fit <- model$sample(data = stan_data,
                     max_treedepth = 10,
                     init = function() list(TVCL = rlnorm(1, log(4), 0.3),
                                            TVVC = rlnorm(1, log(70), 0.3),
-                                           omega = rlnorm(2, log(0.3), 0.3),
+                                           TVKA = rlnorm(1, log(1), 0.3),
+                                           omega = rlnorm(3, log(0.3), 0.3),
                                            sigma_p = rlnorm(1, log(0.2), 0.3)))
 
-fit$save_object("iv_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+fit$save_object("depot_1cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp.rds")

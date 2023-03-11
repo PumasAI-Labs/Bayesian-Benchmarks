@@ -13,7 +13,7 @@ nonmem_data <- read_csv("iv_1cmt_linear/Data/single_dose.csv",
          DV = "dv") %>% 
   mutate(DV = if_else(is.na(DV), 5555555, DV),    # This value can be anything except NA. It'll be indexed away 
          bloq = if_else(is.na(bloq), -999, bloq), # This value can be anything except NA. It'll be indexed away 
-         cmt = 2) # Torsten conventions 
+         cmt = 1)
 
 (p1 <- ggplot(nonmem_data %>%
                 mutate(ID = factor(ID)) %>%
@@ -106,7 +106,7 @@ stan_data <- list(n_subjects = n_subjects,
                   scale_sigma_p = 0.5)
 
 model <- cmdstan_model(
-  "iv_1cmt_linear/Stan/Torsten/Fit/iv_1cmt_prop.stan",
+  "iv_1cmt_linear/Stan/Torsten/Fit/iv_1cmt_prop_mat_exp.stan",
   cpp_options = list(stan_threads = TRUE))
 
 fit <- model$sample(data = stan_data,
@@ -121,7 +121,7 @@ fit <- model$sample(data = stan_data,
                     max_treedepth = 10,
                     init = function() list(TVCL = rlnorm(1, log(4), 0.3),
                                            TVVC = rlnorm(1, log(70), 0.3),
-                                           omega = rlnorm(2, log(0.3), 0.3),
+                                           omega = rlnorm(3, log(0.3), 0.3),
                                            sigma_p = rlnorm(1, log(0.2), 0.3)))
 
-fit$save_object("iv_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+fit$save_object("iv_1cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp.rds")
