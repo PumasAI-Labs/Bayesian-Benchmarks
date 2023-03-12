@@ -2,7 +2,7 @@
 // One-compartment PK Model
 // IIV on CL and VC (full covariance matrix)
 // proportional error - DV = CP(1 + eps_p)
-// Analytical solution using Torsten
+// Matrix exponential solution using Torsten
 // Implements threading for within-chain parallelization 
 // Deals with BLOQ values by the "CDF trick" (M4)
 // Since we have a normal distribution on the error, but the DV must be > 0, it
@@ -77,7 +77,8 @@ functions{
                         vector omega, matrix L, matrix Z, 
                         real sigma_p, 
                         vector lloq, array[] int bloq,
-                        int n_random, int n_subjects, int n_total){
+                        int n_random, int n_subjects, int n_total,
+                        array[] real bioav, array[] real tlag, int n_cmt){
                            
     real ptarget = 0;
     row_vector[n_random] typical_values = to_row_vector({TVCL, TVVC});
@@ -90,7 +91,7 @@ functions{
                               
     int N = end - start + 1;    // number of subjects in this slice  
     vector[n_total] dv_ipred;   
-    matrix[n_total, 2] x_ipred;
+    matrix[n_total, n_cmt] x_ipred;
   
     int n_obs_slice = num_between(subj_start[start], subj_end[end], i_obs);
     array[n_obs_slice] int i_obs_slice = find_between(subj_start[start], 
@@ -109,16 +110,15 @@ functions{
     
       int nn = n + start - 1; // nn is the ID of the current subject
       
-      // row_vector[n_random] theta_nn = theta[nn]; // access the parameters for subject nn
-      // real cl = theta_nn[1];
-      // real vc = theta_nn[2];
-      // 
-      // array[3] real theta_params = {cl, v, 0}; 
+      row_vector[n_random] theta_nn = theta[nn]; // access the parameters for subject nn
+      real cl = theta_nn[1];
+      real vc = theta_nn[2];
       
-      array[n_random + 1] real theta_params = to_array_1d(append_col(theta[nn], 0)); // access the parameters for subject nn
+      matrix[n_cmt, n_cmt] K = rep_matrix(0, n_cmt, n_cmt);
+      K[1, 1] = -cl/vc;
       
       x_ipred[subj_start[nn]:subj_end[nn], ] =
-        pmx_solve_onecpt(time[subj_start[nn]:subj_end[nn]],
+        pmx_solve_linode(time[subj_start[nn]:subj_end[nn]],
                          amt[subj_start[nn]:subj_end[nn]],
                          rate[subj_start[nn]:subj_end[nn]],
                          ii[subj_start[nn]:subj_end[nn]],
@@ -126,10 +126,10 @@ functions{
                          cmt[subj_start[nn]:subj_end[nn]],
                          addl[subj_start[nn]:subj_end[nn]],
                          ss[subj_start[nn]:subj_end[nn]],
-                         theta_params)';
+                         K, bioav, tlag)';
                       
       dv_ipred[subj_start[nn]:subj_end[nn]] = 
-        x_ipred[subj_start[nn]:subj_end[nn], 2] ./ theta[nn, 2];
+        x_ipred[subj_start[nn]:subj_end[nn], 1] ./ theta[nn, 2];
     
     }
   
@@ -199,10 +199,14 @@ transformed data{
   array[n_obs] int bloq_obs = bloq[i_obs];
   
   int n_random = 2;                    // Number of random effects
+  int n_cmt = 1;                       // Number of states in the ODEs
   
   array[n_random] real scale_omega = {scale_omega_cl, scale_omega_vc}; 
   
   array[n_subjects] int seq_subj = sequence(1, n_subjects); // reduce_sum over subjects
+  
+  array[n_cmt] real bioav = rep_array(1.0, n_cmt); // Hardcoding, but could be data or a parameter in another situation
+  array[n_cmt] real tlag = rep_array(0.0, n_cmt);
   
 }
 parameters{ 
@@ -240,6 +244,7 @@ model{
                        TVCL, TVVC, omega, L, Z,
                        sigma_p,
                        lloq, bloq,
-                       n_random, n_subjects, n_total);
+                       n_random, n_subjects, n_total,
+                       bioav, tlag, n_cmt);
 }
 
