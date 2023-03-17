@@ -6,7 +6,7 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-nonmem_data <- read_csv("Model2/depot_1cmt_linear/Data/single_dose.csv",
+nonmem_data <- read_csv("depot_1cmt_linear/data/single_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -109,7 +109,7 @@ stan_data <- list(n_subjects = n_subjects,
                   scale_sigma_p = 0.5)
 
 model <- cmdstan_model(
-  "Model2/depot_1cmt_linear/Stan/Torsten/Fit/depot_1cmt_prop.stan",
+  "depot_1cmt_linear/Stan/Torsten/Fit/depot_1cmt_prop.stan",
   cpp_options = list(stan_threads = TRUE))
 
 fit <- model$sample(data = stan_data,
@@ -128,4 +128,4 @@ fit <- model$sample(data = stan_data,
                                            omega = rlnorm(3, log(0.3), 0.3),
                                            sigma_p = rlnorm(1, log(0.2), 0.3)))
 
-fit$save_object("Model2/depot_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+fit$save_object("depot_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")

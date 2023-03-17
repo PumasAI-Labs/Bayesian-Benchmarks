@@ -288,6 +288,6 @@ data %>%
             na = ".")
 
 params_ind %>% 
-  write_csv("depot_2cmt_linear/Data/multiple_dose_params_ind.csv")
+  write_csv("depot_2cmt_linear/data/multiple_dose_params_ind.csv")
 
 

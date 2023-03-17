@@ -8,8 +8,8 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-# fit <- read_rds("Model2/depot_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-fit <- read_rds("Model2/depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+# fit <- read_rds("depot_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+fit <- read_rds("depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
 
 # For this example, let's simulate 10 mg, 30 mg, 60 mg, 120 mg, 240 mg, 480 mg 
 # dosing_data <- mrgsolve::expand.ev(addl = 0, ii = 0, cmt = 1, 
@@ -80,7 +80,7 @@ stan_data <- list(n_subjects = n_subjects,
                   subj_end = subj_end)
 
 model <- cmdstan_model(
-  "Model2/depot_1cmt_linear/Stan/Torsten/Predict/depot_1cmt_prop_predict_new_subjects.stan")
+  "depot_1cmt_linear/Stan/Torsten/Predict/depot_1cmt_prop_predict_new_subjects.stan")
 
 preds <- model$generate_quantities(fit,
                                    data = stan_data,
@@ -137,8 +137,8 @@ for(i in 1:ggforce::n_pages(tmp)){
   
 }
 
-# data <- read_csv("Model2/depot_1cmt_linear/Data/single_dose.csv",
-data <- read_csv("Model2/depot_1cmt_linear/Data/multiple_dose.csv",
+# data <- read_csv("depot_1cmt_linear/data/single_dose.csv",
+data <- read_csv("depot_1cmt_linear/data/multiple_dose.csv",
          na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",

@@ -6,7 +6,7 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-nonmem_data <- read_csv("iv_1cmt_linear/Data/single_dose.csv",
+nonmem_data <- read_csv("iv_1cmt_linear/data/single_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
