@@ -9,11 +9,11 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-# fit <- read_rds("Model2/iv_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-fit <- read_rds("Model2/iv_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+# fit <- read_rds("iv_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+fit <- read_rds("iv_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
 
-# nonmem_data <- read_csv("Model2/iv_1cmt_linear/Data/single_dose.csv",
-nonmem_data <- read_csv("Model2/iv_1cmt_linear/Data/multiple_dose.csv",
+# nonmem_data <- read_csv("iv_1cmt_linear/data/single_dose.csv",
+nonmem_data <- read_csv("iv_1cmt_linear/data/multiple_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -84,7 +84,7 @@ stan_data <- list(n_subjects = n_subjects,
                   subj_end = subj_end)
 
 model <- cmdstan_model(
-  "Model2/iv_1cmt_linear/Stan/Torsten/Predict/iv_1cmt_prop_predict_observed_subjects.stan")
+  "iv_1cmt_linear/Stan/Torsten/Predict/iv_1cmt_prop_predict_observed_subjects.stan")
 
 preds <- model$generate_quantities(fit,
                                    data = stan_data,

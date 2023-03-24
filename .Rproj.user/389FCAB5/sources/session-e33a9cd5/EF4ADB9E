@@ -1,0 +1,26 @@
+{
+    "id": "EF4ADB9E",
+    "path": "/mnt/data/code/Bayesian-Benchmarks/Model2/depot_1cmt_linear/Stan/R/Predict/depot_1cmt_prop_predict_new_subjects.R",
+    "project_path": "Model2/depot_1cmt_linear/Stan/R/Predict/depot_1cmt_prop_predict_new_subjects.R",
+    "type": "r_source",
+    "hash": "36248402",
+    "contents": "",
+    "dirty": false,
+    "created": 1677511590661.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "9,0",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1677511638,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1677511638793,
+    "read_only": false,
+    "read_only_alternatives": []
+}

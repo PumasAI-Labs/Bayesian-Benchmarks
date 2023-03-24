@@ -1,0 +1,26 @@
+{
+    "id": "3A36A504",
+    "path": "~/data/code/Bayesian-Benchmarks/Model1/Stan/R/Fit/depot_1cmt_prop.R",
+    "project_path": "Model1/Stan/R/Fit/depot_1cmt_prop.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1677774822224.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "110,16",
+        "scrollLine": "101"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1677776299,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1677776299121,
+    "read_only": false,
+    "read_only_alternatives": []
+}

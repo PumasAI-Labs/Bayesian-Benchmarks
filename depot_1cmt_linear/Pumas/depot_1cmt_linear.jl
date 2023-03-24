@@ -50,7 +50,7 @@ depot_1cmt_prop = @model begin
     end
 end
 
-df = CSV.read("Model2/depot_1cmt_linear/Data/single_dose.csv", DataFrame, 
+df = CSV.read("depot_1cmt_linear/data/single_dose.csv", DataFrame, 
               missingstring = ".")
 rename!(lowercase, df)
 

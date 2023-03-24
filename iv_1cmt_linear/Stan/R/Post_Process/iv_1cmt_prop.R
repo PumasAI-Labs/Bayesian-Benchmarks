@@ -10,8 +10,8 @@ library(posterior)
 library(tidyverse)
 
 ## Read in and visualize observed data
-# nonmem_data <- read_csv("Model2/iv_1cmt_linear/Data/single_dose.csv",
-nonmem_data <- read_csv("Model2/iv_1cmt_linear/Data/multiple_dose.csv",
+# nonmem_data <- read_csv("iv_1cmt_linear/data/single_dose.csv",
+nonmem_data <- read_csv("iv_1cmt_linear/data/multiple_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -65,8 +65,8 @@ nonmem_data %>%
 
 
 ## Read in fit
-# fit <- read_rds("Model2/iv_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-fit <- read_rds("Model2/iv_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+# fit <- read_rds("iv_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+fit <- read_rds("iv_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
 
 
 ## Summary of parameter estimates

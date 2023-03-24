@@ -11,7 +11,7 @@ set_cmdstan_path("cmdstan")
 
 model_simulate <- 
   cmdstan_model(
-    "Model2/iv_1cmt_linear/Stan/Torsten/Simulate/iv_1cmt_ppa.stan") 
+    "iv_1cmt_linear/Stan/Torsten/Simulate/iv_1cmt_ppa.stan") 
 
 TVCL <- 4
 TVVC <- 70
@@ -144,11 +144,11 @@ ggplot(data %>%
 # facet_trelliscope(~ID, nrow = 4, ncol = 5)
 
 data %>% 
-  write_csv(file.path("Model2", "iv_1cmt_linear", "Data", "single_dose.csv"),
+  write_csv(file.path("iv_1cmt_linear", "data", "single_dose.csv"),
             na = ".")
 
 params_ind %>% 
-  write_csv("Model2/iv_1cmt_linear/Data/single_dose_params_ind.csv")
+  write_csv("iv_1cmt_linear/data/single_dose_params_ind.csv")
 
 ################ Now Simulate Multiple Doses ####################
 
@@ -275,10 +275,10 @@ ggplot(data %>%
 # facet_trelliscope(~ID, nrow = 3, ncol = 4, scales = "free_y")
 
 data %>% 
-  write_csv(file.path("Model2", "iv_1cmt_linear", "Data", "multiple_dose.csv"),
+  write_csv(file.path("iv_1cmt_linear", "data", "multiple_dose.csv"),
             na = ".")
 
 params_ind %>% 
-  write_csv("Model2/iv_1cmt_linear/Data/multiple_dose_params_ind.csv")
+  write_csv("iv_1cmt_linear/data/multiple_dose_params_ind.csv")
 
 
