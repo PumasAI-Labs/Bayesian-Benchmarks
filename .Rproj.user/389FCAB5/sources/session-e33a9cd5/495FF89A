@@ -1,0 +1,24 @@
+{
+    "id": "495FF89A",
+    "path": "/mnt/data/code/Bayesian-Benchmarks/Model2/depot_1cmt_linear/Stan/R/Post_Process/depot_1cmt_prop.R",
+    "project_path": "Model2/depot_1cmt_linear/Stan/R/Post_Process/depot_1cmt_prop.R",
+    "type": "r_source",
+    "hash": "2345221774",
+    "contents": "",
+    "dirty": false,
+    "created": 1677511573854.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1677511575,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1677511575336,
+    "read_only": false,
+    "read_only_alternatives": []
+}
