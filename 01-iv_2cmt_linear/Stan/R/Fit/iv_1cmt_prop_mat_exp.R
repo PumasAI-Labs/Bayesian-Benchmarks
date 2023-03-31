@@ -106,7 +106,7 @@ stan_data <- list(n_subjects = n_subjects,
                   scale_sigma_p = 0.5)
 
 model <- cmdstan_model(
-  "01-iv_2cmt_linear/Stan/Torsten/Fit/01-iv_2cmt_prop_mat_exp.stan",
+  "01-iv_2cmt_linear/Stan/Torsten/Fit/iv_2cmt_prop_mat_exp.stan",
   cpp_options = list(stan_threads = TRUE))
 
 fit <- model$sample(data = stan_data,
