@@ -9,11 +9,11 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-# fit <- read_rds("iv_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-fit <- read_rds("iv_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+fit <- read_rds("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+# fit <- read_rds("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
 
-# nonmem_data <- read_csv("iv_1cmt_linear/data/single_dose.csv",
-nonmem_data <- read_csv("iv_1cmt_linear/data/multiple_dose.csv",
+nonmem_data <- read_csv("01-iv_2cmt_linear/Data/single_dose.csv",
+# nonmem_data <- read_csv("01-iv_2cmt_linear/Data/multiple_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -22,6 +22,7 @@ nonmem_data <- read_csv("iv_1cmt_linear/data/multiple_dose.csv",
          bloq = if_else(is.na(bloq), -999, bloq), # This value can be anything except NA. It'll be indexed away 
          cmt = 2) # Torsten conventions 
 
+# Create a dense grid of timepoints to simulate
 new_data_to_simulate <- nonmem_data %>% 
   # filter(evid == 0) %>%
   group_by(ID) %>% 
@@ -43,6 +44,7 @@ new_data_to_simulate <- nonmem_data %>%
          c = NA_character_) %>% 
   select(c, ID, time, everything())
 
+# Give the dosing and observation records for the observed subjects
 observed_data_to_simulate <- nonmem_data %>% 
   mutate(evid = if_else(evid == 1, 1, 2))
 
@@ -84,7 +86,7 @@ stan_data <- list(n_subjects = n_subjects,
                   subj_end = subj_end)
 
 model <- cmdstan_model(
-  "iv_1cmt_linear/Stan/Torsten/Predict/iv_1cmt_prop_predict_observed_subjects.stan")
+  "01-iv_2cmt_linear/Stan/Torsten/Predict/iv_2cmt_prop_predict_observed_subjects.stan")
 
 preds <- model$generate_quantities(fit,
                                    data = stan_data,
@@ -123,7 +125,7 @@ ggplot(preds_ind, aes(x = time, group = ID)) +
   scale_x_continuous(name = "Time (h)",
                      breaks = seq(0, 216, by = 24),
                      labels = seq(0, 216, by = 24),
-                     limits = c(0, 216)) +
+                     limits = c(0, 72)) +
   theme_bw() +
   theme(axis.text = element_text(size = 14, face = "bold"),
         axis.title = element_text(size = 18, face = "bold"),

@@ -8,12 +8,12 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-# fit <- read_rds("iv_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-fit <- read_rds("iv_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+fit <- read_rds("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+# fit <- read_rds("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
 
 # For this example, let's simulate 10 mg, 30 mg, 60 mg, 120 mg, 240 mg, 480 mg 
-# dosing_data <- mrgsolve::expand.ev(addl = 0, ii = 0, cmt = 2,
-dosing_data <- mrgsolve::expand.ev(addl = 6, ii = 24, cmt = 2,
+dosing_data <- mrgsolve::expand.ev(addl = 0, ii = 0, cmt = 2,
+# dosing_data <- mrgsolve::expand.ev(addl = 6, ii = 24, cmt = 2,
                                    amt = c(10, 30, 60, 120, 240, 480), tinf = 1,
                                    evid = 1, mdv = 1) %>%
   as_tibble() %>% 
@@ -25,8 +25,8 @@ t1 <- dosing_data %>%
   distinct() %>% 
   deframe()
 
-# times_new <- tibble(time = sort(unique(c(t1, 0.25, seq(0, 72, by = 0.5)))))
-times_new <- tibble(time = sort(unique(c(t1, 0.25, seq(0, 216, by = 0.5)))))
+times_new <- tibble(time = sort(unique(c(t1, 0.25, seq(0, 72, by = 0.5)))))
+# times_new <- tibble(time = sort(unique(c(t1, 0.25, seq(0, 216, by = 0.5)))))
 
 new_data <- bind_rows(replicate(max(dosing_data$ID), times_new, 
                                 simplify = FALSE)) %>% 
@@ -80,14 +80,12 @@ stan_data <- list(n_subjects = n_subjects,
                   subj_end = subj_end)
 
 model <- cmdstan_model(
-  "iv_1cmt_linear/Stan/Torsten/Predict/iv_1cmt_prop_predict_new_subjects.stan")
+  "01-iv_2cmt_linear/Stan/Torsten/Predict/iv_2cmt_prop_predict_new_subjects.stan")
 
 preds <- model$generate_quantities(fit,
                                    data = stan_data,
                                    parallel_chains = 4,
                                    seed = 1234) 
-
-# preds$save_object("Torsten/Preds/iv_2cmt_ppa_m4_predict_new_subjects.rds")
 
 preds_df <- preds$draws(format = "draws_df")
 
@@ -123,9 +121,12 @@ for(i in 1:ggforce::n_pages(tmp)){
                              trans = "log10",
                              limits = c(NA, NA)) +
           scale_x_continuous(name = "Time (h)",
-                             breaks = seq(0, 216, by = 24),
-                             labels = seq(0, 216, by = 24),
-                             limits = c(0, 216)) +
+                             breaks = seq(0, 72, by = 24),
+                             labels = seq(0, 72, by = 24),
+                             limits = c(0, 72)) +
+                             # breaks = seq(0, 216, by = 24),
+                             # labels = seq(0, 216, by = 24),
+                             # limits = c(0, 216)) +
           # scale_x_continuous(name = "Time (d)") +
           theme_bw() +
           theme(axis.text = element_text(size = 14, face = "bold"),
@@ -137,8 +138,8 @@ for(i in 1:ggforce::n_pages(tmp)){
   
 }
 
-# data <- read_csv("iv_1cmt_linear/data/single_dose.csv",
-data <- read_csv("02-depot_2cmt_linear/data/multiple_dose.csv",
+data <- read_csv("01-iv_2cmt_linear/data/single_dose.csv",
+# data <- read_csv("01=iv_2cmt_linear/Data/multiple_dose.csv",
                  na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -171,7 +172,7 @@ preds_ind %>%
   scale_x_continuous(name = "Time (h)",
                      breaks = seq(0, 216, by = 24),
                      labels = seq(0, 216, by = 24),
-                     limits = c(0, 216)) +
+                     limits = c(0, 72)) +
   theme_bw() +
   theme(axis.text = element_text(size = 14, face = "bold"),
         axis.title = element_text(size = 18, face = "bold"),

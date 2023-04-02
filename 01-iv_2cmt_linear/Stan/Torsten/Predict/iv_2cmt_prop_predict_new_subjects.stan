@@ -1,6 +1,6 @@
 // IV Infusion
-// One-compartment PK Model
-// IIV on CL and VC (full covariance matrix)
+// Two-compartment PK Model
+// IIV on CL, VC, Q, and VP (full covariance matrix)
 // proportional error - DV = CP(1 + eps_p)
 // Analytical solution using Torsten
 // Predictions are generated from a normal that is truncated below at 0
@@ -36,14 +36,16 @@ data{
 }
 transformed data{ 
   
-  int n_random = 2;       // Number of random effects
-  int n_cmt = 2;          // Number of compartments (depot, central)
+  int n_random = 4;       // Number of random effects
+  int n_cmt = 3;          // Number of compartments (depot, central, peripheral)
 
 }
 parameters{ 
   
   real<lower = 0> TVCL;       
   real<lower = 0> TVVC; 
+  real<lower = 0> TVQ;       
+  real<lower = 0> TVVP; 
   
   vector<lower = 0>[n_random] omega;
   cholesky_factor_corr[n_random] L;
@@ -59,7 +61,8 @@ generated quantities{
   vector[n_time_new] dv; // concentration with residual error
 
   {
-    row_vector[n_random] typical_values = to_row_vector({TVCL, TVVC});
+    row_vector[n_random] typical_values = 
+      to_row_vector({TVCL, TVVC, TVQ, TVVP});
     
     matrix[n_subjects_new, n_random] eta_new;
     matrix[n_subjects_new, n_random] theta_new;
@@ -73,10 +76,16 @@ generated quantities{
 
     for(j in 1:n_subjects_new){
       
-      array[n_random + 1] real theta_params = to_array_1d(append_col(theta_new[j], 0)); // access the parameters for subject j
+      row_vector[n_random] theta_j = theta_new[j]; // access the parameters for subject j
+      real cl = theta_j[1];
+      real vc = theta_j[2];
+      real q = theta_j[3];
+      real vp = theta_j[4];
+
+      array[n_random + 1] real theta_params = {cl, q, vc, vp, 0};
       
       x_cp[subj_start[j]:subj_end[j],] =
-        pmx_solve_onecpt(time[subj_start[j]:subj_end[j]],
+        pmx_solve_twocpt(time[subj_start[j]:subj_end[j]],
                          amt[subj_start[j]:subj_end[j]],
                          rate[subj_start[j]:subj_end[j]],
                          ii[subj_start[j]:subj_end[j]],
@@ -86,7 +95,7 @@ generated quantities{
                          ss[subj_start[j]:subj_end[j]],
                          theta_params)';
 
-      cp[subj_start[j]:subj_end[j]] = x_cp[subj_start[j]:subj_end[j], 2] ./ theta_new[j, 2];
+      cp[subj_start[j]:subj_end[j]] = x_cp[subj_start[j]:subj_end[j], 2] ./ vc;
     
     }
 
