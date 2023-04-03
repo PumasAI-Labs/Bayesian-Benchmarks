@@ -6,8 +6,8 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-nonmem_data <- read_csv("04-depot_1cmt_mm/Data/single_dose.csv",
-# nonmem_data <- read_csv("04-depot_1cmt_mm/Data/multiple_dose.csv",
+nonmem_data <- read_csv("04-depot_1cmt_mm/data/single_dose.csv",
+# nonmem_data <- read_csv("04-depot_1cmt_mm/data/multiple_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -120,7 +120,7 @@ model <- cmdstan_model(
   cpp_options = list(stan_threads = TRUE))
 
 fit <- model$sample(data = stan_data,
-                    seed = 11235,
+                    seed = 112358,
                     chains = 4,
                     parallel_chains = 4,
                     threads_per_chain = parallel::detectCores()/4,

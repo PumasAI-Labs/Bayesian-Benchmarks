@@ -69,7 +69,7 @@ fit <- read_rds("04-depot_1cmt_mm/Stan/Torsten/Fits/single_dose.rds")
 
 ## Summary of parameter estimates
 parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
-                             str_subset(fit$metadata()$stan_variables, "omega["),
+                             str_subset(fit$metadata()$stan_variables, "omega"),
                              "sigma_p")
 
 summary <- summarize_draws(fit$draws(parameters_to_summarize), 

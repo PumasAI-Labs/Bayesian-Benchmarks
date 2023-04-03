@@ -123,7 +123,7 @@ ggplot(preds_ind, aes(x = time, group = ID)) +
   scale_x_continuous(name = "Time (h)",
                      breaks = seq(0, 216, by = 24),
                      labels = seq(0, 216, by = 24),
-                     limits = c(0, 216)) +
+                     limits = c(0, NA)) +
   theme_bw() +
   theme(axis.text = element_text(size = 14, face = "bold"),
         axis.title = element_text(size = 18, face = "bold"),
@@ -156,7 +156,7 @@ for(i in 1:ggforce::n_pages(tmp)){
           scale_x_continuous(name = "Time (h)",
                              breaks = seq(0, 216, by = 24),
                              labels = seq(0, 216, by = 24),
-                             limits = c(0,216)) +
+                             limits = c(0, NA)) +
           theme_bw() +
           theme(axis.text = element_text(size = 14, face = "bold"),
                 axis.title = element_text(size = 18, face = "bold"),
