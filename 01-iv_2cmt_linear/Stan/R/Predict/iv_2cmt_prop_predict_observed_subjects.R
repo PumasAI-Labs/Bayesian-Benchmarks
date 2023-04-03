@@ -9,11 +9,11 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-fit <- read_rds("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-# fit <- read_rds("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+# fit <- read_rds("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+fit <- read_rds("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
 
-nonmem_data <- read_csv("01-iv_2cmt_linear/Data/single_dose.csv",
-# nonmem_data <- read_csv("01-iv_2cmt_linear/Data/multiple_dose.csv",
+# nonmem_data <- read_csv("01-iv_2cmt_linear/data/single_dose.csv",
+nonmem_data <- read_csv("01-iv_2cmt_linear/data/multiple_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -125,7 +125,7 @@ ggplot(preds_ind, aes(x = time, group = ID)) +
   scale_x_continuous(name = "Time (h)",
                      breaks = seq(0, 216, by = 24),
                      labels = seq(0, 216, by = 24),
-                     limits = c(0, 72)) +
+                     limits = c(0, NA)) +
   theme_bw() +
   theme(axis.text = element_text(size = 14, face = "bold"),
         axis.title = element_text(size = 18, face = "bold"),
@@ -158,7 +158,7 @@ for(i in 1:ggforce::n_pages(tmp)){
           scale_x_continuous(name = "Time (h)",
                              breaks = seq(0, 216, by = 24),
                              labels = seq(0, 216, by = 24),
-                             limits = c(0, 216)) +
+                             limits = c(0, NA)) +
           theme_bw() +
           theme(axis.text = element_text(size = 14, face = "bold"),
                 axis.title = element_text(size = 18, face = "bold"),

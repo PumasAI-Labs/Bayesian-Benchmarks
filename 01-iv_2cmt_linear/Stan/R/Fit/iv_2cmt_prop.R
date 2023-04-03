@@ -6,8 +6,8 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-nonmem_data <- read_csv("01-iv_2cmt_linear/data/single_dose.csv",
-# nonmem_data <- read_csv("01-iv_2cmt_linear/data/multiple_dose.csv",
+# nonmem_data <- read_csv("01-iv_2cmt_linear/data/single_dose.csv",
+nonmem_data <- read_csv("01-iv_2cmt_linear/data/multiple_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -120,7 +120,7 @@ fit <- model$sample(data = stan_data,
                     seed = 11235,
                     chains = 4,
                     parallel_chains = 4,
-                    threads_per_chain = 2,
+                    threads_per_chain = parallel::detectCores()/4,
                     iter_warmup = 500,
                     iter_sampling = 1000,
                     adapt_delta = 0.8,
@@ -133,5 +133,5 @@ fit <- model$sample(data = stan_data,
                                            omega = rlnorm(4, log(0.3), 0.3),
                                            sigma_p = rlnorm(1, log(0.2), 0.3)))
 
-fit$save_object("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-# fit$save_object("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+# fit$save_object("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose.rds")
+fit$save_object("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
