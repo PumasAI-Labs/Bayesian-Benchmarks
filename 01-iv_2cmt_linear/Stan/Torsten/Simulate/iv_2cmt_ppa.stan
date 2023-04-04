@@ -1,11 +1,10 @@
 // IV Infusion
-// One-compartment PK Model
-// IIV on CL, VC
-// proportional plus additive error - DV = CP(1 + eps_p) + eps_a
-// Closed form solution using Torsten
-// Observations are generated from a normal that is truncated below at 0
+// Two-compartment PK Model
+// IIV on CL, VC, Q, vP, and Ka (full covariance matrix)
+// proportional error - DV = CP(1 + eps_p)
+// Analytical solution using Torsten
 // Since we have a normal distribution on the error, but the DV must be > 0, it
-//   generates values from a normal that is truncated below at 0
+//   truncates the likelihood below at 0
 
 functions{
   
@@ -38,15 +37,19 @@ data{
   
   real<lower = 0> TVCL;
   real<lower = 0> TVVC;
+  real<lower = 0> TVQ;
+  real<lower = 0> TVVP;
   
   real<lower = 0> omega_cl;
   real<lower = 0> omega_vc;
+  real<lower = 0> omega_q;
+  real<lower = 0> omega_vp;
   
-  corr_matrix[2] R;  // Correlation matrix before transforming to Omega.
+  corr_matrix[4] R;  // Correlation matrix before transforming to Omega.
                      // Can in theory change this to having inputs for
-                     // cor_cl_vc, ... and then construct the 
-                     // correlation matrix in transformed data, but it's easy
-                     // enough to do in R
+                     // cor_cl_vc, cor_cl_q, ... and then construct the 
+                     // correlation matrix in transformed data like is done with
+                     // R_Sigma, but it's easy enough to do in R
   
   real<lower = 0> sigma_p;
   real<lower = 0> sigma_a;
@@ -55,9 +58,9 @@ data{
 }
 transformed data{
   
-  int n_random = 2;
+  int n_random = 4;
 
-  vector[n_random] omega = [omega_cl, omega_vc]';
+  vector[n_random] omega = [omega_cl, omega_vc, omega_q, omega_vp]';
   
   matrix[n_random, n_random] L = cholesky_decompose(R);
 
@@ -78,15 +81,17 @@ generated quantities{
   
   vector[n_subjects] CL;
   vector[n_subjects] VC;
+  vector[n_subjects] Q;
+  vector[n_subjects] VP;
   
   {
   
-    vector[n_random] typical_values = to_vector({TVCL, TVVC});
+    vector[n_random] typical_values = to_vector({TVCL, TVVC, TVQ, TVVP});
     
     matrix[n_random, n_subjects] eta;   
     matrix[n_subjects, n_random] theta; 
     vector[n_total] cp; // concentration with no residual error
-    matrix[n_total, 2] x_cp;
+    matrix[n_total, 3] x_cp;
     
     for(i in 1:n_subjects){
       eta[, i] = multi_normal_cholesky_rng(rep_vector(0, n_random),
@@ -96,13 +101,15 @@ generated quantities{
 
     CL = col(theta, 1);
     VC = col(theta, 2);
+    Q = col(theta, 3);
+    VP = col(theta, 4);
     
     for(j in 1:n_subjects){
       
-      array[n_random + 1] real theta_params = {CL[j], VC[j], 0}; // 0 is for KA. Skip absorption
+      array[n_random + 1] real theta_params = {CL[j], Q[j], VC[j], VP[j], 0}; // 0 is for KA. Skip absorption
       
       x_cp[subj_start[j]:subj_end[j],] =
-        pmx_solve_onecpt(time[subj_start[j]:subj_end[j]],
+        pmx_solve_twocpt(time[subj_start[j]:subj_end[j]],
                          amt[subj_start[j]:subj_end[j]],
                          rate[subj_start[j]:subj_end[j]],
                          ii[subj_start[j]:subj_end[j]],

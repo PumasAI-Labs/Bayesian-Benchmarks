@@ -1,6 +1,6 @@
 // IV Infusion
-// One-compartment PK Model
-// IIV on CL and VC (full covariance matrix)
+// Two-compartment PK Model
+// IIV on CL, VC, Q, and VP (full covariance matrix)
 // proportional error - DV = CP(1 + eps_p)
 // Analytical solution using Torsten
 // Predictions are generated from a normal that is truncated below at 0
@@ -35,14 +35,16 @@ data{
 }
 transformed data{ 
   
-  int n_random = 2;       // Number of random effects
-  int n_cmt = 2;          // Number of compartments (depot, central)
+  int n_random = 4;       // Number of random effects
+  int n_cmt = 3;          // Number of compartments (depot, central, peripheral)
 
 }
 parameters{ 
   
   real<lower = 0> TVCL;       
   real<lower = 0> TVVC; 
+  real<lower = 0> TVQ;       
+  real<lower = 0> TVVP; 
   
   vector<lower = 0>[n_random] omega;
   cholesky_factor_corr[n_random] L;
@@ -59,7 +61,8 @@ generated quantities{
   vector[n_time_new] dv;    // dv for the observed individuals at the new timepoints
  
   {
-    row_vector[n_random] typical_values = to_row_vector({TVCL, TVVC});
+    row_vector[n_random] typical_values = 
+      to_row_vector({TVCL, TVVC, TVQ, TVVP});
 
     matrix[n_random, n_random] R = multiply_lower_tri_self_transpose(L);
     matrix[n_random, n_random] Omega = quad_form_diag(R, omega);
@@ -72,17 +75,19 @@ generated quantities{
     matrix[n_time_new, n_cmt] x_pred;
     matrix[n_time_new, n_cmt] x_ipred;
     
-    array[n_random + 1] real theta_params_tv = {TVCL, TVVC, 0}; 
+    array[n_random + 1] real theta_params_tv = {TVCL, TVQ, TVVC, TVVP, 0}; 
     
     vector[n_subjects] CL = col(theta, 1);
     vector[n_subjects] VC = col(theta, 2);
+    vector[n_subjects] Q = col(theta, 3);
+    vector[n_subjects] VP = col(theta, 4);
 
     for(j in 1:n_subjects){
 
-      array[n_random + 1] real theta_params = {CL[j], VC[j], 0};
+      array[n_random + 1] real theta_params = {CL[j], Q[j], VC[j], VP[j], 0};
       
       x_ipred[subj_start[j]:subj_end[j],] =
-        pmx_solve_onecpt(time[subj_start[j]:subj_end[j]],
+        pmx_solve_twocpt(time[subj_start[j]:subj_end[j]],
                          amt[subj_start[j]:subj_end[j]],
                          rate[subj_start[j]:subj_end[j]],
                          ii[subj_start[j]:subj_end[j]],
@@ -96,7 +101,7 @@ generated quantities{
         x_ipred[subj_start[j]:subj_end[j], 2] ./ VC[j];
 
       x_pred[subj_start[j]:subj_end[j],] =
-        pmx_solve_onecpt(time[subj_start[j]:subj_end[j]],
+        pmx_solve_twocpt(time[subj_start[j]:subj_end[j]],
                          amt[subj_start[j]:subj_end[j]],
                          rate[subj_start[j]:subj_end[j]],
                          ii[subj_start[j]:subj_end[j]],
