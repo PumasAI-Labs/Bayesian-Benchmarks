@@ -1,6 +1,7 @@
 using Pumas
 using DataFrames
 using CSV
+using Serialization
 
 iv_2cmt_prop = @model begin
 
@@ -68,7 +69,7 @@ iparams = (;
     TVQ = 4.3,
     TVVP = 35,
     σ_p = 0.3,
-    C = float.(Matrix(I(5))),
+    C = float.(Matrix(I(4))),
     ω = [0.2, 0.3, 0.4, 0.3]
 )
 
@@ -77,11 +78,14 @@ pumas_fit = fit(
     pop,
     iparams,
     Pumas.BayesMCMC(
-        nsamples = 100,
-        nadapts = 50,
+        nsamples = 1500,
+        nadapts = 500,
         nchains = 4,
         parallel_chains = true,
         parallel_subjects = true)
     )
 
-Pumas.truncate(pumas_fit; burnin = 50)
+my_fit = Pumas.truncate(pumas_fit; burnin = 500)
+
+
+serialize("01-iv_2cmt_linear/Pumas/fit_single_dose", my_fit)
