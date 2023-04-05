@@ -81,11 +81,13 @@ pumas_fit = fit(
     pop,
     iparams,
     Pumas.BayesMCMC(
-        nsamples = 100,
-        nadapts = 50,
+        nsamples = 1500,
+        nadapts = 500,
         nchains = 4,
         parallel_chains = true,
         parallel_subjects = true)
     )
 
-Pumas.truncate(pumas_fit; burnin = 50)
+Pumas.truncate(pumas_fit; burnin = 500)
+
+serialize("03-depot_2cmt_linear/Pumas/fit_single_dose", my_fit)
