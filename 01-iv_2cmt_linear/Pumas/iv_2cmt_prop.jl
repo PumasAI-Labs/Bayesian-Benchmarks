@@ -3,25 +3,26 @@ using DataFrames
 using CSV
 using Serialization
 
-depot_1cmt_prop = @model begin
+iv_2cmt_prop = @model begin
 
     @param begin
         TVCL ~ LogNormal(log(0.4), 1)
         TVVC ~ LogNormal(log(70), 1)
-        TVKA ~ LogNormal(log(1), 1)
+        TVQ ~ LogNormal(log(4), 1)
+        TVVP ~ LogNormal(log(40), 1)
         #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
         σ_p ~ truncated(Normal(0, 0.5), 0, Inf)
-        C ~ LKJCholesky(3, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
+        C ~ LKJCholesky(4, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
-            MvNormal(zeros(3), Diagonal([0.4, 0.4, 0.4].^2)),
-            lower = zeros(3),
-            upper = fill(Inf, 3),
-            init = ones(3)
+            MvNormal(zeros(4), Diagonal([0.4, 0.4, 0.4, 0.4].^2)),
+            lower = zeros(4),
+            upper = fill(Inf, 4),
+            init = ones(4)
         )
     end
 
     @random begin
-        ηstd ~ MvNormal(I(3)) # Z in the Stan code
+        ηstd ~ MvNormal(I(4)) # Z in the Stan code
     end
 
     @covariates lloq
@@ -37,12 +38,16 @@ depot_1cmt_prop = @model begin
         # PK parameters
         CL = TVCL * exp(η[1])
         Vc = TVVC * exp(η[2])
-        Ka = TVKA * exp(η[3])
+        Q = TVCL * exp(η[3])
+        Vp = TVVC * exp(η[4])
+
+        k_cp = Q/Vc
+        k_pc = Q/Vp
     end
 
     @dynamics begin
-        Depot' = -Ka * Depot
-        Central' = Ka * Depot - (CL / Vc) * Central
+        Central' = -(CL/Vc + k_cp) * Central + k_pc*Peripheral
+        Peripheral' = k_cp * Central - k_pc*Peripheral
     end
 
     @derived begin
@@ -51,7 +56,7 @@ depot_1cmt_prop = @model begin
     end
 end
 
-df = CSV.read("02-depot_1cmt_linear/data/single_dose.csv", DataFrame, 
+df = CSV.read("01-iv_2cmt_linear/data/single_dose.csv", DataFrame, 
               missingstring = ".")
 rename!(lowercase, df)
 
@@ -61,14 +66,15 @@ pop = read_pumas(df,
 iparams = (;
     TVCL = 3.7,
     TVVC = 80,
-    TVKA = 1.2,
+    TVQ = 4.3,
+    TVVP = 35,
     σ_p = 0.3,
-    C = float.(Matrix(I(3))),
-    ω = [0.2, 0.3, 0.4]
+    C = float.(Matrix(I(4))),
+    ω = [0.2, 0.3, 0.4, 0.3]
 )
 
 pumas_fit = fit(
-    depot_1cmt_prop,
+    iv_2cmt_prop,
     pop,
     iparams,
     Pumas.BayesMCMC(
@@ -81,4 +87,5 @@ pumas_fit = fit(
 
 my_fit = Pumas.truncate(pumas_fit; burnin = 500)
 
-serialize("02-depot_1cmt_linear/Pumas/fit_single_dose", my_fit)
+
+serialize("01-iv_2cmt_linear/Pumas/fit_single_dose", my_fit)
