@@ -1,13 +1,12 @@
 // First Order Absorption (oral/subcutaneous)
 // Two-compartment PK Model
-// IIV on CL, VC, Q, vP, and Ka (full covariance matrix)
+// IIV on CL, VC, Q, VP, and Ka (full covariance matrix)
 // proportional error - DV = CP(1 + eps_p)
 // Matrix exponential solution using Torsten
 // Implements threading for within-chain parallelization 
 // Deals with BLOQ values by the "CDF trick" (M4)
 // Since we have a normal distribution on the error, but the DV must be > 0, it
 //   truncates the likelihood below at 0
-// For PPC, it generates values from a normal that is truncated below at 0
 
 
 functions{

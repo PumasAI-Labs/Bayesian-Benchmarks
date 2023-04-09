@@ -1,10 +1,9 @@
 // IV Infusion
 // Two-compartment PK Model
-// IIV on CL, VC, Q, vP, and Ka (full covariance matrix)
+// IIV on CL, VC, Q, and VP (full covariance matrix)
 // proportional error - DV = CP(1 + eps_p)
 // Analytical solution using Torsten
-// Since we have a normal distribution on the error, but the DV must be > 0, it
-//   truncates the likelihood below at 0
+// Simulations are generated from a normal that is truncated below at 0
 
 functions{
   

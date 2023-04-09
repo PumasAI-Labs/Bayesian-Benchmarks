@@ -7,7 +7,6 @@
 // Deals with BLOQ values by the "CDF trick" (M4)
 // Since we have a normal distribution on the error, but the DV must be > 0, it
 //   truncates the likelihood below at 0
-// For PPC, it generates values from a normal that is truncated below at 0
 
 
 functions{
