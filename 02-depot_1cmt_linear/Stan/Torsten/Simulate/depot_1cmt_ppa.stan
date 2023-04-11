@@ -3,7 +3,6 @@
 // IIV on CL, VC, KA
 // proportional plus additive error - DV = CP(1 + eps_p) + eps_a
 // Closed form solution using Torsten
-// Observations are generated from a normal that is truncated below at 0
 // Since we have a normal distribution on the error, but the DV must be > 0, it
 //   generates values from a normal that is truncated below at 0
 
