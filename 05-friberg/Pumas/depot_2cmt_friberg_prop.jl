@@ -52,8 +52,8 @@ depot_2cmt_friberg_prop = @model begin
         γ = TVGAMMA * exp(η[8])
         α = TVALPHA * exp(η[9])
 
-        k_cp = Q/Vc
-        k_pc = Q/Vp
+        k_cp = Q/VC
+        k_pc = Q/VP
         k_tr = 4/MTT
     end
 
@@ -93,8 +93,11 @@ df = CSV.read("05-friberg/data/multiple_dose_pumas.csv", DataFrame,
               missingstring = ".")
 rename!(lowercase, df)
 
-pop = read_pumas(df, 
-                 covariates = [:lloq, :_lloq_pd])
+pop = read_pumas(
+    df;
+    covariates = [:lloq, :lloq_pd],
+    observations=[:dv, :e],
+)
 
 iparams = (;
     TVCL = 3.7,
