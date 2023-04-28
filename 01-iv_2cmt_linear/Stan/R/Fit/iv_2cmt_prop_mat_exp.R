@@ -135,3 +135,12 @@ fit <- model$sample(data = stan_data,
 
 fit$save_object("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp.rds")
 # fit$save_object("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose_mat_exp.rds")
+
+parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
+                             str_subset(fit$metadata()$stan_variables, "omega"),
+                             "sigma_p")
+
+fit$draws(parameters_to_summarize, format = "draws_df") %>% 
+  as_tibble() %>% 
+  write_csv("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose_draws_df_mat_exp.csv")
+# write_csv("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose_draws_df_mat_exp.csv")

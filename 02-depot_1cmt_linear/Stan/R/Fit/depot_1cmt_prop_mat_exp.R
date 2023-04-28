@@ -7,6 +7,7 @@ library(tidyverse)
 set_cmdstan_path("cmdstan")
 
 nonmem_data <- read_csv("02-depot_1cmt_linear/data/single_dose.csv",
+# nonmem_data <- read_csv("02-depot_1cmt_linear/data/multiple_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -129,3 +130,14 @@ fit <- model$sample(data = stan_data,
                                            sigma_p = rlnorm(1, log(0.2), 0.3)))
 
 fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp.rds")
+# fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose_mat_exp.rds")
+
+
+parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
+                             str_subset(fit$metadata()$stan_variables, "omega"),
+                             "sigma_p")
+
+fit$draws(parameters_to_summarize, format = "draws_df") %>% 
+  as_tibble() %>% 
+  write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose_draws_df_mat_exp.csv")
+# write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose_draws_df_mat_exp.csv")
