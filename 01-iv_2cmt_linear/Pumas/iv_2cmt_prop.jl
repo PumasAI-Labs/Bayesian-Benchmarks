@@ -6,7 +6,7 @@ using Serialization
 iv_2cmt_prop = @model begin
 
     @param begin
-        TVCL ~ LogNormal(log(0.4), 1)
+        TVCL ~ LogNormal(log(4), 1)
         TVVC ~ LogNormal(log(70), 1)
         TVQ ~ LogNormal(log(4), 1)
         TVVP ~ LogNormal(log(40), 1)
@@ -58,19 +58,24 @@ end
 
 df = CSV.read("01-iv_2cmt_linear/data/single_dose.csv", DataFrame, 
               missingstring = ".")
+df_multi = CSV.read("01-iv_2cmt_linear/data/multiple_dose.csv", DataFrame, 
+              missingstring = ".")
 rename!(lowercase, df)
+rename!(lowercase, df_multi)
 
 pop = read_pumas(df, 
                  covariates = [:lloq])
+pop_multi = read_pumas(df_multi, 
+                 covariates = [:lloq])
 
 iparams = (;
-    TVCL = 3.7,
-    TVVC = 80,
-    TVQ = 4.3,
-    TVVP = 35,
-    σ_p = 0.3,
+    TVCL = exp(1.2970),
+    TVVC = exp(3.8210),
+    TVQ = exp(1.3210),
+    TVVP = exp(3.9100),
+    σ_p = 0.1573,
     C = float.(Matrix(I(4))),
-    ω = [0.2, 0.3, 0.4, 0.3]
+    ω = [0.2318, 0.1600, 0.2770, 0.2909]
 )
 
 pumas_fit = fit(
@@ -86,6 +91,19 @@ pumas_fit = fit(
     )
 
 my_fit = Pumas.truncate(pumas_fit; burnin = 500)
+serialize("01-iv_2cmt_linear/Pumas/fit_single_dose.jls", my_fit)
 
+pumas_fit_multi = fit(
+    iv_2cmt_prop,
+    pop,
+    iparams,
+    Pumas.BayesMCMC(
+        nsamples = 1500,
+        nadapts = 500,
+        nchains = 4,
+        parallel_chains = true,
+        parallel_subjects = true)
+    )
 
-serialize("01-iv_2cmt_linear/Pumas/fit_single_dose", my_fit)
+my_fit_multi = Pumas.truncate(pumas_fit_multi; burnin = 500)
+serialize("01-iv_2cmt_linear/Pumas/fit_multi_dose.jls", my_fit_multi)
