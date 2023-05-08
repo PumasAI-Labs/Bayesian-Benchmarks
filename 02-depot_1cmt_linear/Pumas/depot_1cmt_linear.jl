@@ -98,8 +98,10 @@ pumas_fit_multi = fit(
         nadapts = 500,
         nchains = 4,
         parallel_chains = true,
-        parallel_subjects = true)
+        parallel_subjects = true,
+        max_chunk_size=16,
     )
+)
 
 my_fit_multi = Pumas.truncate(pumas_fit_multi; burnin = 500)
 serialize("02-depot_1cmt_linear/Pumas/fit_multi_dose.jls", my_fit_multi)
