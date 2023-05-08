@@ -90,7 +90,9 @@ pumas_fit = fit(
         nadapts = 500,
         nchains = 4,
         parallel_chains = true,
-        parallel_subjects = true)
+        parallel_subjects = true,
+        max_chunk_size=16,
+        )
     )
 
 my_fit = Pumas.truncate(pumas_fit; burnin = 500)
@@ -105,7 +107,9 @@ pumas_fit_multi = fit(
         nadapts = 500,
         nchains = 4,
         parallel_chains = true,
-        parallel_subjects = true)
+        parallel_subjects = true,
+        max_chunk_size=16,
+        )
     )
 
 my_fit_multi = Pumas.truncate(pumas_fit_multi; burnin = 500)
