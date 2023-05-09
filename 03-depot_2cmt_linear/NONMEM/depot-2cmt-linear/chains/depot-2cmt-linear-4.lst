@@ -1,4 +1,4 @@
-Wed 03 May 2023 03:31:24 PM UTC
+Tue 09 May 2023 10:36:42 AM UTC
 ;Model Desc: 03-depot-2cmt-linear
 ;Project Name: Bayesian Benchmarks
 $PROBLEM   
@@ -63,7 +63,7 @@ $OMEGAPD  5 FIX
 $SIGMAP  0.25  FIX
 $SIGMAPD  1 FIX
 $ESTIMATION METHOD=NUTS INTERACTION AUTO=1 PRINT=50 NBURN=500
-            NITER=1000 SEED=12345 FILE=psn.ext
+            NITER=1000 SEED=12345 FILE=psn.ext NUTS_TEST=1 NUTS_MASS=D
 $COVARIANCE UNCONDITIONAL MATRIX=R PRINT=E
 $TABLE      ID EVID TIME IPRED NOPRINT ONEHEADER FORMAT=,1PE13.6
             FILE=depot-2cmt-linear-sdtab-4.tab
@@ -84,8 +84,8 @@ Note: Analytical 2nd Derivatives are constructed in FSUBS but are never used.
 
 License Registered to: Pumas AI Inc
 Expiration Date:    14 SEP 2023
-Current Date:        3 MAY 2023
-Days until program expires : 131
+Current Date:        9 MAY 2023
+Days until program expires : 125
 1NONLINEAR MIXED EFFECTS MODEL PROGRAM (NONMEM) VERSION 7.5.1
  ORIGINALLY DEVELOPED BY STUART BEAL, LEWIS SHEINER, AND ALISON BOECKMANN
  CURRENT DEVELOPERS ARE ROBERT BAUER, ICON DEVELOPMENT SOLUTIONS,
@@ -277,7 +277,7 @@ Days until program expires : 131
 0ERROR SUBROUTINE CALLED WITH EVERY EVENT RECORD.
 0ERROR SUBROUTINE INDICATES THAT DERIVATIVES OF COMPARTMENT AMOUNTS ARE USED.
 
- #PARA: PARAFILE=/opt/NONMEM/nm751/run/mpilinux8.pnm, PROTOCOL=MPI, NODES= 2
+ #PARA: PARAFILE=/opt/NONMEM/nm751/run/mpilinux8.pnm, PROTOCOL=MPI, NODES= 8
 
 1
 
@@ -355,14 +355,14 @@ Days until program expires : 131
  SAMPLES FOR LOCAL UNIVARIATE SEARCH KERNEL (OSAMPLE_M3):-1
  MASS/IMP./POST. MATRIX REFRESH SETTING (MASSREST):      -1
  MASS MATRIX ACCUMULATION ITERATIONS (MADAPT):          -1
- MASS MATRIX BLOCKING TYPE (NUTS_MASS):                 B
+ MASS MATRIX BLOCKING TYPE (NUTS_MASS):                 D
  MODEL PARAMETERS TRANSFORMED BY MASS MATRIX (NUTS_TRANSFORM=0)
  POWER TERM WEIGHTING FOR MASS MATRIX ACCUM. (KAPPA):   1.00000000000000
  NUTS SAMPLE ACCEPTANCE RATE (NUTS_DELTA):                   0.800000000000000
  NUTS GAMMA SETTING (NUTS_GAMMA):                            5.000000000000000E-02
  USER DEFINED PRIOR SETTING FOR THETAS: (TPU):        0.00000000000000
  WEIGHT FACTOR FOR STD PRIOR FOR SIGMAS (SVARF): -1.000000000000000+300
- NUTS WARMUP METHOD (NUTS_TEST):       0
+ NUTS WARMUP METHOD (NUTS_TEST):       1
  NUTS MAXIMAL DEPTH SEARCH (NUTS_MAXDEPTH):       10
  NUTS STAGE I WARMUP ITERATIONS (NUTS_INIT):       75.0000000000000
  NUTS STAGE II BASE WARMUP ITERATIONS (NUTS_BASE): -3.00000000000000
@@ -399,34 +399,34 @@ Days until program expires : 131
  MONITORING OF SEARCH:
 
  Burn-in Mode
- iteration         -272 MCMCOBJ=   -8077.2250127356192     
- iteration         -250 MCMCOBJ=   -12013.247523490025     
- iteration         -200 MCMCOBJ=   -11963.986951836228     
- iteration         -150 MCMCOBJ=   -12023.254635915400     
- iteration         -100 MCMCOBJ=   -11907.526748582830     
- iteration          -50 MCMCOBJ=   -12060.290612972003     
+ iteration         -272 MCMCOBJ=   -8077.2250127356201     
+ iteration         -250 MCMCOBJ=   -11983.838696758177     
+ iteration         -200 MCMCOBJ=   -12037.264651872905     
+ iteration         -150 MCMCOBJ=   -12051.333352446929     
+ iteration         -100 MCMCOBJ=   -12052.807238920523     
+ iteration          -50 MCMCOBJ=   -11967.508758341586     
  Sampling Mode
- iteration            0 MCMCOBJ=   -12043.854940009369     
- iteration           50 MCMCOBJ=   -12043.600282295802     
- iteration          100 MCMCOBJ=   -11958.617548368669     
- iteration          150 MCMCOBJ=   -12034.744540648673     
- iteration          200 MCMCOBJ=   -11992.806898713630     
- iteration          250 MCMCOBJ=   -12026.159832352030     
- iteration          300 MCMCOBJ=   -11992.360890623617     
- iteration          350 MCMCOBJ=   -11933.777141071938     
- iteration          400 MCMCOBJ=   -11968.560165218980     
- iteration          450 MCMCOBJ=   -12123.584808587439     
- iteration          500 MCMCOBJ=   -12070.641677747926     
- iteration          550 MCMCOBJ=   -12034.061829779537     
- iteration          600 MCMCOBJ=   -12047.582874115060     
- iteration          650 MCMCOBJ=   -12049.596645187790     
- iteration          700 MCMCOBJ=   -12081.596848045290     
- iteration          750 MCMCOBJ=   -12076.731655526886     
- iteration          800 MCMCOBJ=   -12086.181523085761     
- iteration          850 MCMCOBJ=   -12017.864796362726     
- iteration          900 MCMCOBJ=   -12023.582739904050     
- iteration          950 MCMCOBJ=   -11980.129214333829     
- iteration         1000 MCMCOBJ=   -12106.420853896458     
+ iteration            0 MCMCOBJ=   -12051.885419505616     
+ iteration           50 MCMCOBJ=   -12074.322198179536     
+ iteration          100 MCMCOBJ=   -11960.936545595736     
+ iteration          150 MCMCOBJ=   -12047.786081954520     
+ iteration          200 MCMCOBJ=   -12089.602746393877     
+ iteration          250 MCMCOBJ=   -11998.353779751726     
+ iteration          300 MCMCOBJ=   -11959.743725667329     
+ iteration          350 MCMCOBJ=   -12035.360598098174     
+ iteration          400 MCMCOBJ=   -11935.477899223179     
+ iteration          450 MCMCOBJ=   -12021.888021706489     
+ iteration          500 MCMCOBJ=   -12042.969949946728     
+ iteration          550 MCMCOBJ=   -12036.711642459943     
+ iteration          600 MCMCOBJ=   -12065.256303942842     
+ iteration          650 MCMCOBJ=   -12025.625835735384     
+ iteration          700 MCMCOBJ=   -11966.518485651086     
+ iteration          750 MCMCOBJ=   -12077.270094123422     
+ iteration          800 MCMCOBJ=   -12032.340682583272     
+ iteration          850 MCMCOBJ=   -12060.054374409086     
+ iteration          900 MCMCOBJ=   -11986.609409523944     
+ iteration          950 MCMCOBJ=   -12007.612610431264     
+ iteration         1000 MCMCOBJ=   -11955.963424186482     
 
  #TERM:
  BURN-IN WAS NOT TESTED FOR CONVERGENCE
@@ -435,40 +435,40 @@ Days until program expires : 131
  ETABAR IS THE ARITHMETIC MEAN OF THE ETA-ESTIMATES,
  AND THE P-VALUE IS GIVEN FOR THE NULL HYPOTHESIS THAT THE TRUE MEAN IS 0.
 
- ETABAR:         9.3117E-04  1.0247E-03 -9.1672E-05  3.7428E-04 -1.3895E-03
- SE:             2.5732E-02  2.5775E-02  1.1566E-02  1.8065E-02  2.4034E-02
+ ETABAR:        -1.3875E-04 -5.1301E-04 -6.7755E-04  5.4041E-05  1.1274E-03
+ SE:             2.5714E-02  2.5757E-02  1.1573E-02  1.7879E-02  2.4116E-02
  N:                     120         120         120         120         120
 
- P VAL.:         9.7113E-01  9.6829E-01  9.9368E-01  9.8347E-01  9.5390E-01
+ P VAL.:         9.9569E-01  9.8411E-01  9.5331E-01  9.9759E-01  9.6271E-01
 
- ETASHRINKSD(%)  5.6537E+00  1.2295E+01  5.9675E+01  3.5713E+01  2.2663E+01
- ETASHRINKVR(%)  1.0988E+01  2.3078E+01  8.3739E+01  5.8672E+01  4.0189E+01
- EBVSHRINKSD(%)  2.4679E+00  9.9754E+00  6.0677E+01  3.2834E+01  2.0931E+01
- EBVSHRINKVR(%)  4.8749E+00  1.8956E+01  8.4537E+01  5.4888E+01  3.7482E+01
- RELATIVEINF(%)  9.3489E+01  4.7179E+01  7.9805E+00  3.5729E+01  3.3915E+01
- EPSSHRINKSD(%)  1.1340E+01
- EPSSHRINKVR(%)  2.1394E+01
+ ETASHRINKSD(%)  5.4482E+00  1.2367E+01  5.9871E+01  3.5526E+01  2.2466E+01
+ ETASHRINKVR(%)  1.0600E+01  2.3205E+01  8.3897E+01  5.8431E+01  3.9884E+01
+ EBVSHRINKSD(%)  2.4295E+00  1.0147E+01  5.9926E+01  3.2595E+01  2.0730E+01
+ EBVSHRINKVR(%)  4.7999E+00  1.9264E+01  8.3941E+01  5.4565E+01  3.7162E+01
+ RELATIVEINF(%)  9.3676E+01  4.7181E+01  8.3148E+00  3.5484E+01  3.4329E+01
+ EPSSHRINKSD(%)  1.1402E+01
+ EPSSHRINKVR(%)  2.1503E+01
 
   
  TOTAL DATA POINTS NORMALLY DISTRIBUTED (N):         1800
  N*LOG(2PI) CONSTANT TO OBJECTIVE FUNCTION:    3308.1787195368215     
- OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -12018.833472560131     
- OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -8710.6547530233092     
+ OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -12021.614435444159     
+ OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -8713.4357159073370     
  REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
   
  TOTAL EFFECTIVE ETAS (NIND*NETA):                           600
  NIND*NETA*LOG(2PI) CONSTANT TO OBJECTIVE FUNCTION:    1102.7262398456071     
- OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -12018.833472560131     
- OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -10916.107232714523     
+ OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -12021.614435444159     
+ OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -10918.888195598551     
  REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
   
  PRIOR CONSTANT TO OBJECTIVE FUNCTION:    48.240655066448745     
- OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -12018.833472560131     
- OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -11970.592817493682     
+ OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -12021.614435444159     
+ OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -11973.373780377709     
  REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
   
  #TERE:
- Elapsed estimation  time in seconds:   361.64
+ Elapsed estimation  time in seconds:   255.41
  Elapsed covariance  time in seconds:     0.00
 1
  
@@ -503,8 +503,8 @@ Days until program expires : 131
 
 
 
- #OBJV:********************************************   -12018.833       **************************************************
- #OBJS:********************************************       55.015 (STD) **************************************************
+ #OBJV:********************************************   -12021.614       **************************************************
+ #OBJS:********************************************       55.486 (STD) **************************************************
 1
  ************************************************************************************************************************
  ********************                                                                                ********************
@@ -520,7 +520,7 @@ Days until program expires : 131
 
          TH 1      TH 2      TH 3      TH 4      TH 5     
  
-         1.42E+00  4.27E+00  1.41E+00  3.90E+00  5.22E-02
+         1.42E+00  4.27E+00  1.42E+00  3.90E+00  4.20E-02
  
 
 
@@ -530,16 +530,16 @@ Days until program expires : 131
          ETA1      ETA2      ETA3      ETA4      ETA5     
  
  ETA1
-+        8.93E-02
++        8.88E-02
  
  ETA2
 +        0.00E+00  1.04E-01
  
  ETA3
-+        0.00E+00  0.00E+00  9.87E-02
++        0.00E+00  0.00E+00  9.98E-02
  
  ETA4
-+        0.00E+00  0.00E+00  0.00E+00  9.48E-02
++        0.00E+00  0.00E+00  0.00E+00  9.23E-02
  
  ETA5
 +        0.00E+00  0.00E+00  0.00E+00  0.00E+00  1.16E-01
@@ -563,16 +563,16 @@ Days until program expires : 131
          ETA1      ETA2      ETA3      ETA4      ETA5     
  
  ETA1
-+        2.98E-01
++        2.97E-01
  
  ETA2
 +        0.00E+00  3.21E-01
  
  ETA3
-+        0.00E+00  0.00E+00  3.09E-01
++        0.00E+00  0.00E+00  3.11E-01
  
  ETA4
-+        0.00E+00  0.00E+00  0.00E+00  3.05E-01
++        0.00E+00  0.00E+00  0.00E+00  3.02E-01
  
  ETA5
 +        0.00E+00  0.00E+00  0.00E+00  0.00E+00  3.39E-01
@@ -602,7 +602,7 @@ Days until program expires : 131
 
          TH 1      TH 2      TH 3      TH 4      TH 5     
  
-         2.94E-02  3.85E-02  7.67E-02  4.60E-02  4.71E-02
+         2.83E-02  3.85E-02  7.82E-02  4.66E-02  4.79E-02
  
 
 
@@ -612,19 +612,19 @@ Days until program expires : 131
          ETA1      ETA2      ETA3      ETA4      ETA5     
  
  ETA1
-+        1.30E-02
++        1.28E-02
  
  ETA2
-+        0.00E+00  1.57E-02
++        0.00E+00  1.60E-02
  
  ETA3
-+        0.00E+00  0.00E+00  3.69E-02
++        0.00E+00  0.00E+00  3.67E-02
  
  ETA4
-+        0.00E+00  0.00E+00  0.00E+00  2.41E-02
++        0.00E+00  0.00E+00  0.00E+00  2.30E-02
  
  ETA5
-+        0.00E+00  0.00E+00  0.00E+00  0.00E+00  2.32E-02
++        0.00E+00  0.00E+00  0.00E+00  0.00E+00  2.29E-02
  
 
 
@@ -634,7 +634,7 @@ Days until program expires : 131
          EPS1     
  
  EPS1
-+        1.57E-03
++        1.52E-03
  
 1
 
@@ -645,19 +645,19 @@ Days until program expires : 131
          ETA1      ETA2      ETA3      ETA4      ETA5     
  
  ETA1
-+        2.14E-02
++        2.13E-02
  
  ETA2
-+        0.00E+00  2.41E-02
++        0.00E+00  2.46E-02
  
  ETA3
-+        0.00E+00  0.00E+00  5.58E-02
++        0.00E+00  0.00E+00  5.59E-02
  
  ETA4
-+        0.00E+00  0.00E+00  0.00E+00  3.81E-02
++        0.00E+00  0.00E+00  0.00E+00  3.71E-02
  
  ETA5
-+        0.00E+00  0.00E+00  0.00E+00  0.00E+00  3.37E-02
++        0.00E+00  0.00E+00  0.00E+00  0.00E+00  3.33E-02
  
 
 
@@ -667,7 +667,7 @@ Days until program expires : 131
          EPS1     
  
  EPS1
-+        3.96E-03
++        3.84E-03
  
 1
  ************************************************************************************************************************
@@ -682,22 +682,22 @@ Days until program expires : 131
              OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
  
  TH 1
-+        8.66E-04
++        8.00E-04
  
  TH 2
-+        3.73E-05  1.49E-03
++        7.36E-05  1.48E-03
  
  TH 3
-+        2.28E-04 -1.36E-03  5.89E-03
++        1.31E-04 -1.39E-03  6.12E-03
  
  TH 4
-+       -8.24E-05 -4.57E-04  1.02E-03  2.11E-03
++        4.47E-05 -5.04E-04  1.13E-03  2.17E-03
  
  TH 5
-+        6.16E-05  7.91E-04 -1.64E-03 -5.70E-04  2.22E-03
++       -2.32E-05  8.98E-04 -1.79E-03 -6.29E-04  2.29E-03
  
  OM11
-+        1.91E-06  2.97E-05 -4.46E-05  5.59E-05  7.69E-05  1.69E-04
++       -6.27E-06  1.18E-05 -7.69E-05 -1.00E-05  5.49E-05  1.63E-04
  
  OM12
 +       ......... ......... ......... ......... ......... ......... .........
@@ -712,7 +712,7 @@ Days until program expires : 131
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
  
  OM22
-+        2.62E-05 -6.59E-05  3.34E-05 -1.22E-05 -4.24E-05  5.10E-06  0.00E+00  0.00E+00  0.00E+00  0.00E+00  2.45E-04
++       -9.02E-06 -4.58E-05  9.56E-05 -8.10E-06 -1.00E-04  6.26E-06  0.00E+00  0.00E+00  0.00E+00  0.00E+00  2.55E-04
  
  OM23
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
@@ -726,8 +726,8 @@ Days until program expires : 131
          ......... .........
  
  OM33
-+        1.13E-05 -1.41E-04  4.85E-04  4.36E-04 -1.60E-04  1.98E-05  0.00E+00  0.00E+00  0.00E+00  0.00E+00  3.51E-05  0.00E+00
-          0.00E+00  0.00E+00  1.36E-03
++       -3.21E-05 -5.42E-05  1.33E-04  3.14E-04 -6.57E-05  9.54E-06  0.00E+00  0.00E+00  0.00E+00  0.00E+00  4.84E-06  0.00E+00
+          0.00E+00  0.00E+00  1.35E-03
  
  OM34
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
@@ -738,8 +738,8 @@ Days until program expires : 131
          ......... ......... ......... ......... .........
  
  OM44
-+       -7.92E-05  1.36E-04 -3.23E-04  3.89E-05  1.87E-04  5.48E-06  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -1.15E-05  0.00E+00
-          0.00E+00  0.00E+00 -3.39E-05  0.00E+00  0.00E+00  5.81E-04
++       -5.78E-05  1.51E-04 -4.24E-04 -1.08E-04  2.03E-04  2.06E-05  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -2.15E-05  0.00E+00
+          0.00E+00  0.00E+00  1.41E-05  0.00E+00  0.00E+00  5.27E-04
  
  OM45
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
@@ -751,12 +751,12 @@ Days until program expires : 131
              OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
  
  OM55
-+        3.72E-05  2.10E-05  4.57E-05  2.60E-05  3.47E-05 -2.22E-06  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -3.41E-05  0.00E+00
-          0.00E+00  0.00E+00 -3.31E-05  0.00E+00  0.00E+00 -2.53E-05  0.00E+00  5.38E-04
++       -3.17E-05  4.31E-05 -2.48E-05  5.23E-07  9.69E-05 -8.99E-07  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -2.69E-05  0.00E+00
+          0.00E+00  0.00E+00 -6.49E-05  0.00E+00  0.00E+00  5.48E-06  0.00E+00  5.25E-04
  
  SG11
-+       -3.70E-07  7.46E-07  4.06E-07 -3.79E-06  6.81E-07 -4.85E-07  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -7.72E-08  0.00E+00
-          0.00E+00  0.00E+00 -4.13E-06  0.00E+00  0.00E+00 -3.95E-06  0.00E+00 -3.59E-06  2.46E-06
++        2.80E-07  7.93E-07  9.42E-07  2.18E-06  1.25E-07  1.51E-06  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -2.00E-07  0.00E+00
+          0.00E+00  0.00E+00 -1.16E-06  0.00E+00  0.00E+00 -3.37E-06  0.00E+00 -1.15E-06  2.32E-06
  
 1
  ************************************************************************************************************************
@@ -771,22 +771,22 @@ Days until program expires : 131
              OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
  
  TH 1
-+        2.94E-02
++        2.83E-02
  
  TH 2
-+        3.28E-02  3.85E-02
++        6.77E-02  3.85E-02
  
  TH 3
-+        1.01E-01 -4.59E-01  7.67E-02
++        5.93E-02 -4.63E-01  7.82E-02
  
  TH 4
-+       -6.09E-02 -2.58E-01  2.88E-01  4.60E-02
++        3.39E-02 -2.81E-01  3.09E-01  4.66E-02
  
  TH 5
-+        4.45E-02  4.36E-01 -4.53E-01 -2.63E-01  4.71E-02
++       -1.71E-02  4.88E-01 -4.78E-01 -2.82E-01  4.79E-02
  
  OM11
-+        5.01E-03  5.93E-02 -4.48E-02  9.36E-02  1.26E-01  1.30E-02
++       -1.74E-02  2.41E-02 -7.70E-02 -1.68E-02  8.98E-02  1.28E-02
  
  OM12
 +       ......... ......... ......... ......... ......... ......... .........
@@ -801,7 +801,7 @@ Days until program expires : 131
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
  
  OM22
-+        5.69E-02 -1.09E-01  2.78E-02 -1.69E-02 -5.75E-02  2.51E-02  0.00E+00  0.00E+00  0.00E+00  0.00E+00  1.57E-02
++       -2.00E-02 -7.44E-02  7.65E-02 -1.09E-02 -1.31E-01  3.07E-02  0.00E+00  0.00E+00  0.00E+00  0.00E+00  1.60E-02
  
  OM23
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
@@ -815,8 +815,8 @@ Days until program expires : 131
          ......... .........
  
  OM33
-+        1.04E-02 -9.89E-02  1.71E-01  2.57E-01 -9.19E-02  4.14E-02  0.00E+00  0.00E+00  0.00E+00  0.00E+00  6.08E-02  0.00E+00
-          0.00E+00  0.00E+00  3.69E-02
++       -3.09E-02 -3.83E-02  4.64E-02  1.83E-01 -3.74E-02  2.03E-02  0.00E+00  0.00E+00  0.00E+00  0.00E+00  8.25E-03  0.00E+00
+          0.00E+00  0.00E+00  3.67E-02
  
  OM34
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
@@ -827,8 +827,8 @@ Days until program expires : 131
          ......... ......... ......... ......... .........
  
  OM44
-+       -1.12E-01  1.47E-01 -1.75E-01  3.51E-02  1.65E-01  1.75E-02  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -3.06E-02  0.00E+00
-          0.00E+00  0.00E+00 -3.82E-02  0.00E+00  0.00E+00  2.41E-02
++       -8.89E-02  1.70E-01 -2.36E-01 -1.01E-01  1.85E-01  7.03E-02  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -5.87E-02  0.00E+00
+          0.00E+00  0.00E+00  1.68E-02  0.00E+00  0.00E+00  2.30E-02
  
  OM45
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
@@ -840,12 +840,12 @@ Days until program expires : 131
              OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
  
  OM55
-+        5.45E-02  2.35E-02  2.56E-02  2.44E-02  3.18E-02 -7.38E-03  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -9.39E-02  0.00E+00
-          0.00E+00  0.00E+00 -3.87E-02  0.00E+00  0.00E+00 -4.52E-02  0.00E+00  2.32E-02
++       -4.89E-02  4.89E-02 -1.38E-02  4.89E-04  8.83E-02 -3.07E-03  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -7.35E-02  0.00E+00
+          0.00E+00  0.00E+00 -7.70E-02  0.00E+00  0.00E+00  1.04E-02  0.00E+00  2.29E-02
  
  SG11
-+       -8.01E-03  1.23E-02  3.37E-03 -5.25E-02  9.22E-03 -2.38E-02  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -3.14E-03  0.00E+00
-          0.00E+00  0.00E+00 -7.13E-02  0.00E+00  0.00E+00 -1.04E-01  0.00E+00 -9.87E-02  1.57E-03
++        6.51E-03  1.35E-02  7.91E-03  3.07E-02  1.72E-03  7.78E-02  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -8.24E-03  0.00E+00
+          0.00E+00  0.00E+00 -2.08E-02  0.00E+00  0.00E+00 -9.63E-02  0.00E+00 -3.28E-02  1.52E-03
  
 1
  ************************************************************************************************************************
@@ -860,22 +860,22 @@ Days until program expires : 131
              OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
  
  TH 1
-+        1.21E+03
++        1.29E+03
  
  TH 2
-+       -7.24E+01  9.61E+02
++       -1.34E+02  1.01E+03
  
  TH 3
-+       -8.18E+01  1.50E+02  2.56E+02
++       -4.03E+01  1.35E+02  2.47E+02
  
  TH 4
-+        5.14E+01  8.81E+01 -5.42E+01  5.85E+02
++       -3.18E+01  9.00E+01 -5.71E+01  5.50E+02
  
  TH 5
-+       -7.00E+01 -1.93E+02  1.17E+02  8.71E+01  6.50E+02
++        1.29E+01 -2.59E+02  1.14E+02  7.17E+01  6.66E+02
  
  OM11
-+       -7.19E+00 -7.30E+01  8.16E+00 -2.45E+02 -2.57E+02  6.16E+03
++        1.06E+01  9.46E+01  5.18E+01 -1.81E+01 -1.45E+02  6.28E+03
  
  OM12
 +       ......... ......... ......... ......... ......... ......... .........
@@ -890,7 +890,7 @@ Days until program expires : 131
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
  
  OM22
-+       -1.49E+02  2.11E+02  3.70E+01  8.47E+01  5.15E+01 -1.88E+02  0.00E+00  0.00E+00  0.00E+00  0.00E+00  4.21E+03
++        6.09E+01  1.25E+01 -2.23E+01  8.15E+01  1.65E+02 -2.33E+02  0.00E+00  0.00E+00  0.00E+00  0.00E+00  4.03E+03
  
  OM23
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
@@ -904,8 +904,8 @@ Days until program expires : 131
          ......... .........
  
  OM33
-+       -5.71E+00 -1.31E+01 -4.51E+01 -1.51E+02 -1.55E+01 -4.09E+01  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -1.10E+02  0.00E+00
-          0.00E+00  0.00E+00  8.07E+02
++        4.01E+01 -1.19E+01 -3.63E+00 -1.19E+02 -8.80E+00 -4.87E+01  0.00E+00  0.00E+00  0.00E+00  0.00E+00 -1.18E+01  0.00E+00
+          0.00E+00  0.00E+00  7.75E+02
  
  OM34
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
@@ -916,8 +916,8 @@ Days until program expires : 131
          ......... ......... ......... ......... .........
  
  OM44
-+        1.52E+02 -9.58E+01  5.75E+01 -1.16E+02 -1.16E+02  6.50E+01  0.00E+00  0.00E+00  0.00E+00  0.00E+00  2.10E+01  0.00E+00
-          0.00E+00  0.00E+00  4.94E+01  0.00E+00  0.00E+00  1.87E+03
++        1.37E+02 -8.19E+01  9.73E+01  1.44E+01 -6.18E+01 -2.14E+02  0.00E+00  0.00E+00  0.00E+00  0.00E+00  1.15E+02  0.00E+00
+          0.00E+00  0.00E+00 -3.31E+01  0.00E+00  0.00E+00  2.07E+03
  
  OM45
 +       ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... ......... .........
@@ -929,12 +929,12 @@ Days until program expires : 131
              OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
  
  OM55
-+       -7.16E+01 -3.18E+01 -2.62E+01 -4.45E+01 -5.03E+01  5.20E+01  0.00E+00  0.00E+00  0.00E+00  0.00E+00  2.54E+02  0.00E+00
-          0.00E+00  0.00E+00  6.65E+01  0.00E+00  0.00E+00  1.15E+02  0.00E+00  1.92E+03
++        9.14E+01 -3.80E+01 -2.53E+01 -3.77E+01 -8.80E+01  7.26E+00  0.00E+00  0.00E+00  0.00E+00  0.00E+00  1.76E+02  0.00E+00
+          0.00E+00  0.00E+00  1.01E+02  0.00E+00  0.00E+00  1.76E+01  0.00E+00  1.95E+03
  
  SG11
-+        4.40E+02 -3.68E+02 -2.35E+02  3.17E+02 -3.52E+02  1.03E+03  0.00E+00  0.00E+00  0.00E+00  0.00E+00  3.40E+02  0.00E+00
-          0.00E+00  0.00E+00  1.30E+03  0.00E+00  0.00E+00  3.16E+03  0.00E+00  3.06E+03  4.19E+05
++        1.98E+02 -6.58E+02 -2.61E+00 -5.63E+02 -9.17E+01 -4.48E+03  0.00E+00  0.00E+00  0.00E+00  0.00E+00  6.60E+02  0.00E+00
+          0.00E+00  0.00E+00  5.33E+02  0.00E+00  0.00E+00  3.11E+03  0.00E+00  1.10E+03  4.40E+05
  
 1
  
@@ -967,10 +967,10 @@ Days until program expires : 131
 
              1         2         3         4         5         6         7         8         9        10        11
  
-         4.88E-01  5.52E-01  6.20E-01  8.10E-01  8.47E-01  9.09E-01  1.01E+00  1.12E+00  1.15E+00  1.26E+00  2.24E+00
+         4.95E-01  5.15E-01  6.73E-01  7.93E-01  8.94E-01  9.34E-01  1.05E+00  1.07E+00  1.12E+00  1.14E+00  2.32E+00
  
- Elapsed postprocess time in seconds:     0.06
- Elapsed finaloutput time in seconds:     0.17
- #CPUT: Total CPU Time in Seconds,      581.116
+ Elapsed postprocess time in seconds:     0.13
+ Elapsed finaloutput time in seconds:     0.20
+ #CPUT: Total CPU Time in Seconds,      874.881
 Stop Time:
-Wed 03 May 2023 03:37:35 PM UTC
+Tue 09 May 2023 10:41:06 AM UTC
