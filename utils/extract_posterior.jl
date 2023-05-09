@@ -2,13 +2,14 @@ using Arrow
 using MCMCChains
 using DataFrames
 using CSV
+using DelimitedFiles
 
 function get_chains_stan(
     arrow;
     nchains=4,
     internals=Symbol.(
         ["lp__"]
-    )
+    ),
 )
     df = DataFrame(Arrow.Table(arrow))
     names_df = setdiff(names(df), [".chain", ".iteration", ".draw", "warmup", "sampling", "total"])
@@ -32,15 +33,35 @@ function get_chains_stan(
     return chn
 end
 
-function get_chains_nonmen(files, lst)
-    dfs = CSV.read.(files, DataFrame; delim='\t', skipto=3, header=2)
-    df = vcat(dfs...)
-    # TODO get times from lst file using readlines
-    # grep("Elapsed estimation  time in seconds: ", lstText)
+function get_chains_nonmen(
+        arrow;
+        nchains=4,
+    )
+    df = DataFrame(Arrow.Table(arrow))
+    names_df = setdiff(names(df), ["chain", "iteration", "time"])
+    times = combine(
+        groupby(
+            df,
+            "chain"
+        ),
+        :time => first
+    )
+    mat = Array{Float64}(undef, Int(nrow(df)/nchains), length(names_df), nchains)
+    for c in 1:nchains
+        mat[:, :, c ] .= Matrix(
+            select(
+                subset(df, Symbol("chain") => ByRow(==(c))),
+            names_df)
+        )
+    end
+    info = (; start_time=fill(0.0, nchains), stop_time=times[:, 2])
+    chn = Chains(mat, names_df; info)
+    return chn
 end
 
 function mean_ess_sec(chn)
-    summ_df = summarystats(chn)
+    summ_df = DataFrame(summarystats(chn))
+    filter!(r -> !(isnan(r.ess_per_sec)), summ_df)
     mean_ess_sec = mean(summ_df[:, :ess_per_sec])
     return mean_ess_sec
 end
@@ -69,3 +90,25 @@ stan_df = DataFrame(;
 )
 
 CSV.write("results/stan.csv", stan_df)
+
+nonmem_01_sd = get_chains_nonmen(joinpath(pwd(), "01-iv_2cmt_linear", "NONMEM", "iv-2cmt-linear", "chains", "chains.arrow"))
+nonmem_01_md = get_chains_nonmen(joinpath(pwd(), "01-iv_2cmt_linear", "NONMEM", "iv-2cmt-linear-md", "chains", "chains.arrow"))
+nonmem_02_sd = get_chains_nonmen(joinpath(pwd(), "02-depot_1cmt_linear", "NONMEM", "depot-1cmt-linear", "chains", "chains.arrow"))
+nonmem_02_md = get_chains_nonmen(joinpath(pwd(), "02-depot_1cmt_linear", "NONMEM", "depot-1cmt-linear-md", "chains", "chains.arrow"))
+nonmem_03_sd = get_chains_nonmen(joinpath(pwd(), "03-depot_2cmt_linear", "NONMEM", "depot-2cmt-linear", "chains", "chains.arrow"))
+nonmem_03_md = get_chains_nonmen(joinpath(pwd(), "03-depot_2cmt_linear", "NONMEM", "depot-2cmt-linear-md", "chains", "chains.arrow"))
+
+nonmem_df = DataFrame(;
+    model=[
+    "01_single_dose","01_mult_dose_",
+    "02_single_dose","02_mult_dose",
+    "03_single_dose","03_mult_dose",
+    ],
+    mean_ess_sec=mean_ess_sec.(
+        [
+            nonmem_01_sd, nonmem_01_md, nonmem_02_sd, nonmem_02_md, nonmem_03_sd, nonmem_03_md
+        ]
+    )
+)
+
+CSV.write("results/nonmem.csv", nonmem_df)
