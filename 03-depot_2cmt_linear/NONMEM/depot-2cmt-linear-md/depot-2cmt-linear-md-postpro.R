@@ -27,7 +27,9 @@ for(i in 1:nChains) {
            OMEGA_CL=OMEGA.1.1., OMEGA_V2=OMEGA.2.2., OMEGA_Q=OMEGA.3.3., OMEGA_V3=OMEGA.4.4., OMEGA_KA=OMEGA.5.5., 
            SIGMA=SIGMA.1.1.) %>% 
     filter(ITERATION>0) %>% 
-    mutate(Chain=i)
+    mutate(Chain=i) %>% 
+    mutate(across(CL:V2, exp)) %>% 
+    mutate(across(OMEGA_CL:SIGMA, sqrt))
   
   out <- rbind(out, params)
 }
@@ -72,7 +74,7 @@ t1 <- parTable %>%
          pct75 = "75%", pct97.5 = "97.5%", Neff = "n_eff") %>%
   mutate(parameter = rownames(.), 
          "95% CI" = paste("(", pct2.5, ", ", pct97.5, ")", sep = "")) %>%
-  select(parameter, mean, SD, median, "95% CI", Neff, Rhat) 
+  select(parameter, mean, SD, median, "95% CI", Neff, Rhat, Bulk_ESS, Tail_ESS) 
 
 grid.arrange(arrangeGrob(tableGrob(t1, rows=NULL), 
                          top = textGrob("Summary of Posterior Parameter Estimates\n",
