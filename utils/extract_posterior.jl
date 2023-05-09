@@ -1,8 +1,10 @@
 using Arrow
 using MCMCChains
 using DataFrames
+using CSV
+using RData
 
-function get_chains(
+function get_chains_stan(
     df;
     nchains=4,
     internals=Symbol.(
