@@ -2,7 +2,7 @@ using Arrow
 using MCMCChains
 using DataFrames
 using CSV
-using DelimitedFiles
+using Serialization
 
 function get_chains_stan(
     arrow;
@@ -112,3 +112,25 @@ nonmem_df = DataFrame(;
 )
 
 CSV.write("results/nonmem.csv", nonmem_df)
+
+pumas_01_sd = deserialize(joinpath(pwd(), "01-iv_2cmt_linear", "Pumas", "fit_single_dose.jls"))
+pumas_01_md = deserialize(joinpath(pwd(), "01-iv_2cmt_linear", "Pumas", "fit_multi_dose.jls"))
+pumas_02_sd = deserialize(joinpath(pwd(), "02-depot_1cmt_linear", "Pumas", "fit_single_dose.jls"))
+pumas_02_md = deserialize(joinpath(pwd(), "02-depot_1cmt_linear", "Pumas", "fit_multi_dose.jls"))
+pumas_03_sd = deserialize(joinpath(pwd(), "03-depot_2cmt_linear", "Pumas", "fit_single_dose.jls"))
+pumas_03_md = deserialize(joinpath(pwd(), "03-depot_2cmt_linear", "Pumas", "fit_multi_dose.jls"))
+
+pumas_df = DataFrame(;
+    model=[
+    "01_single_dose","01_mult_dose_",
+    "02_single_dose","02_mult_dose",
+    "03_single_dose","03_mult_dose",
+    ],
+    mean_ess_sec=mean_ess_sec.(
+        [
+            pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
+        ]
+    )
+)
+
+CSV.write("results/pumas.csv", pumas_df)
