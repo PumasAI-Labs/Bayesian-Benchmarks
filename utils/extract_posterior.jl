@@ -1,6 +1,7 @@
 using Arrow
 using MCMCChains
 using DataFrames
+using DataFramesMeta
 using CSV
 using Serialization
 
@@ -134,3 +135,12 @@ pumas_df = DataFrame(;
 )
 
 CSV.write("results/pumas.csv", pumas_df)
+
+@rtransform! stan_df :software = "stan"
+@rtransform! nonmem_df :software = "nonmem"
+@rtransform! pumas_df :software = "pumas"
+
+all_df = vcat(stan_df, nonmem_df, pumas_df)
+select!(all_df, :software, All())
+
+CSV.write("results/all.csv", all_df)
