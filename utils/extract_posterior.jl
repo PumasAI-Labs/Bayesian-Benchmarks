@@ -2,33 +2,63 @@ using Arrow
 using MCMCChains
 using DataFrames
 using CSV
-using RData
 
 function get_chains_stan(
-    df;
+    arrow;
     nchains=4,
     internals=Symbol.(
-        ["lp__", "accept_stat__", "stepsize__", "treedepth__", "n_leapfrog__", "divergent__", "energy__"]
+        ["lp__"]
     )
 )
-    time = first(df.time)
-    df = select(df, Not(:time))
-    mat = Array{Float64}(undef, Int(nrow(df)/nchains), ncol(df), nchains)
+    df = DataFrame(Arrow.Table(arrow))
+    names_df = setdiff(names(df), [".chain", ".iteration", ".draw", "warmup", "sampling", "total"])
+    times = combine(
+        groupby(
+            df,
+            ".chain"
+        ),
+        :total => first
+    )
+    mat = Array{Float64}(undef, Int(nrow(df)/nchains), length(names_df), nchains)
     for c in 1:nchains
-        idx_min = Int(1 + (1_000 * (c - 1)))
-        idx_max = Int(1_000 * c)
-        # @show idx_min
-        # @show size(df[idx_min:idx_max, :])
-        mat[:, :, c ] .= df[idx_min:idx_max, :]
+        mat[:, :, c ] .= Matrix(
+            select(
+                subset(df, Symbol(".chain") => ByRow(==(c))),
+            names_df)
+        )
     end
-    # info = (; start_time=fill(DateTime(today()), nchains), stop_time=fill(DateTime(today()) + Second(Int(floor(time))), nchains))
-    info = (; start_time=fill(0.0, nchains), stop_time=fill(time, nchains))
-    chn = Chains(mat, names(df), Dict(:internals => internals); info)
-    # chn = setinfo(chn, info)
+    info = (; start_time=fill(0.0, nchains), stop_time=times[:, 2])
+    chn = Chains(mat, names_df, Dict(:internals => internals); info)
     return chn
 end
 
-files = filter(f -> endswith(f, ".arrow"), readdir(joinpath(pwd(), "Model1", "Stan", "Torsten", "Fits"); join=true))
-df = mapreduce(f -> DataFrame(Arrow.Table(f)), vcat, files)
+function mean_ess_sec(chn)
+    summ_df = summarystats(chn)
+    mean_ess_sec = mean(summ_df[:, :ess_per_sec])
+    return mean_ess_sec
+end
 
-chn = get_chains(df)
+files_01 = filter(f -> endswith(f, ".arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Stan", "Torsten", "Fits"); join=true))
+files_02 = filter(f -> endswith(f, ".arrow"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "Stan", "Torsten", "Fits"); join=true))
+files_03 = filter(f -> endswith(f, ".arrow"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "Stan", "Torsten", "Fits"); join=true))
+
+chn_01_mult_dose, chn_01_mult_dose_mat_exp, chn_01_single_dose, chn_01_single_dose_mat_exp = get_chains_stan.(files_01)
+chn_02_mult_dose, chn_02_mult_dose_mat_exp, chn_02_single_dose, chn_02_single_dose_mat_exp = get_chains_stan.(files_02)
+chn_03_mult_dose, chn_03_mult_dose_mat_exp, chn_03_single_dose, chn_03_single_dose_mat_exp = get_chains_stan.(files_03)
+
+stan_df = DataFrame(;
+    model=[
+    "01_mult_dose","01_mult_dose_mat_exp","01_single_dose","01_single_dose_mat_exp",
+    "02_mult_dose","02_mult_dose_mat_exp","02_single_dose","02_single_dose_mat_exp",
+    "03_mult_dose","03_mult_dose_mat_exp","03_single_dose","03_single_dose_mat_exp",
+    ],
+    mean_ess_sec=mean_ess_sec.(
+        [
+            chn_01_mult_dose, chn_01_mult_dose_mat_exp, chn_01_single_dose, chn_01_single_dose_mat_exp,
+            chn_02_mult_dose, chn_02_mult_dose_mat_exp, chn_02_single_dose, chn_02_single_dose_mat_exp,
+            chn_03_mult_dose, chn_03_mult_dose_mat_exp, chn_03_single_dose, chn_03_single_dose_mat_exp,
+        ]
+    )
+)
+
+CSV.write("results/stan.csv", stan_df)
