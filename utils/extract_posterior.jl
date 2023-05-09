@@ -32,6 +32,13 @@ function get_chains_stan(
     return chn
 end
 
+function get_chains_nonmen(files, lst)
+    dfs = CSV.read.(files, DataFrame; delim='\t', skipto=3, header=2)
+    df = vcat(dfs...)
+    # TODO get times from lst file using readlines
+    # grep("Elapsed estimation  time in seconds: ", lstText)
+end
+
 function mean_ess_sec(chn)
     summ_df = summarystats(chn)
     mean_ess_sec = mean(summ_df[:, :ess_per_sec])
