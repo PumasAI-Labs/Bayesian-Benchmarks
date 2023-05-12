@@ -161,18 +161,20 @@ fit <- model$sample(data = stan_data,
                     adapt_delta = 0.8,
                     refresh = 5,
                     max_treedepth = 10,
-                    init = function() list(TVCL = rlnorm(1, log(4), 0.3),
-                                           TVVC = rlnorm(1, log(70), 0.3),
-                                           TVQ = rlnorm(1, log(4), 0.3),
-                                           TVVP = rlnorm(1, log(40), 0.3),
-                                           TVKA = rlnorm(1, log(1), 0.3),
-                                           TVMTT = rlnorm(1, log(125), 0.3),
-                                           TVCIRC0 = rlnorm(1, log(5), 0.3),
-                                           TVGAMMA = rlnorm(1, log(0.17), 0.3),
-                                           TVALPHA = rlnorm(1, log(3e-4), 0.3),
-                                           omega = rlnorm(9, log(0.3), 0.3),
-                                           sigma_p = rlnorm(1, log(0.2), 0.3),
-                                           sigma_p_pd = rlnorm(1, log(0.2), 0.3)))
+                    init = str_c("05-friberg/data/inits/inits_1_", 
+                                 1:4, ".json"))
+                    # init = function() list(TVCL = rlnorm(1, log(4), 0.3),
+                    #                        TVVC = rlnorm(1, log(70), 0.3),
+                    #                        TVQ = rlnorm(1, log(4), 0.3),
+                    #                        TVVP = rlnorm(1, log(40), 0.3),
+                    #                        TVKA = rlnorm(1, log(1), 0.3),
+                    #                        TVMTT = rlnorm(1, log(125), 0.3),
+                    #                        TVCIRC0 = rlnorm(1, log(5), 0.3),
+                    #                        TVGAMMA = rlnorm(1, log(0.17), 0.3),
+                    #                        TVALPHA = rlnorm(1, log(3e-4), 0.3),
+                    #                        omega = rlnorm(9, log(0.3), 0.3),
+                    #                        sigma_p = rlnorm(1, log(0.2), 0.3),
+                    #                        sigma_p_pd = rlnorm(1, log(0.2), 0.3)))
 
 fit$save_object("05-friberg/Stan/Torsten/Fits/multiple_dose.rds")
 
