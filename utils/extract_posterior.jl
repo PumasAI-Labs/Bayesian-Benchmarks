@@ -42,6 +42,16 @@ function get_chains_nonmen(
     )
     df = DataFrame(Arrow.Table(arrow))
     names_df = setdiff(names(df), ["chain", "iteration", "time"])
+    theta_names = filter(s -> startswith(s, "theta"), names_df)
+    omega_names = filter(s -> startswith(s, "omega"), names_df)
+    # only retain diagonal omegas
+    max_omega_idx = parse(Int64, maximum(getindex.(split.(omega_names, '_'), 2)))
+    omegas_to_retain = ["omega_$(i)_$(i)" for i in 1:max_omega_idx]
+    omegas_to_filter = setdiff(omega_names, omegas_to_retain)
+    select!(df, Not(omegas_to_filter))
+    filter!(p -> p ∉ omegas_to_filter, names_df)
+    # exponentiate back thetas
+    transform!(df, theta_names .=> ByRow(exp); renamecols=false)
     times = combine(
         groupby(
             df,
@@ -62,15 +72,21 @@ function get_chains_nonmen(
     return chn
 end
 
-function mean_ess_sec(chn)
+function mean_ess_sec(chn; pumas=false)
     summ_df = DataFrame(summarystats(chn))
+    if pumas
+        filter!(r -> !(startswith(string(r.parameters), 'C')), summ_df)
+    end
     # filter!(r -> !(isnan(r.ess_per_sec)), summ_df)
     mean_ess_sec = mean(summ_df[:, :ess_per_sec])
     return mean_ess_sec
 end
 
-function mean_ess(chn)
+function mean_ess(chn; pumas=false)
     summ_df = DataFrame(summarystats(chn))
+    if pumas
+        filter!(r -> !(startswith(string(r.parameters), 'C')), summ_df)
+    end
     # filter!(r -> !(isnan(r.ess_per_sec)), summ_df)
     mean_ess = mean(summ_df[:, :ess])
     return mean_ess
@@ -160,12 +176,14 @@ pumas_df = DataFrame(;
     mean_ess=mean_ess.(
         [
             pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
-        ]
+        ];
+        pumas=true
     ),
     mean_ess_sec=mean_ess_sec.(
         [
             pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
-        ]
+        ];
+        pumas=true
     )
 )
 
