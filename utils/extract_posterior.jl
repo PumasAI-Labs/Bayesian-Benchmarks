@@ -4,6 +4,8 @@ using DataFrames
 using DataFramesMeta
 using CSV
 using Serialization
+using Dates
+using Pumas
 
 function get_chains_stan(
     arrow;
@@ -60,11 +62,14 @@ function get_chains_nonmen(
     return chn
 end
 
+function _wall_duration(c::Chains; start=MCMCChains.min_start(c), stop=MCMCChains.max_stop(c))
+    return Dates.value(stop - start) / 1000
+end
+
 function mean_ess_sec(chn)
-    summ_df = DataFrame(summarystats(chn))
-    filter!(r -> !(isnan(r.ess_per_sec)), summ_df)
-    mean_ess_sec = mean(summ_df[:, :ess_per_sec])
-    return mean_ess_sec
+    ess = MCMCChains.MCMCDiagnosticTools.ess_rhat(chn)[:,:ess]
+    filter!(!isnan, ess)
+    return mean(ess ./ _wall_duration(chn))
 end
 
 files_01 = filter(f -> endswith(f, ".arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Stan", "Torsten", "Fits"); join=true))
@@ -127,11 +132,11 @@ pumas_df = DataFrame(;
     "02_single_dose","02_mult_dose",
     "03_single_dose","03_mult_dose",
     ],
-    mean_ess_sec=mean_ess_sec.(
+    mean_ess_sec=mean_ess_sec.(Chains.(
         [
             pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
         ]
-    )
+    ))
 )
 
 CSV.write("results/pumas.csv", pumas_df)

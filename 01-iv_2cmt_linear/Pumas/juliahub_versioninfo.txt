@@ -1,0 +1,21 @@
+Julia Version 1.8.5
+Commit 17cfb8e65ea (2023-01-08 06:45 UTC)
+Platform Info:
+  OS: Linux (x86_64-linux-gnu)
+  CPU: 32 × Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz
+  WORD_SIZE: 64
+  LIBM: libopenlibm
+  LLVM: libLLVM-13.0.1 (ORCJIT, icelake-server)
+  Threads: 32 on 32 virtual cores
+Environment:
+  JULIA_WORKER_TIMEOUT = 360.0
+  JULIA_PKG_USE_CLI_GIT = true
+  JULIA_GR_PROVIDER = BinaryBuilder
+  JULIA_LOAD_PATH = :/opt/juliahub/projects/default
+  JULIA_DATASETS_PATH = /var/run/secrets/jr-liscfmzfqzsecret/DATA_TOML:/opt/juliahub/JuliaHubDataDriver.toml:@:
+  JULIA_DEPOT_PATH = /home/jrun/data/.julia:/home/jrun/.julia
+  LD_LIBRARY_PATH = :/opt/codeserver/lib
+  JULIA_HOME = /home/jrun/data/.julia
+  JULIA_PKG_SERVER = pumasai.juliahub.com
+  JULIA_NUM_THREADS = 32
+  JULIA_EDITOR = code
