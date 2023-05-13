@@ -100,7 +100,7 @@ pumas_fit = fit(
         parallel_chains=true,
         parallel_subjects=true,
         max_chunk_size=16,
-        use_ebes = false,
+        # use_ebes = false,
     )
 )
 
@@ -118,7 +118,7 @@ pumas_fit_multi = fit(
         parallel_chains=true,
         parallel_subjects=true,
         max_chunk_size=16,
-        use_ebes = false,
+        # use_ebes = false,
     )
 )
 
