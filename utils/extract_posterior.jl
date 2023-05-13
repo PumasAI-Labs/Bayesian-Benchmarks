@@ -170,7 +170,7 @@ pumas_df = DataFrame(;
         [
             pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
         ]
-    )))
+    ))
 )
 
 CSV.write("results/pumas.csv", pumas_df)
