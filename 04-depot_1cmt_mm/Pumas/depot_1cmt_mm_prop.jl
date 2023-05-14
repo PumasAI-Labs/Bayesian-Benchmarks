@@ -3,14 +3,18 @@ using DataFrames
 using CSV
 
 depot_1cmt_mm_prop = @model begin
+    @options begin
+        inplace = false
+    end
 
     @param begin
+        # TVCL ~ LogNormal(log(4), 1)
         TVVC ~ LogNormal(log(70), 1)
         TVVMAX ~ LogNormal(log(1), 1)
         TVKM ~ LogNormal(log(0.25), 1)
         TVKA ~ LogNormal(log(1), 1)
         #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0, Inf)
+        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
         C ~ LKJCholesky(4, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(4), Diagonal([0.4, 0.4, 0.4, 0.4].^2)),
@@ -36,8 +40,8 @@ depot_1cmt_mm_prop = @model begin
 
         # PK parameters
         Vc = TVVC * exp(η[1])
-        VMAX = TVCL * exp(η[2])
-        KM = TVVC * exp(η[3])
+        VMAX = TVVMAX * exp(η[2])
+        KM = TVKM * exp(η[3])
         Ka = TVKA * exp(η[4])
 
     end
@@ -53,7 +57,15 @@ depot_1cmt_mm_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. Censored(truncated(Normal(cp, cp*σ_p), 0, Inf), _lloq, Inf)
+        dv ~ @. Censored(
+            truncated(
+                Normal(cp, cp*σ_p + 1e-10),
+                0.0,
+                Inf,
+            ),
+            _lloq,
+            Inf,
+        )
     end
 end
 

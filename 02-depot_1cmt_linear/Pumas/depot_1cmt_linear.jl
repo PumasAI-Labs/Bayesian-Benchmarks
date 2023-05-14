@@ -4,13 +4,16 @@ using CSV
 using Serialization
 
 depot_1cmt_prop = @model begin
+    @options begin
+        inplace = false
+    end
 
     @param begin
         TVCL ~ LogNormal(log(4), 1)
         TVVC ~ LogNormal(log(70), 1)
         TVKA ~ LogNormal(log(1), 1)
         #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0, Inf)
+        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
         C ~ LKJCholesky(3, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(3), Diagonal([0.4, 0.4, 0.4].^2)),
@@ -47,7 +50,15 @@ depot_1cmt_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. Censored(truncated(Normal(cp, cp*σ_p), 0, Inf), _lloq, Inf)
+        dv ~ @. Censored(
+            truncated(
+                Normal(cp, cp*σ_p + 1e-10),
+                0.0,
+                Inf,
+            ),
+            _lloq,
+            Inf,
+        )
     end
 end
 
@@ -83,8 +94,9 @@ pumas_fit = fit(
         parallel_chains = true,
         parallel_subjects = true,
         max_chunk_size=16,
-        )
+        # use_ebes = false,
     )
+)
 
 my_fit = Pumas.truncate(pumas_fit; burnin = 500)
 serialize("02-depot_1cmt_linear/Pumas/fit_single_dose.jls", my_fit)
@@ -100,6 +112,7 @@ pumas_fit_multi = fit(
         parallel_chains = true,
         parallel_subjects = true,
         max_chunk_size=16,
+        # use_ebes = false,
     )
 )
 

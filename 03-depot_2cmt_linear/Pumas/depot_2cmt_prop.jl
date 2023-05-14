@@ -1,8 +1,12 @@
 using Pumas
 using DataFrames
 using CSV
+using Serialization
 
 depot_2cmt_prop = @model begin
+    @options begin
+        inplace = false
+    end
 
     @param begin
         TVCL ~ LogNormal(log(4), 1)
@@ -11,7 +15,7 @@ depot_2cmt_prop = @model begin
         TVVP ~ LogNormal(log(40), 1)
         TVKA ~ LogNormal(log(1), 1)
         #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0, Inf)
+        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
         C ~ LKJCholesky(5, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(5), Diagonal([0.4, 0.4, 0.4, 0.4, 0.4].^2)),
@@ -38,8 +42,8 @@ depot_2cmt_prop = @model begin
         # PK parameters
         CL = TVCL * exp(η[1])
         Vc = TVVC * exp(η[2])
-        Q = TVCL * exp(η[3])
-        Vp = TVVC * exp(η[4])
+        Q = TVQ * exp(η[3])
+        Vp = TVVP * exp(η[4])
         Ka = TVKA * exp(η[5])
 
         k_cp = Q/Vc
@@ -54,7 +58,15 @@ depot_2cmt_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. Censored(truncated(Normal(cp, cp*σ_p), 0, Inf), _lloq, Inf)
+        dv ~ @. Censored(
+            truncated(
+                Normal(cp, cp*σ_p + 1e-10),
+                0.0,
+                Inf,
+            ),
+            _lloq,
+            Inf,
+        )
     end
 end
 
@@ -92,8 +104,9 @@ pumas_fit = fit(
         parallel_chains = true,
         parallel_subjects = true,
         max_chunk_size=16,
-        )
+        # use_ebes = false,
     )
+)
 
 my_fit = Pumas.truncate(pumas_fit; burnin = 500)
 serialize("03-depot_2cmt_linear/Pumas/fit_single_dose.jls", my_fit)
@@ -109,8 +122,9 @@ pumas_fit_multi = fit(
         parallel_chains = true,
         parallel_subjects = true,
         max_chunk_size=16,
-        )
+        # use_ebes = false,
     )
+)
 
 my_fit_multi = Pumas.truncate(pumas_fit_multi; burnin = 500)
 serialize("03-depot_2cmt_linear/Pumas/fit_multi_dose.jls", my_fit_multi)

@@ -3,6 +3,9 @@ using DataFrames
 using CSV
 
 depot_2cmt_friberg_prop = @model begin
+    @options begin
+        inplace = false
+    end
 
     @param begin
         TVCL ~ LogNormal(log(0.4), 1)
@@ -15,8 +18,8 @@ depot_2cmt_friberg_prop = @model begin
         TVGAMMA ~ LogNormal(log(0.17), 1)
         TVALPHA ~ LogNormal(log(3e-4), 1)
         #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0, Inf)
-        σ_p_pd ~ truncated(Normal(0, 0.5), 0, Inf)
+        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
+        σ_p_pd ~ truncated(Normal(0, 0.5), 0.0, Inf)
         C ~ LKJCholesky(9, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(9), Diagonal([0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4].^2)),
@@ -44,8 +47,8 @@ depot_2cmt_friberg_prop = @model begin
         # PK parameters
         CL = TVCL * exp(η[1])
         VC = TVVC * exp(η[2])
-        Q = TVCL * exp(η[3])
-        VP = TVVC * exp(η[4])
+        Q = TVQ * exp(η[3])
+        VP = TVVP * exp(η[4])
         KA = TVKA * exp(η[5])
         MTT = TVMTT * exp(η[6])
         CIRC0 = TVCIRC0 * exp(η[7])
@@ -84,8 +87,24 @@ depot_2cmt_friberg_prop = @model begin
 
     @derived begin
         cp := @. Central / VC
-        dv ~ @. Censored(truncated(Normal(cp, cp*σ_p), 0, Inf), _lloq, Inf)
-        e  ~ @. Censored(truncated(Normal(Circ, Circ*σ_p_pd), 0, Inf), _lloq_pd, Inf)
+        dv ~ @. Censored(
+            truncated(
+                Normal(cp, cp*σ_p + 1e-10),
+                0.0,
+                Inf,
+            ),
+            _lloq,
+            Inf,
+        )
+        e  ~ @. Censored(
+            truncated(
+                Normal(Circ, Circ*σ_p_pd + 1e-10),
+                0.0,
+                Inf,
+            ),
+            _lloq_pd,
+            Inf,
+        )
     end
 end
 

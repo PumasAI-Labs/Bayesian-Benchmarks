@@ -4,14 +4,17 @@ using CSV
 using Serialization
 
 iv_2cmt_prop = @model begin
+    @options begin
+        inplace = false
+    end
 
     @param begin
         TVCL ~ LogNormal(log(4), 1)
         TVVC ~ LogNormal(log(70), 1)
         TVQ ~ LogNormal(log(4), 1)
-        TVVP ~ LogNormal(log(40), 1)
+        TVVP ~ LogNormal(log(50), 1)
         #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0, Inf)
+        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
         C ~ LKJCholesky(4, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(4), Diagonal([0.4, 0.4, 0.4, 0.4] .^ 2)),
@@ -38,8 +41,8 @@ iv_2cmt_prop = @model begin
         # PK parameters
         CL = TVCL * exp(η[1])
         Vc = TVVC * exp(η[2])
-        Q = TVCL * exp(η[3])
-        Vp = TVVC * exp(η[4])
+        Q = TVQ * exp(η[3])
+        Vp = TVVP * exp(η[4])
 
         k_cp = Q / Vc
         k_pc = Q / Vp
@@ -52,7 +55,15 @@ iv_2cmt_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. Censored(truncated(Normal(cp, cp * σ_p), 0, Inf), _lloq, Inf)
+        dv ~ @. Censored(
+            truncated(
+                Normal(cp, cp * σ_p + 1e-10),
+                0.0,
+                Inf,
+            ),
+            _lloq,
+            Inf,
+        )
     end
 end
 
@@ -89,6 +100,7 @@ pumas_fit = fit(
         parallel_chains=true,
         parallel_subjects=true,
         max_chunk_size=16,
+        # use_ebes = false,
     )
 )
 
@@ -106,8 +118,13 @@ pumas_fit_multi = fit(
         parallel_chains=true,
         parallel_subjects=true,
         max_chunk_size=16,
-        )
+        # use_ebes = false,
+    )
 )
 
 my_fit_multi = Pumas.truncate(pumas_fit_multi; burnin=500)
 serialize("01-iv_2cmt_linear/Pumas/fit_multi_dose.jls", my_fit_multi)
+
+io = IOBuffer()
+versioninfo(io)
+write("01-iv_2cmt_linear/Pumas/juliahub_versioninfo.txt", String(take!(io)))

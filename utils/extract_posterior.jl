@@ -4,6 +4,8 @@ using DataFrames
 using DataFramesMeta
 using CSV
 using Serialization
+using Dates
+using Pumas
 using CairoMakie
 using AlgebraOfGraphics
 
@@ -72,22 +74,18 @@ function get_chains_nonmen(
     return chn
 end
 
-function mean_ess_sec(chn; pumas=false)
-    summ_df = DataFrame(summarystats(chn))
-    if pumas
-        filter!(r -> !(startswith(string(r.parameters), 'C')), summ_df)
-    end
-    # filter!(r -> !(isnan(r.ess_per_sec)), summ_df)
-    mean_ess_sec = mean(summ_df[:, :ess_per_sec])
-    return mean_ess_sec
+function _wall_duration(c::Chains; start=MCMCChains.min_start(c), stop=MCMCChains.max_stop(c))
+    return Dates.value(stop - start) / 1000
 end
 
-function mean_ess(chn; pumas=false)
+function mean_ess_sec(chn; pumas = false)
+    return mean_ess(chn) / _wall_duration(chn)
+end
+function mean_ess(chn; pumas = false)
     summ_df = DataFrame(summarystats(chn))
     if pumas
         filter!(r -> !(startswith(string(r.parameters), 'C')), summ_df)
     end
-    # filter!(r -> !(isnan(r.ess_per_sec)), summ_df)
     mean_ess = mean(summ_df[:, :ess])
     return mean_ess
 end
@@ -174,15 +172,19 @@ pumas_df = DataFrame(;
     "03_single_dose","03_mult_dose",
     ],
     mean_ess=mean_ess.(
-        [
-            pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
-        ];
-        pumas=true
+        Chains.(
+            [
+                pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
+            ]
+        );
+        pumas=true,
     ),
     mean_ess_sec=mean_ess_sec.(
-        [
-            pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
-        ];
+        Chains.(
+            [
+                pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
+            ]
+        );
         pumas=true
     )
 )
