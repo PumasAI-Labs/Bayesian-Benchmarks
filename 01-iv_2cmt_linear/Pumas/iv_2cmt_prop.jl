@@ -14,12 +14,11 @@ iv_2cmt_prop = @model begin
         TVQ ~ LogNormal(log(4), 1)
         TVVP ~ LogNormal(log(50), 1)
         #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
+        σ_p ~ Constrained(Normal(0, 0.5), lower = 0.0)
         C ~ LKJCholesky(4, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(4), Diagonal([0.4, 0.4, 0.4, 0.4] .^ 2)),
             lower=zeros(4),
-            upper=fill(Inf, 4),
             init=ones(4)
         )
     end
@@ -28,11 +27,7 @@ iv_2cmt_prop = @model begin
         ηstd ~ MvNormal(I(4)) # Z in the Stan code
     end
 
-    @covariates lloq
-
     @pre begin
-
-        _lloq = lloq
 
         # compute the η from the ηstd
         # using lower Cholesky triangular matrix
@@ -55,15 +50,7 @@ iv_2cmt_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. Censored(
-            truncated(
-                Normal(cp, cp * σ_p + 1e-10),
-                0.0,
-                Inf,
-            ),
-            _lloq,
-            Inf,
-        )
+        dv ~ @. truncated(Normal(cp, cp * σ_p), 0.0, Inf)
     end
 end
 
@@ -100,7 +87,8 @@ pumas_fit = fit(
         parallel_chains=true,
         parallel_subjects=true,
         max_chunk_size=16,
-        # use_ebes = false,
+        progress = false,
+        use_ebes = false,
     )
 )
 
@@ -118,13 +106,14 @@ pumas_fit_multi = fit(
         parallel_chains=true,
         parallel_subjects=true,
         max_chunk_size=16,
-        # use_ebes = false,
+        progress = false,
+        use_ebes = false,
     )
 )
 
 my_fit_multi = Pumas.truncate(pumas_fit_multi; burnin=500)
 serialize("01-iv_2cmt_linear/Pumas/fit_multi_dose.jls", my_fit_multi)
 
-io = IOBuffer()
-versioninfo(io)
-write("01-iv_2cmt_linear/Pumas/juliahub_versioninfo.txt", String(take!(io)))
+# io = IOBuffer()
+# versioninfo(io)
+# write("01-iv_2cmt_linear/Pumas/juliahub_versioninfo.txt", String(take!(io)))

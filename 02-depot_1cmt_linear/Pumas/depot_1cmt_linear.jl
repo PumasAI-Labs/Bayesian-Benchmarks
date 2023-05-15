@@ -13,12 +13,11 @@ depot_1cmt_prop = @model begin
         TVVC ~ LogNormal(log(70), 1)
         TVKA ~ LogNormal(log(1), 1)
         #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
+        σ_p ~ Constrained(Normal(0, 0.5), lower = 0.0)
         C ~ LKJCholesky(3, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(3), Diagonal([0.4, 0.4, 0.4].^2)),
             lower = zeros(3),
-            upper = fill(Inf, 3),
             init = ones(3)
         )
     end
@@ -27,11 +26,7 @@ depot_1cmt_prop = @model begin
         ηstd ~ MvNormal(I(3)) # Z in the Stan code
     end
 
-    @covariates lloq
-
     @pre begin
-
-        _lloq = lloq
 
         # compute the η from the ηstd
         # using lower Cholesky triangular matrix
@@ -50,13 +45,9 @@ depot_1cmt_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. Censored(
-            truncated(
-                Normal(cp, cp*σ_p + 1e-10),
-                0.0,
-                Inf,
-            ),
-            _lloq,
+        dv ~ @. truncated(
+            Normal(cp, cp*σ_p),
+            0.0,
             Inf,
         )
     end
@@ -94,7 +85,8 @@ pumas_fit = fit(
         parallel_chains = true,
         parallel_subjects = true,
         max_chunk_size=16,
-        # use_ebes = false,
+        use_ebes = false,
+        progress = false,
     )
 )
 
@@ -112,7 +104,8 @@ pumas_fit_multi = fit(
         parallel_chains = true,
         parallel_subjects = true,
         max_chunk_size=16,
-        # use_ebes = false,
+        use_ebes = false,
+        progress = false,
     )
 )
 
