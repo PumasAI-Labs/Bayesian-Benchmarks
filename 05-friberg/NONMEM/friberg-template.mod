@@ -4,7 +4,7 @@
 $SIZES LVR=50
 $PROB
 $INPUT C ID TIME EVID AMT CMT DVO DV WT DVID
-$DATA ../friberg.csv IGNORE=@
+$DATA ../../data/multiple_dose.csv IGNORE=@
 
 $SUBROUTINES ADVAN13 TOL=6
 
