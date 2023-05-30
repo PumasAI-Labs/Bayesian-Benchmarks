@@ -46,7 +46,7 @@ depot_1cmt_mm_prop = @model begin
 
     end
 
-    @vars
+    @vars begin
         conc = Central/Vc
     end
 
@@ -57,13 +57,9 @@ depot_1cmt_mm_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. Censored(
-            truncated(
-                Normal(cp, cp*σ_p + 1e-10),
-                0.0,
-                Inf,
-            ),
-            _lloq,
+        dv ~ @. truncated(
+            Normal(cp, abs(cp*σ_p) + 1e-10),
+            0.0,
             Inf,
         )
     end
@@ -77,27 +73,28 @@ pop = read_pumas(df,
                  covariates = [:lloq])
 
 iparams = (;
-    TVVC = 80,
-    TVVMAX = 4.3,
-    TVKM = 35,
-    TVKA = 1.2,
-    σ_p = 0.3,
+    TVVC = 60.77268,
+    TVVMAX = 1.410296,
+    TVKM = 0.2930888,
+    TVKA = 0.8899847,
+    σ_p = 0.1545338,
     C = float.(Matrix(I(4))),
-    ω = [0.2, 0.3, 0.4, 0.3]
+    ω = [0.4373938, 0.1727788, 0.2693140, 0.3365818],
 )
 
 pumas_fit = fit(
     depot_1cmt_mm_prop,
-    pop,
+    pop[1:10],
     iparams,
+    # LaplaceI()
     Pumas.BayesMCMC(
-        nsamples = 1500,
-        nadapts = 500,
+        nsamples = 150,
+        nadapts = 50,
         nchains = 4,
         parallel_chains = true,
         parallel_subjects = true)
-    )
+)
 
-Pumas.truncate(pumas_fit; burnin = 500)
+Pumas.truncate(pumas_fit; burnin = 50)
 
 serialize("04-depot_1cmt_mm/Pumas/fit_single_dose", my_fit)
