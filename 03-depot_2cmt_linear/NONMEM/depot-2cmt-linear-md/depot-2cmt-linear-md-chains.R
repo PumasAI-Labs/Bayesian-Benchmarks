@@ -38,7 +38,7 @@ dir.create(paste0(dir_name, "/chains"))
 
 # Create model file for each chain
 for(i in 1:nChains) {
-  modelText <- readLines(paste0(modelName, "/", modelName, "-template.mod"))
+  modelText <- readLines(paste0(dir_name, "/", modelName, "-template.mod"))
   modelTextLine <- grep("THETAUPDATE", modelText)
   modelText[modelTextLine] <- paste(out[i][[1]][[1]][1:nTheta], collapse=" ")
   
@@ -57,7 +57,7 @@ for(i in 1:nChains) {
   modelTextLine <- grep("PAFILE", modelText)
   modelText[modelTextLine] <- gsub("PAFILE",  paste0(modelName, "-patab-",i,".tab"), modelText[modelTextLine])
   
-  write(modelText, paste0(modelName, "/chains/", modelName, "-",i,".mod"))
+  write(modelText, paste0(base_name, "-",i,".mod"))
 }
 
 # Submit chains  in parallel
