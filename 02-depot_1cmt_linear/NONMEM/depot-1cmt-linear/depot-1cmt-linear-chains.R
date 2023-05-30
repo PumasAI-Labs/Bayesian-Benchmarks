@@ -1,4 +1,5 @@
 rm(list=ls())
+source("utils/run_chains.R")
 
 library(tidyverse)
 
@@ -7,11 +8,8 @@ lowTriMat <- function(x) {
   diag(x)[upper.tri(diag(x), diag = T)]
 }
 
-projDir <- "/data/BayesianBenchmarks/clean"
 modelName <- "depot-1cmt-linear"
-
-setwd(projDir)
-dir.create(paste0(modelName, "/chains"))
+root_folder <- "02-depot_1cmt_linear"
 
 nChains <- 4
 nTheta <- 3
@@ -31,6 +29,10 @@ for(i in 1:nChains) {
 
 omegaMat <- lowTriMat(out[i][[1]][[1]][(nTheta+1):(nTheta+nOmega)])
 omegaMat[omegaMat==0] <- 0.01
+
+base_name <- paste0(root_folder, "/NONMEM/", modelName, "/chains/", modelName)
+dir_name <- paste0(root_folder, "/NONMEM/", modelName)
+dir.create(paste0(dir_name, "/chains"))
 
 # Create model file for each chain
 for(i in 1:nChains) {
@@ -57,7 +59,4 @@ for(i in 1:nChains) {
 }
 
 # Submit chains  in parallel
-setwd(paste0(projDir, "/", modelName, "/chains"))
-for(i in 1:nChains){
-  system(paste0("qsub /data/bash/execute_8_nm75.sh ", modelName, "-", i, ".mod"))
-}
+run_chains(root_folder, modelName, nchains=4, threads_per_chain=2)

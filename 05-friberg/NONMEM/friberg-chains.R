@@ -1,4 +1,5 @@
 rm(list=ls())
+source("utils/run_chains.R")
 
 library(tidyverse)
 
@@ -7,11 +8,8 @@ lowTriMat <- function(x) {
   diag(x)[upper.tri(diag(x), diag = T)]
 }
 
-projDir <- "/data/BayesianBenchmarks/clean"
 modelName <- "friberg"
-
-setwd(projDir)
-dir.create(paste0(modelName, "/chains"))
+root_folder <- "05-friberg"
 
 nChains <- 4
 nTheta <- 9
@@ -68,3 +66,5 @@ setwd(paste0(projDir, "/", modelName, "/chains"))
 for(i in 1:nChains){
   system(paste0("qsub /data/bash/execute_8_nm75.sh ", modelName, "-", i, ".mod"))
 }
+
+run_chains(root_folder, modelName, nchains=4, threads_per_chain=2)
