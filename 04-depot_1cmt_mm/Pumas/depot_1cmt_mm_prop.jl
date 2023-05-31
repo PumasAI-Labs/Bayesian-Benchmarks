@@ -95,6 +95,6 @@ pumas_fit = fit(
         parallel_subjects = true)
 )
 
-Pumas.truncate(pumas_fit; burnin = 50)
+Pumas.truncate(pumas_fit; burnin = 500)
 
 serialize("04-depot_1cmt_mm/Pumas/fit_single_dose", my_fit)
