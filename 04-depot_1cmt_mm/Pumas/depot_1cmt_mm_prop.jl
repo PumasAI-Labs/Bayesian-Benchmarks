@@ -84,12 +84,12 @@ iparams = (;
 
 pumas_fit = fit(
     depot_1cmt_mm_prop,
-    pop[1:10],
+    pop,
     iparams,
     # LaplaceI()
     Pumas.BayesMCMC(
-        nsamples = 150,
-        nadapts = 50,
+        nsamples = 1500,
+        nadapts = 500,
         nchains = 4,
         parallel_chains = true,
         parallel_subjects = true)
