@@ -1,13 +1,13 @@
 rm(list = ls())
 cat("\014")
 
-library(patchwork)
 library(cmdstanr)
 library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-nonmem_data <- read_csv("05-friberg/data/multiple_dose.csv",
+nonmem_data <- read_csv("03-depot_2cmt_linear/data/single_dose.csv",
+# nonmem_data <- read_csv("03-depot_2cmt_linear/data/multiple_dose.csv",                        
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -16,18 +16,18 @@ nonmem_data <- read_csv("05-friberg/data/multiple_dose.csv",
          bloq = if_else(is.na(bloq), -999, bloq)) # This value can be anything except NA. It'll be indexed away 
 
 
-(p_pk <- ggplot(nonmem_data %>%
-                  mutate(ID = factor(ID)) %>%
-                  group_by(ID) %>%
-                  mutate(Dose = factor(max(amt, na.rm = TRUE))) %>%
-                  ungroup() %>%
-                  filter(mdv == 0, cmt == 2)) +
+(p1 <- ggplot(nonmem_data %>%
+                mutate(ID = factor(ID)) %>%
+                group_by(ID) %>%
+                mutate(Dose = factor(max(amt, na.rm = TRUE))) %>%
+                ungroup() %>%
+                filter(mdv == 0)) +
     geom_line(mapping = aes(x = time, y = DV, group = ID, color = Dose)) +
     geom_point(mapping = aes(x = time, y = DV, group = ID, color = Dose)) +
-    scale_color_discrete(name = "Dose (ug)") +
-    scale_y_continuous(name = "Drug Conc. (ng/mL)",
+    scale_color_discrete(name = "Dose (mg)") +
+    scale_y_continuous(name = "Drug Conc. (ug/mL)",
                        limits = c(NA, NA),
-                       trans = "log10") +
+                       trans = "identity") +
     scale_x_continuous(name = "Time (d)",
                        breaks = seq(0, 216, by = 24),
                        labels = seq(0, 216/24, by = 24/24),
@@ -38,36 +38,17 @@ nonmem_data <- read_csv("05-friberg/data/multiple_dose.csv",
           axis.line = element_line(size = 2),
           legend.position = "bottom"))
 
-(p_pd <- ggplot(nonmem_data %>%
-                  mutate(ID = factor(ID)) %>%
-                  group_by(ID) %>%
-                  mutate(Dose = factor(max(amt, na.rm = TRUE))) %>%
-                  ungroup() %>%
-                  filter(mdv == 0, cmt == 3)) +
-    geom_line(mapping = aes(x = time, y = DV, group = ID, color = Dose)) +
-    geom_point(mapping = aes(x = time, y = DV, group = ID, color = Dose)) +
-    scale_color_discrete(name = "Dose (ug)") +
-    scale_y_continuous(name = latex2exp::TeX("$Neutrophils\\;(10^9/L)"),
-                       limits = c(NA, NA),
-                       trans = "identity") +
-    scale_x_continuous(name = "Time (d)",
-                       breaks = seq(0, 672, by = 24),
-                       labels = seq(0, 672/24, by = 24/24),
-                       limits = c(0, NA)) +
-    theme_bw(18) +
-    theme(axis.text = element_text(size = 14, face = "bold"),
-          axis.title = element_text(size = 18, face = "bold"),
-          axis.line = element_line(size = 2),
-          legend.position = "bottom"))
-
-p_pk +
-  p_pd +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom")
+# p1 +
+#   geom_vline(data = nonmem_data %>%
+#                mutate(ID = factor(ID)) %>%
+#                filter(evid == 1),
+#              mapping = aes(xintercept = time, group = ID),
+#              linetype = 2, color = "red", alpha = 0.5) +
+#   facet_wrap(~ID, labeller = label_both, scales = "free_y")
 
 nonmem_data %>%
-  filter(evid == 0) %>% 
-  group_by(ID, cmt) %>% 
+  filter(evid== 0) %>% 
+  group_by(ID) %>% 
   summarize(lloq = unique(lloq),
             n_obs = n(),
             n_bloq = sum(bloq == 1)) %>% 
@@ -121,65 +102,49 @@ stan_data <- list(n_subjects = n_subjects,
                   location_tvq = 4,
                   location_tvvp = 40,
                   location_tvka = 1,
-                  location_tvmtt = 125,
-                  location_tvcirc0 = 5,
-                  location_tvgamma = 0.17,
-                  location_tvalpha = 3e-4,
                   scale_tvcl = 1,
                   scale_tvvc = 1,
                   scale_tvq = 1,
                   scale_tvvp = 1,
                   scale_tvka = 1,
-                  scale_tvmtt = 1,
-                  scale_tvcirc0 = 1,
-                  scale_tvgamma = 1,
-                  scale_tvalpha = 1,
                   scale_omega_cl = 0.4,
                   scale_omega_vc = 0.4,
                   scale_omega_q = 0.4,
                   scale_omega_vp = 0.4,
                   scale_omega_ka = 0.4,
-                  scale_omega_mtt = 0.4,
-                  scale_omega_circ0 = 0.4,
-                  scale_omega_gamma = 0.4,
-                  scale_omega_alpha = 0.4,
                   lkj_df_omega = 2,
-                  scale_sigma_p = 0.5,
-                  scale_sigma_p_pd = 0.5)
+                  scale_sigma_p = 0.5)
 
 model <- cmdstan_model(
-  "05-friberg/Stan/Torsten/Fit/depot_2cmt_friberg_prop.stan",
-  cpp_options = list(stan_threads = TRUE))
+  "03-depot_2cmt_linear/Stan/Torsten/Fit/depot_2cmt_prop_mat_exp_no_threading.stan")
 
 fit <- model$sample(data = stan_data,
-                    seed = 112356,
+                    seed = 11235,
                     chains = 4,
                     parallel_chains = 4,
-                    threads_per_chain = parallel::detectCores()/4,
+                    # threads_per_chain = parallel::detectCores()/4,
                     iter_warmup = 500,
                     iter_sampling = 1000,
                     adapt_delta = 0.8,
-                    refresh = 5,
+                    refresh = 500,
                     max_treedepth = 10,
                     init = function() list(TVCL = rlnorm(1, log(4), 0.3),
                                            TVVC = rlnorm(1, log(70), 0.3),
                                            TVQ = rlnorm(1, log(4), 0.3),
                                            TVVP = rlnorm(1, log(40), 0.3),
                                            TVKA = rlnorm(1, log(1), 0.3),
-                                           TVMTT = rlnorm(1, log(125), 0.3),
-                                           TVCIRC0 = rlnorm(1, log(5), 0.3),
-                                           TVGAMMA = rlnorm(1, log(0.17), 0.3),
-                                           TVALPHA = rlnorm(1, log(3e-4), 0.3),
-                                           omega = rlnorm(9, log(0.3), 0.3),
-                                           sigma_p = rlnorm(1, log(0.2), 0.3),
-                                           sigma_p_pd = rlnorm(1, log(0.2), 0.3)))
+                                           omega = rlnorm(5, log(0.3), 0.3),
+                                           sigma_p = rlnorm(1, log(0.2), 0.3)))
 
-fit$save_object("05-friberg/Stan/Torsten/Fits/multiple_dose.rds")
+fit$save_object("03-depot_2cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp_no_threading.rds")
+# fit$save_object("03-depot_2cmt_linear/Stan/Torsten/Fits/multiple_dose_mat_exp_no_threading.rds")
+
 
 parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
                              str_subset(fit$metadata()$stan_variables, "omega"),
-                             str_subset(fit$metadata()$stan_variables, "sigma"))
+                             "sigma_p")
 
 fit$draws(parameters_to_summarize, format = "draws_df") %>% 
   as_tibble() %>% 
-  write_csv("02-depot_1cmt_mm/Stan/Torsten/Fits/multiple_dose_draws_df.csv")
+  write_csv("03-depot_2cmt_linear/Stan/Torsten/Fits/single_dose_draws_df_mat_exp_no_threading.csv")
+# write_csv("03-depot_2cmt_linear/Stan/Torsten/Fits/multiple_dose_draws_df_mat_exp_no_threading.csv")

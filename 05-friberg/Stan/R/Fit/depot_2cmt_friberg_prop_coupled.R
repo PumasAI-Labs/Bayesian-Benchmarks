@@ -148,7 +148,7 @@ stan_data <- list(n_subjects = n_subjects,
                   scale_sigma_p_pd = 0.5)
 
 model <- cmdstan_model(
-  "05-friberg/Stan/Torsten/Fit/depot_2cmt_friberg_prop.stan",
+  "05-friberg/Stan/Torsten/Fit/depot_2cmt_friberg_prop_coupled.stan",
   cpp_options = list(stan_threads = TRUE))
 
 fit <- model$sample(data = stan_data,
@@ -174,7 +174,7 @@ fit <- model$sample(data = stan_data,
                                            sigma_p = rlnorm(1, log(0.2), 0.3),
                                            sigma_p_pd = rlnorm(1, log(0.2), 0.3)))
 
-fit$save_object("05-friberg/Stan/Torsten/Fits/multiple_dose.rds")
+fit$save_object("05-friberg/Stan/Torsten/Fits/multiple_dose_coupled.rds")
 
 parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
                              str_subset(fit$metadata()$stan_variables, "omega"),
@@ -182,4 +182,4 @@ parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
 
 fit$draws(parameters_to_summarize, format = "draws_df") %>% 
   as_tibble() %>% 
-  write_csv("02-depot_1cmt_mm/Stan/Torsten/Fits/multiple_dose_draws_df.csv")
+  write_csv("02-depot_1cmt_mm/Stan/Torsten/Fits/multiple_dose_draws_df_coupled.csv")

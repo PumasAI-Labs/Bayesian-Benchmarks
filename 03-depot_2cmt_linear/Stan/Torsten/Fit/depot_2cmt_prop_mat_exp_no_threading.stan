@@ -1,10 +1,12 @@
 // First Order Absorption (oral/subcutaneous)
-// One-compartment PK Model
-// IIV on CL, VC, and Ka (full covariance matrix)
-// proportional error - DV = CP(1 + eps_p)
-// Matrix-exponential solution using Torsten (the matrix-exponential seems to be
-//   faster than the analytical solution for this model)
+// Two-compartment PK Model
+// IIV on CL, VC, Q, VP, and Ka (full covariance matrix)
+// proportional error - DV = IPRED*(1 + eps_p)
+// Matrix exponential solution using Torsten
 // Deals with BLOQ values by the "CDF trick" (M4)
+// Since we have a normal distribution on the error, but the DV must be > 0, it
+//   truncates the likelihood below at 0
+
 
 functions{
 
@@ -13,7 +15,7 @@ functions{
     real p_lb = normal_cdf(lb | mu, sigma);
     real u = uniform_rng(p_lb, 1);
     real y = mu + sigma * inv_Phi(u);
-    return y; 
+    return y;
 
   }
   
@@ -39,16 +41,22 @@ data{
   vector[n_total] lloq;
   array[n_total] int bloq;
   
-  real<lower = 0> location_tvcl;  // Prior Location parameter for CL
-  real<lower = 0> location_tvvc;  // Prior Location parameter for VC
-  real<lower = 0> location_tvka;  // Prior Location parameter for KA
+  real<lower = 0> location_tvcl;   // Prior Location parameter for CL
+  real<lower = 0> location_tvvc;   // Prior Location parameter for VC
+  real<lower = 0> location_tvq;    // Prior Location parameter for Q
+  real<lower = 0> location_tvvp;   // Prior Location parameter for VP
+  real<lower = 0> location_tvka;   // Prior Location parameter for KA
   
-  real<lower = 0> scale_tvcl;     // Prior Scale parameter for CL
-  real<lower = 0> scale_tvvc;     // Prior Scale parameter for VC
-  real<lower = 0> scale_tvka;     // Prior Scale parameter for KA
+  real<lower = 0> scale_tvcl;      // Prior Scale parameter for CL
+  real<lower = 0> scale_tvvc;      // Prior Scale parameter for VC
+  real<lower = 0> scale_tvq;       // Prior Scale parameter for Q
+  real<lower = 0> scale_tvvp;      // Prior Scale parameter for VP
+  real<lower = 0> scale_tvka;      // Prior Scale parameter for KA
   
   real<lower = 0> scale_omega_cl; // Prior scale parameter for omega_cl
   real<lower = 0> scale_omega_vc; // Prior scale parameter for omega_vc
+  real<lower = 0> scale_omega_q;  // Prior scale parameter for omega_q
+  real<lower = 0> scale_omega_vp; // Prior scale parameter for omega_vp
   real<lower = 0> scale_omega_ka; // Prior scale parameter for omega_ka
   
   real<lower = 0> lkj_df_omega;   // Prior degrees of freedom for omega cor mat
@@ -66,10 +74,11 @@ transformed data{
   vector[n_obs] lloq_obs = lloq[i_obs];
   array[n_obs] int bloq_obs = bloq[i_obs];
   
-  int n_random = 3;                    // Number of random effects
-  int n_cmt = 2;                       // Number of states in the ODEs
+  int n_random = 5;                    // Number of random effects
+  int n_cmt = 3;                       // Number of states in the ODEs
   
   array[n_random] real scale_omega = {scale_omega_cl, scale_omega_vc, 
+                                      scale_omega_q, scale_omega_vp,
                                       scale_omega_ka}; 
   
   array[n_cmt] real bioav = rep_array(1.0, n_cmt); // Hardcoding, but could be data or a parameter in another situation
@@ -80,7 +89,11 @@ parameters{
   
   real<lower = 0> TVCL;       
   real<lower = 0> TVVC; 
-  real<lower = TVCL/TVVC> TVKA;
+  real<lower = 0> TVQ;
+  real<lower = 0> TVVP;
+  // real<lower = 0> TVKA;
+  real<lower = 0.5*(TVCL/TVVC + TVQ/TVVC + TVQ/TVVP +
+    sqrt((TVCL/TVVC + TVQ/TVVC + TVQ/TVVP)^2 - 4*TVCL/TVVC*TVQ/TVVP))> TVKA;
   
   vector<lower = 0>[n_random] omega;
   cholesky_factor_corr[n_random] L;
@@ -94,14 +107,16 @@ transformed parameters{
   
   vector[n_subjects] CL;
   vector[n_subjects] VC;
+  vector[n_subjects] Q;
+  vector[n_subjects] VP;
   vector[n_subjects] KA;
-  vector[n_subjects] KE;
   
   vector[n_obs] ipred;
-
+  
   {
   
-    row_vector[n_random] typical_values = to_row_vector({TVCL, TVVC, TVKA});
+    row_vector[n_random] typical_values = 
+                                  to_row_vector({TVCL, TVVC, TVQ, TVVP, TVKA});
 
     matrix[n_subjects, n_random] eta = diag_pre_multiply(omega, L * Z)';
 
@@ -109,18 +124,27 @@ transformed parameters{
                           (rep_matrix(typical_values, n_subjects) .* exp(eta));
                           
     vector[n_total] dv_ipred;
-    matrix[n_total, n_cmt] x_ipred;                      
+    matrix[n_total, n_cmt] x_ipred; 
     
     CL = col(theta, 1);
     VC = col(theta, 2);
-    KA = col(theta, 3);
+    Q = col(theta, 3);
+    VP = col(theta, 4);
+    KA = col(theta, 5);
     
     for(j in 1:n_subjects){
     
+      real ke = CL[j]/VC[j];
+      real k_cp = Q[j]/VC[j];
+      real k_pc = Q[j]/VP[j];
+      
       matrix[n_cmt, n_cmt] K = rep_matrix(0, n_cmt, n_cmt);
       K[1, 1] = -KA[j];
       K[2, 1] = KA[j];
-      K[2, 2] = -CL[j]/VC[j];
+      K[2, 2] = -(ke + k_cp);
+      K[2, 3] = k_pc;
+      K[3, 2] = k_cp;
+      K[3, 3] = -k_pc;
       
       x_ipred[subj_start[j]:subj_end[j], ] =
         pmx_solve_linode(time[subj_start[j]:subj_end[j]],
@@ -139,7 +163,7 @@ transformed parameters{
     }
     
     ipred = dv_ipred[i_obs];
-    
+  
   }
   
 }
@@ -148,7 +172,11 @@ model{
   // Priors
   TVCL ~ lognormal(log(location_tvcl), scale_tvcl);
   TVVC ~ lognormal(log(location_tvvc), scale_tvvc);
-  TVKA ~ lognormal(log(location_tvka), scale_tvka) T[TVCL/TVVC, ];
+  TVQ ~ lognormal(log(location_tvq), scale_tvq);
+  TVVP ~ lognormal(log(location_tvvp), scale_tvvp);
+  // TVKA ~ lognormal(log(location_tvka), scale_tvka);
+  TVKA ~ lognormal(log(location_tvka), scale_tvka) T[0.5*(TVCL/TVVC + TVQ/TVVC + TVQ/TVVP +
+          sqrt((TVCL/TVVC + TVQ/TVVC + TVQ/TVVP)^2 - 4*TVCL/TVVC*TVQ/TVVP)), ];
 
   omega ~ normal(0, scale_omega);
   L ~ lkj_corr_cholesky(lkj_df_omega);
@@ -159,14 +187,15 @@ model{
   
   // Likelihood
   for(i in 1:n_obs){
-      real sigma_tmp = ipred[i]*sigma_p;
-      if(bloq_obs[i] == 1){
-        target += log_diff_exp(normal_lcdf(lloq_obs[i] | ipred[i], sigma_tmp),
-                               normal_lcdf(0.0 | ipred[i], sigma_tmp)) -
-                   normal_lccdf(0.0 | ipred[i], sigma_tmp); 
-      }else{
-        target += normal_lpdf(dv_obs[i] | ipred[i], sigma_tmp) -
-                  normal_lccdf(0.0 | ipred[i], sigma_tmp);
-      }
+    real sigma_tmp = ipred[i]*sigma_p;
+    if(bloq_obs[i] == 1){
+      target += log_diff_exp(normal_lcdf(lloq_obs[i] | ipred[i], sigma_tmp),
+                             normal_lcdf(0.0 | ipred[i], sigma_tmp)) -
+                 normal_lccdf(0.0 | ipred[i], sigma_tmp); 
+    }else{
+      target += normal_lpdf(dv_obs[i] | ipred[i], sigma_tmp) -
+                normal_lccdf(0.0 | ipred[i], sigma_tmp);
     }
+  }
 }
+

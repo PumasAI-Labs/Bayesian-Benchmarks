@@ -88,22 +88,14 @@ functions{
                         array[] real amt, array[] int cmt, array[] int evid, 
                         array[] real time, array[] real rate, array[] real ii, 
                         array[] int addl, array[] int ss,
-                        array[] int subj_start, array[] int subj_end, 
-                        real TVVC, real TVVMAX, real TVKM, real TVKA,
-                        vector omega, matrix L, matrix Z, 
+                        array[] int subj_start, array[] int subj_end,
+                        vector VC, vector VMAX, vector KM, vector KA,
                         real sigma_p, 
                         vector lloq, array[] int bloq,
-                        int n_random, int n_subjects, int n_total, int n_cmt){
+                        int n_random, int n_subjects, int n_total, 
+                        array[] real bioav, array[] real tlag, int n_cmt){
                            
     real ptarget = 0;
-    row_vector[n_random] typical_values = 
-                                      to_row_vector({TVVC, TVVMAX, TVKM, TVKA});
-    
-    matrix[n_subjects, n_random] eta = diag_pre_multiply(omega, L * Z)';
-
-    matrix[n_subjects, n_random] theta =
-                          (rep_matrix(typical_values, n_subjects) .* exp(eta));
-    
                               
     int N = end - start + 1;    // number of subjects in this slice  
     vector[n_total] dv_ipred;   
@@ -124,33 +116,23 @@ functions{
     
     for(n in 1:N){            // loop over subjects in this slice
     
-      int nn = n + start - 1; // nn is the ID of the current subject
+      int j = n + start - 1; // j is the ID of the current subject
       
-      // row_vector[n_random] theta_nn = theta[nn]; // access the parameters for subject nn
-      // real vc = theta_nn[1];
-      // real vmax = theta_nn[2];
-      // real km = theta_nn[3];
-      // real ka = theta_nn[4];
-      // 
-      // array[n_random] real theta_params = {vc, vmax, km, ka}; 
-      
-      array[n_random] real theta_params = to_array_1d(theta[nn]); // access the parameters for subject nn
-      
-      x_ipred[subj_start[nn]:subj_end[nn],] =
+      x_ipred[subj_start[j]:subj_end[j],] =
         pmx_solve_rk45(depot_1cmt_mm_ode,
                        n_cmt,
-                       time[subj_start[nn]:subj_end[nn]],
-                       amt[subj_start[nn]:subj_end[nn]],
-                       rate[subj_start[nn]:subj_end[nn]],
-                       ii[subj_start[nn]:subj_end[nn]],
-                       evid[subj_start[nn]:subj_end[nn]],
-                       cmt[subj_start[nn]:subj_end[nn]],
-                       addl[subj_start[nn]:subj_end[nn]],
-                       ss[subj_start[nn]:subj_end[nn]],
-                       theta_params)';
+                       time[subj_start[j]:subj_end[j]],
+                       amt[subj_start[j]:subj_end[j]],
+                       rate[subj_start[j]:subj_end[j]],
+                       ii[subj_start[j]:subj_end[j]],
+                       evid[subj_start[j]:subj_end[j]],
+                       cmt[subj_start[j]:subj_end[j]],
+                       addl[subj_start[j]:subj_end[j]],
+                       ss[subj_start[j]:subj_end[j]],
+                       {VC[j], VMAX[j], KM[j], KA[j]}, bioav, tlag)';
                       
-      dv_ipred[subj_start[nn]:subj_end[nn]] = 
-        x_ipred[subj_start[nn]:subj_end[nn], 2] ./ theta_params[1];
+      dv_ipred[subj_start[j]:subj_end[j]] = 
+        x_ipred[subj_start[j]:subj_end[j], 2] ./ VC[j];
     
     }
   
@@ -236,6 +218,9 @@ transformed data{
   
   array[n_subjects] int seq_subj = sequence(1, n_subjects); // reduce_sum over subjects
   
+  array[n_cmt] real bioav = rep_array(1.0, n_cmt); // Hardcoding, but could be data or a parameter in another situation
+  array[n_cmt] real tlag = rep_array(0.0, n_cmt);
+  
 }
 parameters{ 
   
@@ -251,6 +236,31 @@ parameters{
   real<lower = 0> sigma_p;
   
   matrix[n_random, n_subjects] Z;
+  
+}
+transformed parameters{
+  
+  vector[n_subjects] VC;
+  vector[n_subjects] VMAX;
+  vector[n_subjects] KM;
+  vector[n_subjects] KA;
+
+  {
+
+    row_vector[n_random] typical_values = 
+                                      to_row_vector({TVVC, TVVMAX, TVKM, TVKA});
+    
+    matrix[n_subjects, n_random] eta = diag_pre_multiply(omega, L * Z)';
+
+    matrix[n_subjects, n_random] theta =
+                          (rep_matrix(typical_values, n_subjects) .* exp(eta));
+                          
+    VC = col(theta, 1);
+    VMAX = col(theta, 2);
+    KM = col(theta, 3);
+    KA = col(theta, 4);
+  
+  }
   
 }
 model{ 
@@ -274,8 +284,9 @@ model{
                        dv_obs, dv_obs_id, i_obs,
                        amt, cmt, evid, time, 
                        rate, ii, addl, ss, subj_start, subj_end, 
-                       TVVC, TVVMAX, TVKM, TVKA, omega, L, Z,
+                       VC, VMAX, KM, KA,
                        sigma_p,
                        lloq, bloq,
-                       n_random, n_subjects, n_total, n_cmt);
+                       n_random, n_subjects, n_total, 
+                       bioav, tlag, n_cmt);
 }

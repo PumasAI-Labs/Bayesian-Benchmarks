@@ -6,8 +6,6 @@
 // Deals with BLOQ values by the "CDF trick" (M4)
 // Since we have a normal distribution on the error, but the DV must be > 0, it
 //   truncates the likelihood below at 0
-// For PPC, it generates values from a normal that is truncated below at 0
-
 
 functions{
 
@@ -17,7 +15,6 @@ functions{
     real u = uniform_rng(p_lb, 1);
     real y = mu + sigma * inv_Phi(u);
     return y;
-
   }
   
 }
@@ -97,10 +94,6 @@ parameters{
 }
 transformed parameters{
   
-  vector[n_subjects] eta_cl;
-  vector[n_subjects] eta_vc;
-  vector[n_subjects] eta_q;
-  vector[n_subjects] eta_vp;
   vector[n_subjects] CL;
   vector[n_subjects] VC;
   vector[n_subjects] Q;
@@ -119,12 +112,8 @@ transformed parameters{
                           (rep_matrix(typical_values, n_subjects) .* exp(eta));
                           
     vector[n_total] dv_ipred;
-    matrix[n_total, 2] x_ipred;                      
+    matrix[n_total, n_cmt] x_ipred;                      
     
-    eta_cl = col(eta, 1);
-    eta_vc = col(eta, 2);
-    eta_q = col(eta, 3);
-    eta_vp = col(eta, 4);
     CL = col(theta, 1);
     VC = col(theta, 2);
     Q = col(theta, 3);
@@ -180,15 +169,15 @@ model{
   
   // Likelihood
   for(i in 1:n_obs){
-      real sigma_tmp = ipred[i]*sigma_p;
-      if(bloq_obs[i] == 1){
-        target += log_diff_exp(normal_lcdf(lloq_obs[i] | ipred[i], sigma_tmp),
-                               normal_lcdf(0.0 | ipred[i], sigma_tmp)) -
-                   normal_lccdf(0.0 | ipred[i], sigma_tmp); 
-      }else{
-        target += normal_lpdf(dv_obs[i] | ipred[i], sigma_tmp) -
-                  normal_lccdf(0.0 | ipred[i], sigma_tmp);
-      }
+    real sigma_tmp = ipred[i]*sigma_p;
+    if(bloq_obs[i] == 1){
+      target += log_diff_exp(normal_lcdf(lloq_obs[i] | ipred[i], sigma_tmp),
+                             normal_lcdf(0.0 | ipred[i], sigma_tmp)) -
+                 normal_lccdf(0.0 | ipred[i], sigma_tmp); 
+    }else{
+      target += normal_lpdf(dv_obs[i] | ipred[i], sigma_tmp) -
+                normal_lccdf(0.0 | ipred[i], sigma_tmp);
     }
+  }
 }
 
