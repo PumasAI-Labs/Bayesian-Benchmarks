@@ -119,7 +119,7 @@ model <- cmdstan_model(
   "04-depot_1cmt_mm/Stan/Torsten/Fit/depot_1cmt_mm_prop_no_threading.stan")
 
 fit <- model$sample(data = stan_data,
-                    seed = 112358,
+                    seed = 11235,
                     chains = 4,
                     parallel_chains = 4,
                     # threads_per_chain = parallel::detectCores()/4,

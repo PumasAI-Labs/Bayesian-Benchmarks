@@ -120,7 +120,7 @@ model <- cmdstan_model(
   cpp_options = list(stan_threads = TRUE))
 
 fit <- model$sample(data = stan_data,
-                    seed = 112358,
+                    seed = 1123,
                     chains = 4,
                     parallel_chains = 4,
                     threads_per_chain = parallel::detectCores()/4,

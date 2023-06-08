@@ -113,10 +113,10 @@ model <- cmdstan_model(
   "02-depot_1cmt_linear/Stan/Torsten/Fit/depot_1cmt_prop_mat_exp_no_threading.stan")
 
 fit <- model$sample(data = stan_data,
-                    seed = 11235,
+                    seed = 112356,
                     chains = 4,
                     parallel_chains = 4,
-                    threads_per_chain = 2,
+                    # threads_per_chain = 2,
                     iter_warmup = 500,
                     iter_sampling = 1000,
                     adapt_delta = 0.8,
