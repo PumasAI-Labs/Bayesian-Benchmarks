@@ -128,12 +128,8 @@ fit <- model$sample(data = stan_data,
                     adapt_delta = 0.8,
                     refresh = 50,
                     max_treedepth = 10,
-                    init = function() list(TVVC = rlnorm(1, log(70), 0.3),
-                                           TVVMAX = rlnorm(1, log(1.000), 0.3),
-                                           TVKM = rlnorm(1, log(0.250), 0.3),
-                                           TVKA = rlnorm(1, log(1), 0.3),
-                                           omega = rlnorm(4, log(0.3), 0.3),
-                                           sigma_p = rlnorm(1, log(0.2), 0.3)))
+                    init = str_c("04-depot_1cmt_mm/data/inits/inits_1_", 
+                                 1:4, ".json"))
 
 fit$save_object("04-depot_1cmt_mm/Stan/Torsten/Fits/single_dose_no_threading.rds")
 # fit$save_object("04-depot_1cmt_mm/Stan/Torsten/Fits/multiple_dose_no_threading.rds")
