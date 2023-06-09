@@ -117,21 +117,17 @@ model <- cmdstan_model(
   cpp_options = list(stan_threads = TRUE))
 
 fit <- model$sample(data = stan_data,
-                    seed = 112358,
+                    # seed = 112358,
                     chains = 4,
                     parallel_chains = 4,
                     threads_per_chain = parallel::detectCores()/4,
-                    iter_warmup = 500,
-                    iter_sampling = 1000,
+                    iter_warmup = 50,
+                    iter_sampling = 100,
                     adapt_delta = 0.8,
                     refresh = 500,
                     max_treedepth = 10,
-                    init = function() list(TVCL = rlnorm(1, log(4), 0.3),
-                                           TVVC = rlnorm(1, log(70), 0.3),
-                                           TVQ = rlnorm(1, log(4), 0.3),
-                                           TVVP = rlnorm(1, log(50), 0.3),
-                                           omega = rlnorm(4, log(0.3), 0.3),
-                                           sigma_p = rlnorm(1, log(0.2), 0.3)))
+                    init = str_c("01-iv_2cmt_linear/data/inits/inits_1_", 
+                                 1:4, ".json"))
 
 fit$save_object("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp.rds")
 # fit$save_object("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose_mat_exp.rds")

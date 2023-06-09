@@ -29,6 +29,9 @@ for(i in 1:nChains) {
                             rlnorm(1, log(0.2), 0.3)), 4))
 }
 
+omegaMat <- lowTriMat(out[i][[1]][[1]][(nTheta+1):(nTheta+nOmega)])
+omegaMat[omegaMat==0] <- 0.01
+
 # Create model file for each chain
 for(i in 1:nChains) {
   modelText <- readLines(paste0(modelName, "/", modelName, "-template.mod"))
@@ -36,7 +39,7 @@ for(i in 1:nChains) {
   modelText[modelTextLine] <- paste(out[i][[1]][[1]][1:nTheta], collapse=" ")
   
   modelTextLine <- grep("OMEGAUPDATE", modelText)
-  modelText[modelTextLine] <- paste(lowTriMat(out[i][[1]][[1]][(nTheta+1):(nTheta+nOmega)]), collapse=" ")
+  modelText[modelTextLine] <- paste(omegaMat, collapse=" ")
   
   modelTextLine <- grep("SIGMAUPDATE", modelText)
   modelText[modelTextLine] <- paste(out[i][[1]][[1]][(nTheta+nOmega+1):length(out[i][[1]][[1]])], collapse=" ")
