@@ -1,10 +1,11 @@
 source("utils/stan2arrow.R")
 library(furrr)
+library(stringr)
 
-env = "01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose.rds"
-env_multi = "01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose.rds"
-env_mat_exp = "01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp.rds"
-env_multi_mat_exp = "01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose_mat_exp.rds"
+env = str_c("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose_", 1:5, ".rds")
+env_multi = str_c("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose_", 1:5, ".rds")
+env_mat_exp = str_c("01-iv_2cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp_", 1:5, ".rds")
+env_multi_mat_exp = str_c("01-iv_2cmt_linear/Stan/Torsten/Fits/multiple_dose_mat_exp_", 1:5, ".rds")
 
 parameters = c(
   "TVCL",
