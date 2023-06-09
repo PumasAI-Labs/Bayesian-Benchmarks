@@ -1,13 +1,11 @@
 // First Order Absorption (oral/subcutaneous)
 // One-compartment PK Model
 // IIV on CL, VC, and Ka (full covariance matrix)
-// proportional error - DV = CP(1 + eps_p)
-// Matrix exponential solution using Torsten
+// proportional error - DV = IPRED(1 + eps_p)
+// Matrix-exponential solution using Torsten (the matrix-exponential seems to be
+//   faster than the analytical solution for this model)
 // Implements threading for within-chain parallelization 
 // Deals with BLOQ values by the "CDF trick" (M4)
-// Since we have a normal distribution on the error, but the DV must be > 0, it
-//   truncates the likelihood below at 0
-
 
 functions{
 
@@ -72,25 +70,17 @@ functions{
                         array[] real time, array[] real rate, array[] real ii, 
                         array[] int addl, array[] int ss,
                         array[] int subj_start, array[] int subj_end, 
-                        real TVCL, real TVVC, real TVKA, 
-                        vector omega, matrix L, matrix Z, 
+                        vector CL, vector VC, vector KA, 
                         real sigma_p, 
                         vector lloq, array[] int bloq,
                         int n_random, int n_subjects, int n_total,
                         array[] real bioav, array[] real tlag, int n_cmt){
                            
     real ptarget = 0;
-    row_vector[n_random] typical_values = to_row_vector({TVCL, TVVC, TVKA});
-    
-    matrix[n_subjects, n_random] eta = diag_pre_multiply(omega, L * Z)';
-
-    matrix[n_subjects, n_random] theta =
-                          (rep_matrix(typical_values, n_subjects) .* exp(eta));
-    
                               
     int N = end - start + 1;    // number of subjects in this slice  
     vector[n_total] dv_ipred;   
-    matrix[n_total, 2] x_ipred;
+    matrix[n_total, n_cmt] x_ipred;
   
     int n_obs_slice = num_between(subj_start[start], subj_end[end], i_obs);
     array[n_obs_slice] int i_obs_slice = find_between(subj_start[start], 
@@ -107,31 +97,26 @@ functions{
     
     for(n in 1:N){            // loop over subjects in this slice
     
-      int nn = n + start - 1; // nn is the ID of the current subject
-      
-      row_vector[n_random] theta_nn = theta[nn]; // access the parameters for subject nn
-      real cl = theta_nn[1];
-      real vc = theta_nn[2];
-      real ka = theta_nn[3];
+      int j = n + start - 1; // j is the ID of the current subject
       
       matrix[n_cmt, n_cmt] K = rep_matrix(0, n_cmt, n_cmt);
-      K[1, 1] = -ka;
-      K[2, 1] = ka;
-      K[2, 2] = -cl/vc;
+      K[1, 1] = -KA[j];
+      K[2, 1] = KA[j];
+      K[2, 2] = -CL[j]/VC[j];
       
-      x_ipred[subj_start[nn]:subj_end[nn], ] =
-        pmx_solve_linode(time[subj_start[nn]:subj_end[nn]],
-                         amt[subj_start[nn]:subj_end[nn]],
-                         rate[subj_start[nn]:subj_end[nn]],
-                         ii[subj_start[nn]:subj_end[nn]],
-                         evid[subj_start[nn]:subj_end[nn]],
-                         cmt[subj_start[nn]:subj_end[nn]],
-                         addl[subj_start[nn]:subj_end[nn]],
-                         ss[subj_start[nn]:subj_end[nn]],
+      x_ipred[subj_start[j]:subj_end[j], ] =
+        pmx_solve_linode(time[subj_start[j]:subj_end[j]],
+                         amt[subj_start[j]:subj_end[j]],
+                         rate[subj_start[j]:subj_end[j]],
+                         ii[subj_start[j]:subj_end[j]],
+                         evid[subj_start[j]:subj_end[j]],
+                         cmt[subj_start[j]:subj_end[j]],
+                         addl[subj_start[j]:subj_end[j]],
+                         ss[subj_start[j]:subj_end[j]],
                          K, bioav, tlag)';
-                      
-      dv_ipred[subj_start[nn]:subj_end[nn]] = 
-        x_ipred[subj_start[nn]:subj_end[nn], 2] ./ vc;
+                           
+      dv_ipred[subj_start[j]:subj_end[j]] = 
+        x_ipred[subj_start[j]:subj_end[j], 2] ./ VC[j];
     
     }
   
@@ -219,7 +204,7 @@ parameters{
   
   real<lower = 0> TVCL;       
   real<lower = 0> TVVC; 
-  real<lower = 0> TVKA;
+  real<lower = TVCL/TVVC> TVKA;
   
   vector<lower = 0>[n_random] omega;
   cholesky_factor_corr[n_random] L;
@@ -229,13 +214,34 @@ parameters{
   matrix[n_random, n_subjects] Z;
   
 }
+transformed parameters{
+  
+  vector[n_subjects] CL;
+  vector[n_subjects] VC;
+  vector[n_subjects] KA;
 
+  {
+  
+    row_vector[n_random] typical_values = to_row_vector({TVCL, TVVC, TVKA});
+
+    matrix[n_subjects, n_random] eta = diag_pre_multiply(omega, L * Z)';
+
+    matrix[n_subjects, n_random] theta =
+                          (rep_matrix(typical_values, n_subjects) .* exp(eta));
+    
+    CL = col(theta, 1);
+    VC = col(theta, 2);
+    KA = col(theta, 3);
+  
+  }
+  
+}
 model{ 
   
   // Priors
   TVCL ~ lognormal(log(location_tvcl), scale_tvcl);
   TVVC ~ lognormal(log(location_tvvc), scale_tvvc);
-  TVKA ~ lognormal(log(location_tvka), scale_tvka);
+  TVKA ~ lognormal(log(location_tvka), scale_tvka) T[TVCL/TVVC, ];
 
   omega ~ normal(0, scale_omega);
   L ~ lkj_corr_cholesky(lkj_df_omega);
@@ -249,10 +255,11 @@ model{
                        dv_obs, dv_obs_id, i_obs,
                        amt, cmt, evid, time, 
                        rate, ii, addl, ss, subj_start, subj_end, 
-                       TVCL, TVVC, TVKA, omega, L, Z,
+                       CL, VC, KA,
                        sigma_p,
                        lloq, bloq,
                        n_random, n_subjects, n_total,
                        bioav, tlag, n_cmt);
+  
 }
 

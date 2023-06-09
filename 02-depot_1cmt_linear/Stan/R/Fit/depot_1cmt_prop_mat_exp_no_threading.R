@@ -7,7 +7,7 @@ library(tidyverse)
 set_cmdstan_path("cmdstan")
 
 nonmem_data <- read_csv("02-depot_1cmt_linear/data/single_dose.csv",
-# nonmem_data <- read_csv("02-depot_1cmt_linear/data/multiple_dose.csv",                        
+# nonmem_data <- read_csv("02-depot_1cmt_linear/data/multiple_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -110,14 +110,13 @@ stan_data <- list(n_subjects = n_subjects,
                   scale_sigma_p = 0.5)
 
 model <- cmdstan_model(
-  "02-depot_1cmt_linear/Stan/Torsten/Fit/depot_1cmt_prop.stan",
-  cpp_options = list(stan_threads = TRUE))
+  "02-depot_1cmt_linear/Stan/Torsten/Fit/depot_1cmt_prop_mat_exp_no_threading.stan")
 
 fit <- model$sample(data = stan_data,
                     seed = 112356,
                     chains = 4,
                     parallel_chains = 4,
-                    threads_per_chain = parallel::detectCores()/4,
+                    # threads_per_chain = 2,
                     iter_warmup = 500,
                     iter_sampling = 1000,
                     adapt_delta = 0.8,
@@ -126,8 +125,8 @@ fit <- model$sample(data = stan_data,
                     init = str_c("02-depot_1cmt_linear/data/inits/inits_1_", 
                                  1:4, ".json"))
 
-fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-# fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp_no_threading.rds")
+# fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose_mat_exp_no_threading.rds")
 
 
 parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
@@ -136,5 +135,5 @@ parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
 
 fit$draws(parameters_to_summarize, format = "draws_df") %>% 
   as_tibble() %>% 
-  write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose_draws_df.csv")
-# write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose_draws_df.csv")
+  write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose_draws_df_mat_exp_no_threading.csv")
+# write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose_draws_df_mat_exp_no_threading.csv")

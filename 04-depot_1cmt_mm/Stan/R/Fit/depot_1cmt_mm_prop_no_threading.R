@@ -6,8 +6,8 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-nonmem_data <- read_csv("02-depot_1cmt_linear/data/single_dose.csv",
-# nonmem_data <- read_csv("02-depot_1cmt_linear/data/multiple_dose.csv",                        
+nonmem_data <- read_csv("04-depot_1cmt_mm/data/single_dose.csv",
+# nonmem_data <- read_csv("04-depot_1cmt_mm/data/multiple_dose.csv",
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -27,7 +27,7 @@ nonmem_data <- read_csv("02-depot_1cmt_linear/data/single_dose.csv",
     scale_color_discrete(name = "Dose (mg)") +
     scale_y_continuous(name = "Drug Conc. (ug/mL)",
                        limits = c(NA, NA),
-                       trans = "identity") +
+                       trans = "log10") +
     scale_x_continuous(name = "Time (d)",
                        breaks = seq(0, 216, by = 24),
                        labels = seq(0, 216/24, by = 24/24),
@@ -46,12 +46,12 @@ nonmem_data <- read_csv("02-depot_1cmt_linear/data/single_dose.csv",
 #              linetype = 2, color = "red", alpha = 0.5) +
 #   facet_wrap(~ID, labeller = label_both, scales = "free_y")
 
-nonmem_data %>%
-  filter(evid== 0) %>% 
-  group_by(ID) %>% 
-  summarize(lloq = unique(lloq),
-            n_obs = n(),
-            n_bloq = sum(bloq == 1)) %>% 
+nonmem_data %>%	
+  filter(evid== 0) %>% 	
+  group_by(ID) %>% 	
+  summarize(lloq = unique(lloq),	
+            n_obs = n(),	
+            n_bloq = sum(bloq == 1)) %>% 	
   filter(n_bloq > 0)
 
 n_subjects <- nonmem_data %>%  # number of individuals
@@ -97,37 +97,42 @@ stan_data <- list(n_subjects = n_subjects,
                   subj_end = subj_end,
                   lloq = nonmem_data$lloq,
                   bloq = nonmem_data$bloq,
-                  location_tvcl = 4,
+                  # location_tvcl = 4,
                   location_tvvc = 70,
+                  location_tvvmax = 1.000,
+                  location_tvkm = 0.250,
                   location_tvka = 1,
-                  scale_tvcl = 1,
+                  # scale_tvcl = 1,
                   scale_tvvc = 1,
+                  scale_tvvmax = 1,
+                  scale_tvkm = 1,
                   scale_tvka = 1,
-                  scale_omega_cl = 0.4,
+                  # scale_omega_cl = 0.4,
                   scale_omega_vc = 0.4,
+                  scale_omega_vmax = 0.4,
+                  scale_omega_km = 0.4,
                   scale_omega_ka = 0.4,
                   lkj_df_omega = 2,
                   scale_sigma_p = 0.5)
 
 model <- cmdstan_model(
-  "02-depot_1cmt_linear/Stan/Torsten/Fit/depot_1cmt_prop.stan",
-  cpp_options = list(stan_threads = TRUE))
+  "04-depot_1cmt_mm/Stan/Torsten/Fit/depot_1cmt_mm_prop_no_threading.stan")
 
 fit <- model$sample(data = stan_data,
-                    seed = 112356,
+                    seed = 11235,
                     chains = 4,
                     parallel_chains = 4,
-                    threads_per_chain = parallel::detectCores()/4,
+                    # threads_per_chain = parallel::detectCores()/4,
                     iter_warmup = 500,
                     iter_sampling = 1000,
                     adapt_delta = 0.8,
-                    refresh = 500,
+                    refresh = 50,
                     max_treedepth = 10,
-                    init = str_c("02-depot_1cmt_linear/data/inits/inits_1_", 
+                    init = str_c("04-depot_1cmt_mm/data/inits/inits_1_", 
                                  1:4, ".json"))
 
-fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-# fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+fit$save_object("04-depot_1cmt_mm/Stan/Torsten/Fits/single_dose_no_threading.rds")
+# fit$save_object("04-depot_1cmt_mm/Stan/Torsten/Fits/multiple_dose_no_threading.rds")
 
 
 parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
@@ -136,5 +141,6 @@ parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
 
 fit$draws(parameters_to_summarize, format = "draws_df") %>% 
   as_tibble() %>% 
-  write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose_draws_df.csv")
-# write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose_draws_df.csv")
+  write_csv("02-depot_1cmt_mm/Stan/Torsten/Fits/single_dose_draws_df_no_threading.csv")
+# write_csv("02-depot_1cmt_mm/Stan/Torsten/Fits/multiple_dose_draws_df_no_threading.csv")
+

@@ -6,8 +6,8 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-nonmem_data <- read_csv("02-depot_1cmt_linear/data/single_dose.csv",
-# nonmem_data <- read_csv("02-depot_1cmt_linear/data/multiple_dose.csv",                        
+nonmem_data <- read_csv("03-depot_2cmt_linear/data/single_dose.csv",
+# nonmem_data <- read_csv("03-depot_2cmt_linear/data/multiple_dose.csv",                        
                         na = ".") %>% 
   rename_all(tolower) %>% 
   rename(ID = "id",
@@ -99,35 +99,40 @@ stan_data <- list(n_subjects = n_subjects,
                   bloq = nonmem_data$bloq,
                   location_tvcl = 4,
                   location_tvvc = 70,
+                  location_tvq = 4,
+                  location_tvvp = 40,
                   location_tvka = 1,
                   scale_tvcl = 1,
                   scale_tvvc = 1,
+                  scale_tvq = 1,
+                  scale_tvvp = 1,
                   scale_tvka = 1,
                   scale_omega_cl = 0.4,
                   scale_omega_vc = 0.4,
+                  scale_omega_q = 0.4,
+                  scale_omega_vp = 0.4,
                   scale_omega_ka = 0.4,
                   lkj_df_omega = 2,
                   scale_sigma_p = 0.5)
 
 model <- cmdstan_model(
-  "02-depot_1cmt_linear/Stan/Torsten/Fit/depot_1cmt_prop.stan",
-  cpp_options = list(stan_threads = TRUE))
+  "03-depot_2cmt_linear/Stan/Torsten/Fit/depot_2cmt_prop_mat_exp_no_threading.stan")
 
 fit <- model$sample(data = stan_data,
-                    seed = 112356,
+                    seed = 11235,
                     chains = 4,
                     parallel_chains = 4,
-                    threads_per_chain = parallel::detectCores()/4,
+                    # threads_per_chain = parallel::detectCores()/4,
                     iter_warmup = 500,
                     iter_sampling = 1000,
                     adapt_delta = 0.8,
                     refresh = 500,
                     max_treedepth = 10,
-                    init = str_c("02-depot_1cmt_linear/data/inits/inits_1_", 
+                    init = str_c("03-depot_2cmt_linear/data/inits/inits_1_", 
                                  1:4, ".json"))
 
-fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-# fit$save_object("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+fit$save_object("03-depot_2cmt_linear/Stan/Torsten/Fits/single_dose_mat_exp_no_threading.rds")
+# fit$save_object("03-depot_2cmt_linear/Stan/Torsten/Fits/multiple_dose_mat_exp_no_threading.rds")
 
 
 parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
@@ -136,5 +141,5 @@ parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
 
 fit$draws(parameters_to_summarize, format = "draws_df") %>% 
   as_tibble() %>% 
-  write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose_draws_df.csv")
-# write_csv("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose_draws_df.csv")
+  write_csv("03-depot_2cmt_linear/Stan/Torsten/Fits/single_dose_draws_df_mat_exp_no_threading.csv")
+# write_csv("03-depot_2cmt_linear/Stan/Torsten/Fits/multiple_dose_draws_df_mat_exp_no_threading.csv")
