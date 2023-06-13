@@ -168,7 +168,7 @@ sample_and_save_all <- function(n_doses = "multiple", run_number){
                       iter_warmup = 500,
                       iter_sampling = 1000,
                       adapt_delta = 0.8,
-                      refresh = 500,
+                      refresh = 100,
                       max_treedepth = 10,
                       init = init_files)
   

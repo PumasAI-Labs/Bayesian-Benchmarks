@@ -17,7 +17,7 @@ parameters = c(
 future_walk(
   c(
     env,
-    env_multi,
+    env_multi
   ),
   ~ convert_env_to_arrow(.x, parameters=parameters)
 )
