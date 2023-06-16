@@ -59,4 +59,4 @@ for(i in 1:nChains) {
 }
 
 # Submit chains  in parallel
-run_chains(root_folder, modelName, nchains=4, threads_per_chain=2)
+run_chains(root_folder, modelName, nchains=4, threads_per_chain=8)
