@@ -48,7 +48,7 @@ friberg = @model begin
         Central'    =  Ka*Depot - (CL/Vc + Q/Vc)*Central + (Q/Vp)*Peripheral
         Peripheral' =  Q/Vc*Central - Q/Vp*Peripheral
         # PD
-        Prol'       = KTR*Prol*(1 - EDRUG)*abs(CIRC0/Circ)^γ - KTR*Prol
+        Prol'       = KTR*Prol*((1 - EDRUG)*(CIRC0/Circ)^γ - 1)
         Transit1'   = KTR*Prol     - KTR*Transit1
         Transit2'   = KTR*Transit1 - KTR*Transit2
         Transit3'   = KTR*Transit2 - KTR*Transit3
