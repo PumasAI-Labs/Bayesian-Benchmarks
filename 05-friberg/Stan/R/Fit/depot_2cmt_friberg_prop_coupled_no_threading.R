@@ -147,29 +147,43 @@ stan_data <- list(n_subjects = n_subjects,
                   scale_sigma_p = 0.5,
                   scale_sigma_p_pd = 0.5)
 
-model <- cmdstan_model(
-  "05-friberg/Stan/Torsten/Fit/depot_2cmt_friberg_prop_coupled_no_threading.stan",
-  cpp_options = list(stan_threads = TRUE))
+sample_and_save_all <- function(n_doses = "multiple", run_number){
+  
+  n_doses <- match.arg(n_doses)  
+  
+  print(str_c(n_doses, " dose, run #", run_number))
+  
+  init_files <- str_c("05-friberg/data/inits/inits_", run_number, "_", 
+                      1:4, ".json")
+  
+  model <- cmdstan_model(
+    "05-friberg/Stan/Torsten/Fit/depot_2cmt_friberg_prop_coupled_no_threading.stan")
+  
+  fit <- model$sample(data = stan_data,
+                      seed = 112356,
+                      chains = 4,
+                      parallel_chains = 4,
+                      # threads_per_chain = parallel::detectCores()/4,
+                      iter_warmup = 500,
+                      iter_sampling = 1000,
+                      adapt_delta = 0.8,
+                      refresh = 500,
+                      max_treedepth = 10,
+                      init = init_files)
+  
+  fit$save_object(str_c("05-friberg/Stan/Torsten/Fits/", 
+                        n_doses, "_dose_coupled_no_threading_", run_number, ".rds"))
+  
+  parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
+                               str_subset(fit$metadata()$stan_variables, "omega"),
+                               str_subset(fit$metadata()$stan_variables, "sigma"))
+  
+  fit$draws(parameters_to_summarize, format = "draws_df") %>% 
+    as_tibble() %>% 
+    write_csv(str_c("05-friberg/Stan/Torsten/Fits/", 
+                    n_doses, "_dose_draws_df_coupled_no_threading_", run_number, ".csv"))
+  
+}
 
-fit <- model$sample(data = stan_data,
-                    seed = 112356,
-                    chains = 4,
-                    parallel_chains = 4,
-                    threads_per_chain = parallel::detectCores()/4,
-                    iter_warmup = 500,
-                    iter_sampling = 1000,
-                    adapt_delta = 0.8,
-                    refresh = 5,
-                    max_treedepth = 10,
-                    init = str_c("05-friberg/data/inits/inits_1_", 
-                                 1:4, ".json"))
-
-fit$save_object("05-friberg/Stan/Torsten/Fits/multiple_dose_coupled_no_threading.rds")
-
-parameters_to_summarize <- c(str_subset(fit$metadata()$stan_variables, "TV"),
-                             str_subset(fit$metadata()$stan_variables, "omega"),
-                             str_subset(fit$metadata()$stan_variables, "sigma"))
-
-fit$draws(parameters_to_summarize, format = "draws_df") %>% 
-  as_tibble() %>% 
-  write_csv("02-depot_1cmt_mm/Stan/Torsten/Fits/multiple_dose_draws_df_coupled_no_threading.csv")
+expand_grid(n_doses = "multiple", run_number = 1:5) %>% 
+  pwalk(.f = sample_and_save_all)
