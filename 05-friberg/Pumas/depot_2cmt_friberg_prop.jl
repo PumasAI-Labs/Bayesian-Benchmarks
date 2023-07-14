@@ -17,14 +17,12 @@ depot_2cmt_friberg_prop = @model begin
         TVCIRC0 ~ LogNormal(log(5), 1)
         TVGAMMA ~ LogNormal(log(0.17), 1)
         TVALPHA ~ LogNormal(log(3e-4), 1)
-        #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
-        σ_p_pd ~ truncated(Normal(0, 0.5), 0.0, Inf)
+        σ_p ~ Constrained(Normal(0, 0.5); lower=0.0)
+        σ_p_pd ~ Constrained(Normal(0, 0.5); lower=0.0)
         C ~ LKJCholesky(9, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(9), Diagonal([0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4].^2)),
             lower = zeros(9),
-            upper = fill(Inf, 9),
             init = ones(9)
         )
     end
@@ -33,13 +31,7 @@ depot_2cmt_friberg_prop = @model begin
         ηstd ~ MvNormal(float.(Matrix(I(9)))) # Z in the Stan code
     end
 
-    @covariates lloq lloq_pd
-
     @pre begin
-
-        _lloq = lloq
-        _lloq_pd = lloq_pd
-
         # compute the η from the ηstd
         # using lower Cholesky triangular matrix
         η = ω .* (getchol(C).L * ηstd)
@@ -87,24 +79,8 @@ depot_2cmt_friberg_prop = @model begin
 
     @derived begin
         cp := @. Central / VC
-        dv ~ @. Censored(
-            truncated(
-                Normal(cp, cp*σ_p + 1e-10),
-                0.0,
-                Inf,
-            ),
-            _lloq,
-            Inf,
-        )
-        e  ~ @. Censored(
-            truncated(
-                Normal(Circ, Circ*σ_p_pd + 1e-10),
-                0.0,
-                Inf,
-            ),
-            _lloq_pd,
-            Inf,
-        )
+        dv ~ @. Normal(cp, cp*σ_p)
+        e  ~ @. Normal(Circ, Circ*σ_p_pd)
     end
 end
 
@@ -114,7 +90,6 @@ rename!(lowercase, df)
 
 pop = read_pumas(
     df;
-    covariates = [:lloq, :lloq_pd],
     observations=[:dv, :e],
 )
 
@@ -138,7 +113,7 @@ pumas_fit = fit(
     depot_2cmt_friberg_prop,
     pop,
     iparams,
-    Pumas.BayesMCMC(
+    BayesMCMC(
         nsamples = 1500,
         nadapts = 500,
         nchains = 4,
@@ -146,6 +121,6 @@ pumas_fit = fit(
         parallel_subjects = true)
     )
 
-my_fit = Pumas.truncate(pumas_fit; burnin = 500)
+my_fit = discard(pumas_fit; burnin=500)
 
 serialize("05-friberg/Pumas/fit_multiple_dose", my_fit)
