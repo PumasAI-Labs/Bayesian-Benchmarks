@@ -149,7 +149,7 @@ friberg_fit = fit(
     ),
 )
 
-Pumas.truncate(friberg_fit; burnin=1_000)
+Pumas.discard(friberg_fit; burnin=1_000)
 
 #Chains MCMC chain (1000×47×4 Array{Float64, 3}):
 #

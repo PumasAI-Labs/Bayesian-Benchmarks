@@ -17,14 +17,12 @@ depot_2cmt_friberg_prop = @model begin
         TVCIRC0 ~ LogNormal(log(5), 1)
         TVGAMMA ~ LogNormal(log(0.17), 1)
         TVALPHA ~ LogNormal(log(3e-4), 1)
-        #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
-        σ_p_pd ~ truncated(Normal(0, 0.5), 0.0, Inf)
+        σ_p ~ Constrained(Normal(0, 0.5); lower=0.0)
+        σ_p_pd ~ Constrained(Normal(0, 0.5); lower=0.0)
         C ~ LKJCholesky(9, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(9), Diagonal([0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4].^2)),
             lower = zeros(9),
-            upper = fill(Inf, 9),
             init = ones(9)
         )
     end
@@ -88,22 +86,12 @@ depot_2cmt_friberg_prop = @model begin
     @derived begin
         cp := @. Central / VC
         dv ~ @. Censored(
-            truncated(
-                Normal(cp, cp*σ_p + 1e-10),
-                0.0,
-                Inf,
-            ),
-            _lloq,
-            Inf,
+            truncated(Normal(cp, cp*σ_p + 1e-10); lower=0.0),
+            lower = _lloq,
         )
         e  ~ @. Censored(
-            truncated(
-                Normal(Circ, Circ*σ_p_pd + 1e-10),
-                0.0,
-                Inf,
-            ),
-            _lloq_pd,
-            Inf,
+            truncated(Normal(Circ, Circ*σ_p_pd + 1e-10); lower=0.0),
+            lower = _lloq_pd,
         )
     end
 end
@@ -146,6 +134,6 @@ pumas_fit = fit(
         parallel_subjects = true)
     )
 
-my_fit = Pumas.truncate(pumas_fit; burnin = 500)
+my_fit = Pumas.discard(pumas_fit; burnin=500)
 
 serialize("05-friberg/Pumas/fit_multiple_dose", my_fit)

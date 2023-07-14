@@ -13,13 +13,11 @@ depot_1cmt_mm_prop = @model begin
         TVVMAX ~ LogNormal(log(1), 1)
         TVKM ~ LogNormal(log(0.25), 1)
         TVKA ~ LogNormal(log(1), 1)
-        #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
-        σ_p ~ truncated(Normal(0, 0.5), 0.0, Inf)
+        σ_p ~ Constrained(Normal(0, 0.5); lower=0.0)
         C ~ LKJCholesky(4, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
             MvNormal(zeros(4), Diagonal([0.4, 0.4, 0.4, 0.4].^2)),
             lower = zeros(4),
-            upper = fill(Inf, 4),
             init = ones(4)
         )
     end
@@ -57,11 +55,7 @@ depot_1cmt_mm_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. truncated(
-            Normal(cp, abs(cp*σ_p) + 1e-10),
-            0.0,
-            Inf,
-        )
+        dv ~ @. truncated(Normal(cp, abs(cp*σ_p) + 1e-10), lower = 0.0)
     end
 end
 
@@ -95,6 +89,6 @@ pumas_fit = fit(
         parallel_subjects = true)
 )
 
-Pumas.truncate(pumas_fit; burnin = 500)
+Pumas.discard(pumas_fit; burnin=500)
 
 serialize("04-depot_1cmt_mm/Pumas/fit_single_dose", my_fit)
