@@ -30,7 +30,7 @@ depot_2cmt_friberg_prop = @model begin
     end
 
     @random begin
-        ηstd ~ MvNormal(I(9)) # Z in the Stan code
+        ηstd ~ MvNormal(float.(Matrix(I(9)))) # Z in the Stan code
     end
 
     @covariates lloq lloq_pd
@@ -78,7 +78,7 @@ depot_2cmt_friberg_prop = @model begin
         Central' = KA * Depot - (CL/VC + k_cp) * Central + k_pc*Peripheral
         Peripheral' = k_cp * Central - k_pc*Peripheral
 
-        Prol'       = k_tr*Prol*(1 - e_drug)*abs(CIRC0/Circ)^γ - k_tr*Prol
+        Prol'       = k_tr*Prol*((1 - e_drug)*(CIRC0/Circ)^γ - 1)
         Transit1'   = k_tr*Prol     - k_tr*Transit1
         Transit2'   = k_tr*Transit1 - k_tr*Transit2
         Transit3'   = k_tr*Transit2 - k_tr*Transit3
