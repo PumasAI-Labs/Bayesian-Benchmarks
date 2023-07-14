@@ -31,13 +31,7 @@ depot_2cmt_friberg_prop = @model begin
         ηstd ~ MvNormal(I(9)) # Z in the Stan code
     end
 
-    @covariates lloq lloq_pd
-
     @pre begin
-
-        _lloq = lloq
-        _lloq_pd = lloq_pd
-
         # compute the η from the ηstd
         # using lower Cholesky triangular matrix
         η = ω .* (getchol(C).L * ηstd)
@@ -85,14 +79,8 @@ depot_2cmt_friberg_prop = @model begin
 
     @derived begin
         cp := @. Central / VC
-        dv ~ @. Censored(
-            truncated(Normal(cp, cp*σ_p + 1e-10); lower=0.0),
-            lower = _lloq,
-        )
-        e  ~ @. Censored(
-            truncated(Normal(Circ, Circ*σ_p_pd + 1e-10); lower=0.0),
-            lower = _lloq_pd,
-        )
+        dv ~ @. Normal(cp, cp*σ_p)
+        e  ~ @. Normal(Circ, Circ*σ_p_pd)
     end
 end
 
@@ -102,7 +90,6 @@ rename!(lowercase, df)
 
 pop = read_pumas(
     df;
-    covariates = [:lloq, :lloq_pd],
     observations=[:dv, :e],
 )
 
@@ -126,7 +113,7 @@ pumas_fit = fit(
     depot_2cmt_friberg_prop,
     pop,
     iparams,
-    Pumas.BayesMCMC(
+    BayesMCMC(
         nsamples = 1500,
         nadapts = 500,
         nchains = 4,
@@ -134,6 +121,6 @@ pumas_fit = fit(
         parallel_subjects = true)
     )
 
-my_fit = Pumas.discard(pumas_fit; burnin=500)
+my_fit = discard(pumas_fit; burnin=500)
 
 serialize("05-friberg/Pumas/fit_multiple_dose", my_fit)

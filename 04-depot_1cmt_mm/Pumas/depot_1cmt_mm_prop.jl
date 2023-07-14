@@ -26,12 +26,7 @@ depot_1cmt_mm_prop = @model begin
         ηstd ~ MvNormal(I(4)) # Z in the Stan code
     end
 
-    @covariates lloq
-
     @pre begin
-
-        _lloq = lloq
-
         # compute the η from the ηstd
         # using lower Cholesky triangular matrix
         η = ω .* (getchol(C).L * ηstd)
@@ -41,7 +36,6 @@ depot_1cmt_mm_prop = @model begin
         VMAX = TVVMAX * exp(η[2])
         KM = TVKM * exp(η[3])
         Ka = TVKA * exp(η[4])
-
     end
 
     @vars begin
@@ -55,7 +49,7 @@ depot_1cmt_mm_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. truncated(Normal(cp, abs(cp*σ_p) + 1e-10), lower = 0.0)
+        dv ~ @. Normal(cp, abs(cp*σ_p))
     end
 end
 
@@ -63,8 +57,7 @@ df = CSV.read("04-depot_1cmt_mm/data/single_dose.csv", DataFrame,
               missingstring = ".")
 rename!(lowercase, df)
 
-pop = read_pumas(df, 
-                 covariates = [:lloq])
+pop = read_pumas(df)
 
 iparams = (;
     TVVC = 60.77268,
@@ -80,8 +73,7 @@ pumas_fit = fit(
     depot_1cmt_mm_prop,
     pop,
     iparams,
-    # LaplaceI()
-    Pumas.BayesMCMC(
+    BayesMCMC(
         nsamples = 1500,
         nadapts = 500,
         nchains = 4,
@@ -89,6 +81,6 @@ pumas_fit = fit(
         parallel_subjects = true)
 )
 
-Pumas.discard(pumas_fit; burnin=500)
+discard(pumas_fit; burnin=500)
 
 serialize("04-depot_1cmt_mm/Pumas/fit_single_dose", my_fit)

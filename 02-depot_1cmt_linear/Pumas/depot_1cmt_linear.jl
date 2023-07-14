@@ -8,7 +8,6 @@ depot_1cmt_prop = @model begin
         TVCL ~ LogNormal(log(4), 1)
         TVVC ~ LogNormal(log(70), 1)
         TVKA ~ LogNormal(log(1), 1)
-        #σ_p ~ Constrained(Normal(0, 0.5), lower = 0, upper = Inf)
         σ_p ~ Constrained(Normal(0, 0.5), lower = 0.0)
         C ~ LKJCholesky(3, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
         ω ∈ Constrained(
@@ -23,7 +22,6 @@ depot_1cmt_prop = @model begin
     end
 
     @pre begin
-
         # compute the η from the ηstd
         # using lower Cholesky triangular matrix
         η = ω .* (getchol(C).L * ηstd)
@@ -41,7 +39,7 @@ depot_1cmt_prop = @model begin
 
     @derived begin
         cp := @. Central / Vc
-        dv ~ @. truncated(Normal(cp, cp*σ_p); lower=0.0)
+        dv ~ @. Normal(cp, cp*σ_p)
     end
 end
 
@@ -52,10 +50,8 @@ df_multi = CSV.read("02-depot_1cmt_linear/data/multiple_dose.csv", DataFrame,
 rename!(lowercase, df)
 rename!(lowercase, df_multi)
 
-pop = read_pumas(df, 
-                 covariates = [:lloq])
-pop_multi = read_pumas(df_multi, 
-                 covariates = [:lloq])
+pop = read_pumas(df)
+pop_multi = read_pumas(df_multi)
 
 iparams = (;
     TVCL = exp(1.29700),
@@ -70,7 +66,7 @@ pumas_fit = fit(
     depot_1cmt_prop,
     pop,
     iparams,
-    Pumas.BayesMCMC(
+    BayesMCMC(
         nsamples = 1500,
         nadapts = 500,
         nchains = 4,
@@ -80,14 +76,14 @@ pumas_fit = fit(
     )
 )
 
-my_fit = Pumas.discard(pumas_fit; burnin=500)
+my_fit = discard(pumas_fit; burnin=500)
 serialize("02-depot_1cmt_linear/Pumas/fit_single_dose.jls", my_fit)
 
 pumas_fit_multi = fit(
     depot_1cmt_prop,
     pop,
     iparams,
-    Pumas.BayesMCMC(
+    BayesMCMC(
         nsamples = 1500,
         nadapts = 500,
         nchains = 4,
@@ -97,5 +93,5 @@ pumas_fit_multi = fit(
     )
 )
 
-my_fit_multi = Pumas.discard(pumas_fit_multi; burnin=500)
+my_fit_multi = discard(pumas_fit_multi; burnin=500)
 serialize("02-depot_1cmt_linear/Pumas/fit_multi_dose.jls", my_fit_multi)
