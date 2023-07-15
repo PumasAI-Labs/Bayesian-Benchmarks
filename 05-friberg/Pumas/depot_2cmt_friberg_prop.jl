@@ -1,6 +1,7 @@
 using Pumas
 using DataFrames
 using CSV
+using Serialization
 
 depot_2cmt_friberg_prop = @model begin
     @options begin
@@ -148,4 +149,4 @@ pumas_fit = fit(
 
 my_fit = Pumas.truncate(pumas_fit; burnin = 500)
 
-serialize("05-friberg/Pumas/fit_multiple_dose", my_fit)
+serialize("05-friberg/Pumas/fit_multiple_dose.jls", my_fit)
