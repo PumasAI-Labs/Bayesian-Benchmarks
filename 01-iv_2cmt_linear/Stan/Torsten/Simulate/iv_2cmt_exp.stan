@@ -3,20 +3,7 @@
 // IIV on CL, VC, Q, and VP (full covariance matrix)
 // exponential error - DV = CP*exp(eps)
 // Analytical solution using Torsten
-// Simulations are generated from a normal that is truncated below at 0
 
-functions{
-  
-  real normal_lb_rng(real mu, real sigma, real lb){
-    
-    real p_lb = normal_cdf(lb | mu, sigma);
-    real u = uniform_rng(p_lb, 1);
-    real y = mu + sigma * inv_Phi(u);
-    return y;
-
-  }
-  
-}
 data{
   
   int n_subjects;
