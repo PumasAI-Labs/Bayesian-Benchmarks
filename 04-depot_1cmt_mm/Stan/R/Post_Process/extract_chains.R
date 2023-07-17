@@ -11,7 +11,7 @@ parameters = c(
   "TVKM",
   "TVKA",
   "omega",
-  "sigma_p"
+  "sigma"
 )
 
 future_walk(
