@@ -1,6 +1,7 @@
 rm(list = ls())
 cat("\014")
 
+library(trelliscopejs)
 library(mrgsolve)
 library(tidybayes)
 library(cmdstanr)
@@ -9,28 +10,25 @@ library(tidyverse)
 set_cmdstan_path("cmdstan")
 
 model_simulate <- 
-  cmdstan_model("01-iv_2cmt_linear/Stan/Torsten/Simulate/iv_2cmt_exp.stan") 
+  cmdstan_model(
+    "02-depot_1cmt_linear/Stan/Torsten/Simulate/depot_1cmt_exp.stan") 
 
 TVCL <- 4
 TVVC <- 70
-TVQ <- 4
-TVVP <- 50
-# TVKA <- 1
+TVKA <- 1
 
 omega_cl <- 0.3
 omega_vc <- 0.3
-omega_q <- 0.3
-omega_vp <- 0.3
-# omega_ka <- 0.3
+omega_ka <- 0.3
 
-R <- diag(rep(1, times = 4))
+R <- diag(rep(1, times = 3))
 
 sigma <- 0.2
 
 n_subjects_per_dose <- 30
 
 dosing_data <- expand.ev(ID = 1:n_subjects_per_dose, addl = 0, ii = 0, 
-                         cmt = 2, amt = c(10, 30, 60, 120), tinf = 1,
+                         cmt = 1, amt = c(10, 30, 60, 120), tinf = 0,
                          evid = 1) %>%
   as_tibble() %>% 
   rename_all(toupper) %>%
@@ -47,9 +45,7 @@ nonmem_data_simulate <- dosing_data %>%
   mutate(AMT = 0,
          CMT = 2,
          EVID = 0,
-         TIME = times_to_simulate,
-         RATE = 0,
-         TINF = 0) %>% 
+         TIME = times_to_simulate) %>% 
   ungroup() %>%
   bind_rows(dosing_data) %>% 
   arrange(ID, TIME, AMT) %>% 
@@ -86,30 +82,28 @@ stan_data <- list(n_subjects = n_subjects,
                   subj_end = subj_end,
                   TVCL = TVCL,
                   TVVC = TVVC,
-                  TVQ = TVQ,
-                  TVVP = TVVP,
+                  TVKA = TVKA,
                   omega_cl = omega_cl,
                   omega_vc = omega_vc,
-                  omega_q = omega_q,
-                  omega_vp = omega_vp,
+                  omega_ka = omega_ka,
                   R = R,
                   sigma = sigma)
 
 simulated_data <- model_simulate$sample(data = stan_data,
                                         fixed_param = TRUE,
-                                        seed = 1234567,
+                                        seed = 112358,
                                         iter_warmup = 0,
                                         iter_sampling = 1,
                                         chains = 1,
                                         parallel_chains = 1)
 
-params_ind <- simulated_data$draws(c("CL", "VC", "Q", "VP")) %>% 
-  spread_draws(CL[i], VC[i], Q[i], VP[i]) %>% 
+params_ind <- simulated_data$draws(c("CL", "VC", "KA")) %>% 
+  spread_draws(CL[i], VC[i], KA[i]) %>% 
   inner_join(dosing_data %>% 
                mutate(i = 1:n()),
              by = "i") %>% 
   ungroup() %>%
-  select(ID, CL, VC, Q, VP)
+  select(ID, CL, VC, KA)
 
 data <- simulated_data$draws(c("dv")) %>% 
   spread_draws(dv[i]) %>% 
@@ -125,8 +119,7 @@ data <- simulated_data$draws(c("dv")) %>%
                           TRUE ~ NA_real_),
          DV = if_else(EVID == 1 | BLOQ == 1, NA_real_, DV),
          DVLN = log(DV),
-         MDV = if_else(is.na(DV), 1, 0),
-         CMT = 1) %>% 
+         MDV = if_else(is.na(DV), 1, 0)) %>% 
   relocate(DV, .after = last_col()) %>% 
   relocate(DVLN, .after = last_col()) %>% 
   relocate(TIME, .before = DV)
@@ -144,19 +137,20 @@ ggplot(data %>%
                      labels = seq(0, 72, by = 12)) +
   geom_point(data = data %>% 
                filter(BLOQ == 1),
-             mapping = aes(x = TIME, y = LLOQ), color = "limegreen") 
+             mapping = aes(x = TIME, y = LLOQ), color = "limegreen") #+ 
+# facet_trelliscope(~ID, nrow = 4, ncol = 5)
 
 data %>% 
-  write_csv(file.path("01-iv_2cmt_linear", "data", "single_dose.csv"),
+  write_csv(file.path("02-depot_1cmt_linear", "data", "single_dose.csv"),
             na = ".")
 
 params_ind %>% 
-  write_csv("01-iv_2cmt_linear/data/single_dose_params_ind.csv")
+  write_csv("02-depot_1cmt_linear/data/single_dose_params_ind.csv")
 
 ################ Now Simulate Multiple Doses ####################
 
 dosing_data <- expand.ev(ID = 1:n_subjects_per_dose, addl = 6, ii = 24, 
-                         cmt = 2, amt = c(10, 30, 60, 120), tinf = 1,
+                         cmt = 1, amt = c(10, 30, 60, 120), tinf = 0,
                          evid = 1) %>%
   as_tibble() %>% 
   rename_all(toupper) %>%
@@ -176,9 +170,7 @@ nonmem_data_simulate <- dosing_data %>%
          II = 0,
          CMT = 2,
          EVID = 0,
-         TIME = times_to_simulate,
-         RATE = 0,
-         TINF = 0) %>% 
+         TIME = times_to_simulate) %>% 
   ungroup() %>%
   bind_rows(dosing_data) %>% 
   arrange(ID, TIME, AMT) %>% 
@@ -215,30 +207,28 @@ stan_data <- list(n_subjects = n_subjects,
                   subj_end = subj_end,
                   TVCL = TVCL,
                   TVVC = TVVC,
-                  TVQ = TVQ,
-                  TVVP = TVVP,
+                  TVKA = TVKA,
                   omega_cl = omega_cl,
                   omega_vc = omega_vc,
-                  omega_q = omega_q,
-                  omega_vp = omega_vp,
+                  omega_ka = omega_ka,
                   R = R,
                   sigma = sigma)
 
 simulated_data <- model_simulate$sample(data = stan_data,
                                         fixed_param = TRUE,
-                                        seed = 1234567,
+                                        seed = 112358,
                                         iter_warmup = 0,
                                         iter_sampling = 1,
                                         chains = 1,
                                         parallel_chains = 1)
 
-params_ind <- simulated_data$draws(c("CL", "VC", "Q", "VP")) %>% 
-  spread_draws(CL[i], VC[i], Q[i], VP[i]) %>% 
+params_ind <- simulated_data$draws(c("CL", "VC", "KA")) %>% 
+  spread_draws(CL[i], VC[i], KA[i]) %>% 
   inner_join(dosing_data %>% 
                mutate(i = 1:n()),
              by = "i") %>% 
   ungroup() %>%
-  select(ID, CL, VC, Q, VP)
+  select(ID, CL, VC, KA)
 
 data <- simulated_data$draws(c("dv")) %>% 
   spread_draws(dv[i]) %>% 
@@ -254,18 +244,15 @@ data <- simulated_data$draws(c("dv")) %>%
                           TRUE ~ NA_real_),
          DV = if_else(EVID == 1 | BLOQ == 1, NA_real_, DV),
          DVLN = log(DV),
-         MDV = if_else(is.na(DV), 1, 0),
-         CMT = 1) %>% 
+         MDV = if_else(is.na(DV), 1, 0)) %>% 
   relocate(DV, .after = last_col()) %>% 
   relocate(DVLN, .after = last_col()) %>% 
   relocate(TIME, .before = DV)
 
-
 ggplot(data %>% 
-         group_by(ID) %>% 
-         mutate(Dose = factor(max(AMT)))) + 
-  geom_point(mapping = aes(x = TIME, y = DV, group = ID, color = Dose)) +
-  geom_line(mapping = aes(x = TIME, y = DV, group = ID, color = Dose)) +
+         filter(!is.na(DV))) +
+  geom_point(mapping = aes(x = TIME, y = DV, group = ID)) +
+  geom_line(mapping = aes(x = TIME, y = DV, group = ID)) +
   theme_bw(18) +
   scale_y_continuous(name = latex2exp::TeX("Drug Conc. $(\\mu g/mL)"),
                      trans = "log10") + 
@@ -280,13 +267,14 @@ ggplot(data %>%
              color = "magenta") +
   geom_point(data = data %>% 
                filter(BLOQ == 1),
-             mapping = aes(x = TIME, y = LLOQ), color = "limegreen") 
+             mapping = aes(x = TIME, y = LLOQ), color = "limegreen") #+
+# facet_trelliscope(~ID, nrow = 3, ncol = 4, scales = "free_y")
 
 data %>% 
-  write_csv(file.path("01-iv_2cmt_linear", "data", "multiple_dose.csv"),
+  write_csv(file.path("02-depot_1cmt_linear", "data", "multiple_dose.csv"),
             na = ".")
 
 params_ind %>% 
-  write_csv("01-iv_2cmt_linear/data/multiple_dose_params_ind.csv")
+  write_csv("02-depot_1cmt_linear/data/multiple_dose_params_ind.csv")
 
 
