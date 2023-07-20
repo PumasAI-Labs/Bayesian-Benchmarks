@@ -8,12 +8,12 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-# fit <- read_rds("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose.rds")
-fit <- read_rds("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
+fit <- read_rds("02-depot_1cmt_linear/Stan/Torsten/Fits/single_dose_1.rds")
+# fit <- read_rds("02-depot_1cmt_linear/Stan/Torsten/Fits/multiple_dose.rds")
 
 # For this example, let's simulate 10 mg, 30 mg, 60 mg, 120 mg, 240 mg, 480 mg 
-# dosing_data <- mrgsolve::expand.ev(addl = 0, ii = 0, cmt = 1, 
-dosing_data <- mrgsolve::expand.ev(addl = 6, ii = 24, cmt = 1, 
+dosing_data <- mrgsolve::expand.ev(addl = 0, ii = 0, cmt = 1,
+# dosing_data <- mrgsolve::expand.ev(addl = 6, ii = 24, cmt = 1, 
                                    amt = c(10, 30, 60, 120, 240, 480), tinf = 0,
                                    evid = 1, mdv = 1) %>%
   as_tibble() %>% 
