@@ -76,7 +76,8 @@ nonmem_data <- read_csv("05-friberg/data/multiple_dose.csv",
 #   filter(n_bloq > 0)
 
 ## Read in fit
-fit <- read_rds("05-friberg/Stan/Torsten/Fits/multiple_dose_1.rds")
+# fit <- read_rds("05-friberg/Stan/Torsten/Fits/multiple_dose_1.rds")
+fit <- read_rds("05-friberg/Stan/Torsten/Fits/multiple_dose_coupled_1.rds")
 
 
 ## Summary of parameter estimates
@@ -101,3 +102,4 @@ sampler_diagnostics <- fit$sampler_diagnostics()
 sum(as_draws_df(sampler_diagnostics)$divergent__)
 
 fit$time()
+

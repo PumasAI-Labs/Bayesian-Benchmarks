@@ -8,7 +8,8 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-fit <- read_rds("05-friberg/Stan/Torsten/Fits/multiple_dose_1.rds")
+# fit <- read_rds("05-friberg/Stan/Torsten/Fits/multiple_dose_1.rds")
+fit <- read_rds("05-friberg/Stan/Torsten/Fits/multiple_dose_coupled_1.rds")
 
 # For this example, let's simulate 10 mg, 20 mg, 40 mg, 80 mg, 160 mg, 320 mg 
 dosing_data <- mrgsolve::expand.ev(addl = 6, ii = 24, cmt = 1,

@@ -9,7 +9,8 @@ library(tidyverse)
 
 set_cmdstan_path("cmdstan")
 
-fit <- read_rds("05-friberg/Stan/Torsten/Fits/multiple_dose_1.rds")
+# fit <- read_rds("05-friberg/Stan/Torsten/Fits/multiple_dose_1.rds")
+fit <- read_rds("05-friberg/Stan/Torsten/Fits/multiple_dose_coupled_1.rds")
 
 nonmem_data <- read_csv("05-friberg/data/multiple_dose.csv",
                         na = ".") %>% 

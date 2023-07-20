@@ -2,12 +2,10 @@
 // Two-compartment PK Model with linear elimination
 // Friberg-Karlsson model for myelosuppression
 // IIV on CL, VC, Q, VP, KA, MTT, CIRC0, GAMMA, ALPHA
-// proportional error - DV = IPRED*(1 + eps_p) for both PK and PD
+// exponential error - DV = IPRED*exp(eps) for both PK and PD
 // ODE solution using Torsten - coupled ODE system
 // Implements threading for within-chain parallelization 
-// Deals with BLOQ values by the "CDF trick" (M4)
-// Since we have a normal distribution on the error, but the DV must be > 0, it
-//   truncates the likelihood below at 0
+// Deals with BLOQ values by the "CDF trick" (M3)
 
 functions{
 
@@ -56,15 +54,6 @@ functions{
     }
     return result;
   }
-  
-  real normal_lb_rng(real mu, real sigma, real lb){
-    
-    real p_lb = normal_cdf(lb | mu, sigma);
-    real u = uniform_rng(p_lb, 1);
-    real y = mu + sigma * inv_Phi(u);
-    return y;
-
-  }
 
   vector depot_2cmt_friberg_ode(real t, vector y, vector y_pk,
                                 array[] real params, array[] real x_r, 
@@ -105,7 +94,7 @@ functions{
                         array[] int subj_start, array[] int subj_end, 
                         vector CL, vector VC, vector Q, vector VP, vector KA,
                         vector MTT, vector CIRC0, vector GAMMA, vector ALPHA, 
-                        real sigma_p, real sigma_p_pd,
+                        real sigma, real sigma_pd,
                         vector lloq, array[] int bloq,
                         int n_random, int n_subjects, int n_total, 
                         array[] real bioav, array[] real tlag, int n_cmt, 
@@ -165,26 +154,16 @@ functions{
     
     for(i in 1:n_obs_slice){
       if(cmt_slice[i] == 2){
-        real sigma_tmp = ipred_slice[i]*sigma_p;
         if(bloq_slice[i] == 1){
-          ptarget += log_diff_exp(normal_lcdf(lloq_slice[i] | ipred_slice[i], 
-                                                              sigma_tmp),
-                                  normal_lcdf(0.0 | ipred_slice[i], sigma_tmp)) -
-                     normal_lccdf(0.0 | ipred_slice[i], sigma_tmp); 
+          ptarget += lognormal_lcdf(lloq_slice[i] | log(ipred_slice[i]), sigma);
         }else{
-          ptarget += normal_lpdf(dv_obs_slice[i] | ipred_slice[i], sigma_tmp) -
-                     normal_lccdf(0.0 | ipred_slice[i], sigma_tmp);
+          ptarget += lognormal_lpdf(dv_obs_slice[i] | log(ipred_slice[i]), sigma);
         }
       }else if(cmt_slice[i] == 3){
-        real sigma_tmp = ipred_slice[i]*sigma_p_pd;
         if(bloq_slice[i] == 1){
-          ptarget += log_diff_exp(normal_lcdf(lloq_slice[i] | ipred_slice[i], 
-                                                              sigma_tmp),
-                                  normal_lcdf(0.0 | ipred_slice[i], sigma_tmp)) -
-                     normal_lccdf(0.0 | ipred_slice[i], sigma_tmp); 
+          ptarget += lognormal_lcdf(lloq_slice[i] | log(ipred_slice[i]), sigma_pd);
         }else{
-          ptarget += normal_lpdf(dv_obs_slice[i] | ipred_slice[i], sigma_tmp) -
-                     normal_lccdf(0.0 | ipred_slice[i], sigma_tmp);
+          ptarget += lognormal_lpdf(dv_obs_slice[i] | log(ipred_slice[i]), sigma_pd);
         }
       }                                         
     }  
@@ -246,8 +225,8 @@ data{
   
   real<lower = 0> lkj_df_omega;   // Prior degrees of freedom for omega cor mat
   
-  real<lower = 0> scale_sigma_p;     // Prior Scale parameter for proportional error for PK
-  real<lower = 0> scale_sigma_p_pd;  // Prior Scale parameter for proportional error for PD
+  real<lower = 0> scale_sigma;     // Prior Scale parameter for exponential error for PK
+  real<lower = 0> scale_sigma_pd;  // Prior Scale parameter for exponential error for PD
   
 }
 transformed data{ 
@@ -291,8 +270,8 @@ parameters{
   vector<lower = 0>[n_random] omega;
   cholesky_factor_corr[n_random] L;
   
-  real<lower = 0> sigma_p;
-  real<lower = 0> sigma_p_pd;
+  real<lower = 0> sigma;
+  real<lower = 0> sigma_pd;
   
   matrix[n_random, n_subjects] Z;
   
@@ -351,8 +330,8 @@ model{
   omega ~ normal(0, scale_omega);
   L ~ lkj_corr_cholesky(lkj_df_omega);
   
-  sigma_p ~ normal(0, scale_sigma_p);
-  sigma_p_pd ~ normal(0, scale_sigma_p_pd);
+  sigma ~ normal(0, scale_sigma);
+  sigma_pd ~ normal(0, scale_sigma_pd);
   
   to_vector(Z) ~ std_normal();
   
@@ -363,7 +342,7 @@ model{
                        rate, ii, addl, ss, subj_start, subj_end, 
                        CL, VC, Q, VP, KA, 
                        MTT, CIRC0, GAMMA, ALPHA,
-                       sigma_p, sigma_p_pd,
+                       sigma, sigma_pd,
                        lloq, bloq,
                        n_random, n_subjects, n_total, 
                        bioav, tlag, n_cmt, n_ode);
