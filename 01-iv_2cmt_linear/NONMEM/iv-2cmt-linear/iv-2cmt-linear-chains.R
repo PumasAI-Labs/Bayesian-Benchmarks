@@ -31,8 +31,9 @@ omegaMat <- lowTriMat(out[i][[1]][[1]][(nTheta+1):(nTheta+nOmega)])
 omegaMat[omegaMat==0] <- 0.01
 
 root_folder <- "01-iv_2cmt_linear"
+base_name <- paste0(root_folder, "/NONMEM/", modelName, "/chains/", modelName)
+dir_name <- paste0(root_folder, "/NONMEM/", modelName)
 dir.create(paste0(dir_name, "/chains"))
-
 
 # Create model file for each chain
 for(i in 1:nChains) {
