@@ -1,6 +1,8 @@
 using Pumas
 using DataFrames
 using CSV
+using Serialization
+using JSON3
 
 depot_2cmt_friberg_exp = @model begin
     @param begin
@@ -89,35 +91,53 @@ pop = read_pumas(
     observations=[:dv, :e]
 )
 
-iparams = (;
-    TVCL=3.7,
-    TVVC=80,
-    TVQ=4.3,
-    TVVP=35,
-    TVKA=1.2,
-    TVMTT=130,
-    TVCIRC0=6,
-    TVGAMMA=0.15,
-    TVALPHA=2.8e-4,
-    σ_p=0.3,
-    σ_p_pd=0.3,
-    C=float.(Matrix(I(9))),
-    ω=[0.2, 0.3, 0.4, 0.3, 0.2, 0.3, 0.4, 0.3, 0.2]
+json_inits = filter(
+    x -> endswith(x, ".json"),
+    readdir("05-friberg/data/inits/"; join=true)
 )
+# TODO: run for all 4 inits and <=10 runs (now it is 5 runs)
+# for now we'll just take the first chain the other will be random
+filter!(x -> contains(x, r"inits_[1|2|3|4|5]_1"), json_inits)
 
-pumas_fit = fit(
-    depot_2cmt_friberg_exp,
-    pop,
-    iparams,
-    BayesMCMC(
-        nsamples=1500,
-        nadapts=500,
-        nchains=4,
-        parallel_chains=true,
-        parallel_subjects=true,
+function parse_json(json_path; n=9)
+    iparams = JSON3.read(json_path, Dict{Symbol,Any})
+    delete!(iparams, :Z)
+    delete!(iparams, :L)
+    iparams[:omega] = Float64.(iparams[:omega])
+    iparams[:ω] = iparams[:omega]
+    delete!(iparams, :omega)
+    iparams[:σ] = iparams[:sigma]
+    delete!(iparams, :sigma)
+    iparams[:σ_pd] = iparams[:sigma_pd]
+    delete!(iparams, :sigma_pd)
+    iparams = (;
+        iparams...,
+        C=I(n)
     )
+    return iparams
+end
+
+iparams = map(parse_json, json_inits)
+
+pumas_fits = map(
+    p -> fit(
+        depot_2cmt_friberg_exp,
+        pop,
+        p,
+        BayesMCMC(
+            nsamples=1500,
+            nadapts=500,
+            nchains=4,
+            parallel_chains=true,
+            parallel_subjects=true,
+        )
+    ),
+    iparams
 )
 
-my_fit = discard(pumas_fit; burnin=500)
-
-serialize("05-friberg/Pumas/fit_multiple_dose", my_fit)
+my_fits = map(x -> discard(x; burnin=500), pumas_fits)
+map(
+    (i, f) -> serialize("05-friberg/Pumas/fit_multiple_dose_$i.jls", f),
+    1:length(my_fits),
+    my_fits
+)

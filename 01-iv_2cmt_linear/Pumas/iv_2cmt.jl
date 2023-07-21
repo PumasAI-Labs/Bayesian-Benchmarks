@@ -67,7 +67,7 @@ json_inits = filter(
 # for now we'll just take the first chain the other will be random
 filter!(x -> contains(x, r"inits_[1|2|3|4|5]_1"), json_inits)
 
-function parse_json(json_path)
+function parse_json(json_path; n=4)
     iparams = JSON3.read(json_path, Dict{Symbol,Any})
     delete!(iparams, :Z)
     delete!(iparams, :L)
@@ -78,7 +78,7 @@ function parse_json(json_path)
     delete!(iparams, :sigma)
     iparams = (;
         iparams...,
-        C=I(4)
+        C=I(n)
     )
     return iparams
 end
@@ -104,7 +104,8 @@ pumas_fits = map(
 my_fits = map(x -> discard(x; burnin=500), pumas_fits)
 map(
     (i, f) -> serialize("01-iv_2cmt_linear/Pumas/fit_single_dose_$i.jls", f),
-    enumerate(my_fits)
+    1:length(my_fits),
+    my_fits
 )
 
 pumas_fits_multi = map(
@@ -126,9 +127,6 @@ pumas_fits_multi = map(
 my_fits_multi = map(x -> discard(x; burnin=500), pumas_fits_multi)
 map(
     (i, f) -> serialize("01-iv_2cmt_linear/Pumas/fit_multi_dose_$i.jls", f),
-    enumerate(my_fits_multi)
+    1:length(my_fits_multi),
+    my_fits_multi
 )
-
-# io = IOBuffer()
-# versioninfo(io)
-# write("01-iv_2cmt_linear/Pumas/juliahub_versioninfo.txt", String(take!(io)))

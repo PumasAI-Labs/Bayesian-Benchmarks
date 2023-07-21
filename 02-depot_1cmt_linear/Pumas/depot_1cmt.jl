@@ -2,6 +2,7 @@ using Pumas
 using DataFrames
 using CSV
 using Serialization
+using JSON3
 
 depot_1cmt_exp = @model begin
     @param begin
@@ -53,44 +54,74 @@ rename!(lowercase, df_multi)
 pop = read_pumas(df)
 pop_multi = read_pumas(df_multi)
 
-iparams = (;
-    TVCL=exp(1.29700),
-    TVVC=exp(3.82100),
-    TVKA=exp(-0.06489),
-    σ_p=0.18470,
-    C=float.(Matrix(I(3))),
-    ω=[0.29950, 0.23180, 0.16000]
+json_inits = filter(
+    x -> endswith(x, ".json"),
+    readdir("02-depot_1cmt_linear/data/inits/"; join=true)
 )
+# TODO: run for all 4 inits and <=10 runs (now it is 5 runs)
+# for now we'll just take the first chain the other will be random
+filter!(x -> contains(x, r"inits_[1|2|3|4|5]_1"), json_inits)
 
-pumas_fit = fit(
-    depot_1cmt_exp,
-    pop,
-    iparams,
-    BayesMCMC(
-        nsamples=1500,
-        nadapts=500,
-        nchains=4,
-        parallel_chains=true,
-        parallel_subjects=true,
-        max_chunk_size=16,
+function parse_json(json_path; n=3)
+    iparams = JSON3.read(json_path, Dict{Symbol,Any})
+    delete!(iparams, :Z)
+    delete!(iparams, :L)
+    iparams[:omega] = Float64.(iparams[:omega])
+    iparams[:ω] = iparams[:omega]
+    delete!(iparams, :omega)
+    iparams[:σ] = iparams[:sigma]
+    delete!(iparams, :sigma)
+    iparams = (;
+        iparams...,
+        C=I(n)
     )
+    return iparams
+end
+
+iparams = map(parse_json, json_inits)
+
+pumas_fits = map(
+    p -> fit(
+        depot_1cmt_exp,
+        pop,
+        p,
+        BayesMCMC(
+            nsamples=1500,
+            nadapts=500,
+            nchains=4,
+            parallel_chains=true,
+            parallel_subjects=true,
+        )
+    ),
+    iparams
 )
 
-my_fit = discard(pumas_fit; burnin=500)
-serialize("02-depot_1cmt_linear/Pumas/fit_single_dose.jls", my_fit)
-
-pumas_fit_multi = fit(
-    depot_1cmt_exp,
-    pop,
-    iparams,
-    BayesMCMC(
-        nsamples=1500,
-        nadapts=500,
-        nchains=4,
-        parallel_chains=true,
-        parallel_subjects=true,
-    )
+my_fits = map(x -> discard(x; burnin=500), pumas_fits)
+map(
+    (i, f) -> serialize("02-depot_1cmt_linear/Pumas/fit_single_dose_$i.jls", f),
+    1:length(my_fits),
+    my_fits
 )
 
-my_fit_multi = discard(pumas_fit_multi; burnin=500)
-serialize("02-depot_1cmt_linear/Pumas/fit_multi_dose.jls", my_fit_multi)
+pumas_fits_multi = map(
+    p -> fit(
+        depot_1cmt_exp,
+        pop_multi,
+        p,
+        BayesMCMC(
+            nsamples=1500,
+            nadapts=500,
+            nchains=4,
+            parallel_chains=true,
+            parallel_subjects=true,
+        )
+    ),
+    iparams
+)
+
+my_fits_multi = map(x -> discard(x; burnin=500), pumas_fits_multi)
+map(
+    (i, f) -> serialize("01-iv_2cmt_linear/Pumas/fit_multi_dose_$i.jls", f),
+    1:length(my_fits_multi),
+    my_fits_multi
+)
