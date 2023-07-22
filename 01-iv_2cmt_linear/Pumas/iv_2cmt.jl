@@ -4,7 +4,7 @@ using CSV
 using Serialization
 using JSON3
 
-iv_2cmt_prop = @model begin
+iv_2cmt_exp = @model begin
     @param begin
         TVCL ~ LogNormal(log(4), 1)
         TVVC ~ LogNormal(log(70), 1)
@@ -87,7 +87,7 @@ iparams = map(parse_json, json_inits)
 
 pumas_fits = map(
     p -> fit(
-        iv_2cmt_prop,
+        iv_2cmt_exp,
         pop,
         p,
         BayesMCMC(
@@ -110,7 +110,7 @@ map(
 
 pumas_fits_multi = map(
     p -> fit(
-        iv_2cmt_prop,
+        iv_2cmt_exp,
         pop_multi,
         p,
         BayesMCMC(
