@@ -14,7 +14,7 @@ function get_chains_stan(
     nchains=4,
     internals=Symbol.(
         ["lp__"]
-    ),
+    )
 )
     df = DataFrame(Arrow.Table(arrow))
     names_df = setdiff(names(df), [".chain", ".iteration", ".draw", "warmup", "sampling", "total"])
@@ -25,12 +25,12 @@ function get_chains_stan(
         ),
         :total => first
     )
-    mat = Array{Float64}(undef, Int(nrow(df)/nchains), length(names_df), nchains)
+    mat = Array{Float64}(undef, Int(nrow(df) / nchains), length(names_df), nchains)
     for c in 1:nchains
-        mat[:, :, c ] .= Matrix(
+        mat[:, :, c] .= Matrix(
             select(
                 subset(df, Symbol(".chain") => ByRow(==(c))),
-            names_df)
+                names_df)
         )
     end
     info = (; start_time=fill(0.0, nchains), stop_time=times[:, 2])
@@ -39,9 +39,9 @@ function get_chains_stan(
 end
 
 function get_chains_nonmen(
-        arrow;
-        nchains=4,
-    )
+    arrow;
+    nchains=4
+)
     df = DataFrame(Arrow.Table(arrow))
     names_df = setdiff(names(df), ["chain", "iteration", "time"])
     theta_names = filter(s -> startswith(s, "theta"), names_df)
@@ -61,12 +61,12 @@ function get_chains_nonmen(
         ),
         :time => first
     )
-    mat = Array{Float64}(undef, Int(nrow(df)/nchains), length(names_df), nchains)
+    mat = Array{Float64}(undef, Int(nrow(df) / nchains), length(names_df), nchains)
     for c in 1:nchains
-        mat[:, :, c ] .= Matrix(
+        mat[:, :, c] .= Matrix(
             select(
                 subset(df, Symbol("chain") => ByRow(==(c))),
-            names_df)
+                names_df)
         )
     end
     info = (; start_time=fill(0.0, nchains), stop_time=times[:, 2])
@@ -78,10 +78,10 @@ function _wall_duration(c::Chains; start=MCMCChains.min_start(c), stop=MCMCChain
     return Dates.value(stop - start) / 1000
 end
 
-function mean_ess_sec(chn; pumas = false)
+function mean_ess_sec(chn; pumas=false)
     return mean_ess(chn) / _wall_duration(chn)
 end
-function mean_ess(chn; pumas = false)
+function mean_ess(chn; pumas=false)
     summ_df = DataFrame(summarystats(chn))
     if pumas
         filter!(r -> !(startswith(string(r.parameters), 'C')), summ_df)
@@ -100,32 +100,32 @@ chn_03_mult_dose, chn_03_mult_dose_mat_exp, chn_03_single_dose, chn_03_single_do
 
 stan_df = DataFrame(;
     model=[
-    # "01_mult_dose","01_mult_dose_mat_exp","01_single_dose","01_single_dose_mat_exp",
-    # "02_mult_dose","02_mult_dose_mat_exp","02_single_dose","02_single_dose_mat_exp",
-    # "03_mult_dose","03_mult_dose_mat_exp","03_single_dose","03_single_dose_mat_exp",
-    "01_mult_dose","01_single_dose",
-    "02_mult_dose","02_single_dose",
-    "03_mult_dose","03_single_dose",
+        # "01_mult_dose","01_mult_dose_mat_exp","01_single_dose","01_single_dose_mat_exp",
+        # "02_mult_dose","02_mult_dose_mat_exp","02_single_dose","02_single_dose_mat_exp",
+        # "03_mult_dose","03_mult_dose_mat_exp","03_single_dose","03_single_dose_mat_exp",
+        "01_mult_dose", "01_single_dose",
+        "02_mult_dose", "02_single_dose",
+        "03_mult_dose", "03_single_dose",
     ],
     mean_ess=mean_ess.(
         [
-            # chn_01_mult_dose, chn_01_mult_dose_mat_exp, chn_01_single_dose, chn_01_single_dose_mat_exp,
-            # chn_02_mult_dose, chn_02_mult_dose_mat_exp, chn_02_single_dose, chn_02_single_dose_mat_exp,
-            # chn_03_mult_dose, chn_03_mult_dose_mat_exp, chn_03_single_dose, chn_03_single_dose_mat_exp,
-            chn_01_mult_dose_mat_exp, chn_01_single_dose_mat_exp,
-            chn_02_mult_dose_mat_exp, chn_02_single_dose_mat_exp,
-            chn_03_mult_dose_mat_exp, chn_03_single_dose_mat_exp,
-        ]
+        # chn_01_mult_dose, chn_01_mult_dose_mat_exp, chn_01_single_dose, chn_01_single_dose_mat_exp,
+        # chn_02_mult_dose, chn_02_mult_dose_mat_exp, chn_02_single_dose, chn_02_single_dose_mat_exp,
+        # chn_03_mult_dose, chn_03_mult_dose_mat_exp, chn_03_single_dose, chn_03_single_dose_mat_exp,
+        chn_01_mult_dose_mat_exp, chn_01_single_dose_mat_exp,
+        chn_02_mult_dose_mat_exp, chn_02_single_dose_mat_exp,
+        chn_03_mult_dose_mat_exp, chn_03_single_dose_mat_exp,
+    ]
     ),
     mean_ess_sec=mean_ess_sec.(
         [
-            # chn_01_mult_dose, chn_01_mult_dose_mat_exp, chn_01_single_dose, chn_01_single_dose_mat_exp,
-            # chn_02_mult_dose, chn_02_mult_dose_mat_exp, chn_02_single_dose, chn_02_single_dose_mat_exp,
-            # chn_03_mult_dose, chn_03_mult_dose_mat_exp, chn_03_single_dose, chn_03_single_dose_mat_exp,
-            chn_01_mult_dose_mat_exp, chn_01_single_dose_mat_exp,
-            chn_02_mult_dose_mat_exp, chn_02_single_dose_mat_exp,
-            chn_03_mult_dose_mat_exp, chn_03_single_dose_mat_exp,
-        ]
+        # chn_01_mult_dose, chn_01_mult_dose_mat_exp, chn_01_single_dose, chn_01_single_dose_mat_exp,
+        # chn_02_mult_dose, chn_02_mult_dose_mat_exp, chn_02_single_dose, chn_02_single_dose_mat_exp,
+        # chn_03_mult_dose, chn_03_mult_dose_mat_exp, chn_03_single_dose, chn_03_single_dose_mat_exp,
+        chn_01_mult_dose_mat_exp, chn_01_single_dose_mat_exp,
+        chn_02_mult_dose_mat_exp, chn_02_single_dose_mat_exp,
+        chn_03_mult_dose_mat_exp, chn_03_single_dose_mat_exp,
+    ]
     )
 )
 
@@ -140,24 +140,25 @@ nonmem_03_md = get_chains_nonmen(joinpath(pwd(), "03-depot_2cmt_linear", "NONMEM
 
 nonmem_df = DataFrame(;
     model=[
-    "01_single_dose","01_mult_dose",
-    "02_single_dose","02_mult_dose",
-    "03_single_dose","03_mult_dose",
+        "01_single_dose", "01_mult_dose",
+        "02_single_dose", "02_mult_dose",
+        "03_single_dose", "03_mult_dose",
     ],
     mean_ess=mean_ess.(
         [
-            nonmem_01_sd, nonmem_01_md, nonmem_02_sd, nonmem_02_md, nonmem_03_sd, nonmem_03_md
-        ]
+        nonmem_01_sd, nonmem_01_md, nonmem_02_sd, nonmem_02_md, nonmem_03_sd, nonmem_03_md
+    ]
     ),
     mean_ess_sec=mean_ess_sec.(
         [
-            nonmem_01_sd, nonmem_01_md, nonmem_02_sd, nonmem_02_md, nonmem_03_sd, nonmem_03_md
-        ]
+        nonmem_01_sd, nonmem_01_md, nonmem_02_sd, nonmem_02_md, nonmem_03_sd, nonmem_03_md
+    ]
     )
 )
 
 CSV.write("results/nonmem.csv", nonmem_df)
 
+# TODO: filter with regex for all .jls files in these dirs
 pumas_01_sd = deserialize(joinpath(pwd(), "01-iv_2cmt_linear", "Pumas", "fit_single_dose.jls"))
 pumas_01_md = deserialize(joinpath(pwd(), "01-iv_2cmt_linear", "Pumas", "fit_multi_dose.jls"))
 pumas_02_sd = deserialize(joinpath(pwd(), "02-depot_1cmt_linear", "Pumas", "fit_single_dose.jls"))
@@ -167,23 +168,23 @@ pumas_03_md = deserialize(joinpath(pwd(), "03-depot_2cmt_linear", "Pumas", "fit_
 
 pumas_df = DataFrame(;
     model=[
-    "01_single_dose","01_mult_dose",
-    "02_single_dose","02_mult_dose",
-    "03_single_dose","03_mult_dose",
+        "01_single_dose", "01_mult_dose",
+        "02_single_dose", "02_mult_dose",
+        "03_single_dose", "03_mult_dose",
     ],
     mean_ess=mean_ess.(
         Chains.(
             [
-                pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
-            ]
+            pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
+        ]
         );
-        pumas=true,
+        pumas=true
     ),
     mean_ess_sec=mean_ess_sec.(
         Chains.(
             [
-                pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
-            ]
+            pumas_01_sd, pumas_01_md, pumas_02_sd, pumas_02_md, pumas_03_sd, pumas_03_md
+        ]
         );
         pumas=true
     )
@@ -212,27 +213,27 @@ CSV.write("results/summary.csv", summ_df)
 
 # Plots
 plt = data(all_df) *
-    mapping(
-        :model => renamer([
-            "01_single_dose" => "1 SD",
-            "01_mult_dose" => "1 MD",
-            "02_single_dose" => "2 SD",
-            "02_mult_dose" => "2 MD",
-            "03_single_dose" => "3 SD",
-            "03_mult_dose" => "3 MD",
-        ]),
-        [:mean_ess, :mean_ess_sec];
-        color=:software,
-        dodge=:software,
-        col=dims(1) => renamer(["Mean ESS", "Mean ESS/sec"]),
-    ) *
-    visual(BarPlot)
+      mapping(
+          :model => renamer([
+              "01_single_dose" => "1 SD",
+              "01_mult_dose" => "1 MD",
+              "02_single_dose" => "2 SD",
+              "02_mult_dose" => "2 MD",
+              "03_single_dose" => "3 SD",
+              "03_mult_dose" => "3 MD",
+          ]),
+          [:mean_ess, :mean_ess_sec];
+          color=:software,
+          dodge=:software,
+          col=dims(1) => renamer(["Mean ESS", "Mean ESS/sec"])
+      ) *
+      visual(BarPlot)
 
 fig = draw(
     plt;
     axis=(;
-        xticklabelrotation=π/3,
-        ylabel="",
+        xticklabelrotation=π / 3,
+        ylabel=""
     ),
     facet=(; linkyaxes=:none)
 )
