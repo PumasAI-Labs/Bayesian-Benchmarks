@@ -3,7 +3,7 @@ library(future)
 plan(multisession)
 
 run_chains <- function(folder, nonmem_model, nchains=4, threads_per_chain=8,
-                       n_runs) {
+                       n_runs=5) {
   has_md_folder <- check_folder(nonmem_model)
   
   # nonmem_dir = if sd nonmem_model/NONMEM/nonmem_model/chains/
