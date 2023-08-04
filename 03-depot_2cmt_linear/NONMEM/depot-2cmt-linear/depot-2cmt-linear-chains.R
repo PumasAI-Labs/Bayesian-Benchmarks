@@ -1,64 +1,25 @@
-rm(list=ls())
-source("utils/run_chains.R")
+rm(list = ls())
 
+source("utils/run_chains.R")
+source("utils/write_nonmem_files_with_inits.R")
+
+library(tidyjson)
 library(tidyverse)
 
 # Functions
-lowTriMat <- function(x) {
-  diag(x)[upper.tri(diag(x), diag = T)]
-}
 
 modelName <- "depot-2cmt-linear"
 root_folder <- "03-depot_2cmt_linear"
-
-nChains <- 4
-nTheta <- 5
-nOmega <- 5
-
-
-# Generate initial estimates
-out <- list()
-set.seed(11235)
-for(i in 1:nChains) {
-  out[[i]] <- list(signif(c(rnorm(1, log(4), 0.3),
-                            rnorm(1, log(70), 0.3),
-                            rnorm(1, log(4), 0.3),
-                            rnorm(1, log(40), 0.3),
-                            rnorm(1, log(1), 0.3),
-                            rlnorm(5, log(0.3), 0.3),
-                            rlnorm(1, log(0.2), 0.3)), 4))
-}
-
-omegaMat <- lowTriMat(out[i][[1]][[1]][(nTheta+1):(nTheta+nOmega)])
-omegaMat[omegaMat==0] <- 0.01
 
 base_name <- paste0(root_folder, "/NONMEM/", modelName, "/chains/", modelName)
 dir_name <- paste0(root_folder, "/NONMEM/", modelName)
 dir.create(paste0(dir_name, "/chains"))
 
-# Create model file for each chain
-for(i in 1:nChains) {
-  modelText <- readLines(paste0(dir_name, "/", modelName, "-template.mod"))
-  modelTextLine <- grep("THETAUPDATE", modelText)
-  modelText[modelTextLine] <- paste(out[i][[1]][[1]][1:nTheta], collapse=" ")
-  
-  modelTextLine <- grep("OMEGAUPDATE", modelText)
-  modelText[modelTextLine] <- paste(omegaMat, collapse=" ")
-  
-  modelTextLine <- grep("SIGMAUPDATE", modelText)
-  modelText[modelTextLine] <- paste(out[i][[1]][[1]][(nTheta+nOmega+1):length(out[i][[1]][[1]])], collapse=" ")
-  
-  modelTextLine <- grep("ITERFILE", modelText)
-  modelText[modelTextLine] <- gsub("ITERFILE",  paste0(modelName, "-iter-",i,".tab"), modelText[modelTextLine])
-  
-  modelTextLine <- grep("SDFILE", modelText)
-  modelText[modelTextLine] <- gsub("SDFILE",  paste0(modelName, "-sdtab-",i,".tab"), modelText[modelTextLine])
-  
-  modelTextLine <- grep("PAFILE", modelText)
-  modelText[modelTextLine] <- gsub("PAFILE",  paste0(modelName, "-patab-",i,".tab"), modelText[modelTextLine])
-  
-  write(modelText, paste0(base_name, "-",i,".mod"))
-}
+grid_of_runs_and_chains <- expand_grid(run = 1:5, chain = 1:4)
 
-# Submit chains  in parallel
-run_chains(root_folder, modelName, nchains=4, threads_per_chain=8)
+pwalk(grid_of_runs_and_chains, create_model_file)
+
+# Submit chains in parallel
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, 
+           n_runs = 5)
+
