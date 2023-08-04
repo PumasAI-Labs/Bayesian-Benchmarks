@@ -3,7 +3,7 @@ library(future)
 plan(multisession)
 
 run_chains <- function(folder, nonmem_model, nchains=4, threads_per_chain=8,
-                       n_runs=5) {
+                       run) {
   has_md_folder <- check_folder(nonmem_model)
   
   # nonmem_dir = if sd nonmem_model/NONMEM/nonmem_model/chains/
@@ -15,19 +15,17 @@ run_chains <- function(folder, nonmem_model, nchains=4, threads_per_chain=8,
     nonmem_dir <- paste0(folder, "/NONMEM/", nonmem_model, "/chains/", nonmem_model)
   }
 
-  for(run in 1:n_runs){
-    future_map(
-      1:nchains,
-      ~ system(
+  future_map(
+    1:nchains,
+    ~ system(
         paste0("execute ",
                paste0(nonmem_dir, "-run", run, "-", .x, ".mod"),
                " -parafile=/opt/NONMEM/nm751/run/mpilinux8.pnm",
                " -nodes=",
                threads_per_chain),
         wait = FALSE
-      )
     )
-  }
+  )
 }
 
 check_folder <- function(filepath) {
@@ -37,4 +35,19 @@ check_folder <- function(filepath) {
   return(has_md_folder)
 }
 
-
+# function that only keeps .ext .lst .mod .arrow takes a root_folder
+# in the root_folder/NONMEM/*/chains/*
+# it is no clean or os-independent
+# in the future do an implementation with https://github.com/r-lib/fs
+clean_nonmem_dir <- function(root_folder) {
+  system(paste0(
+    "for file in ",
+    root_folder, "/NONMEM/*/chains/*.tab ",
+    root_folder, "/NONMEM/*/chains/*.coi ",
+    root_folder, "/NONMEM/*/chains/*.cor ",
+    root_folder, "/NONMEM/*/chains/*.cov ",
+    root_folder, "/NONMEM/*/chains/*.phi",
+    "; do rm -f \"$file\"; done"
+    )
+  )
+}

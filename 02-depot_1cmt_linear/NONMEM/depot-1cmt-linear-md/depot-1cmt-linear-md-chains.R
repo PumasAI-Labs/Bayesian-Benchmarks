@@ -20,6 +20,10 @@ grid_of_runs_and_chains <- expand_grid(run = 1:5, chain = 1:4)
 pwalk(grid_of_runs_and_chains, create_model_file)
 
 # Submit chains in parallel
-run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, 
-           n_runs = 5)
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, run = 1)
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, run = 2)
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, run = 3)
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, run = 4)
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, run = 5)
 
+clean_nonmem_dir(root_folder)
