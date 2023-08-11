@@ -3,7 +3,6 @@ lowTriMat <- function(x) {
 }
 
 get_theta <- function(run, chain){
-  
   read_json(str_c(root_folder, "/data/inits/inits_", run, "_", chain, 
                   ".json")) %>% 
     spread_all() %>% 
@@ -34,15 +33,25 @@ get_omega <- function(run, chain){
   
 }
 
-get_sigma <- function(run, chain){
-  
-  read_json(str_c(root_folder, "/data/inits/inits_", run, "_", chain, 
-                  ".json")) %>% 
-    spread_all() %>% 
-    as_tibble() %>% 
-    select(sigma) %>% 
-    as.character()
-  
+get_sigma <- function(run, chain, friberg=FALSE){
+  if (friberg) {
+    read_json(str_c(root_folder, "/data/inits/inits_", run, "_", chain, 
+                    ".json")) %>% 
+      spread_all() %>% 
+      as_tibble() %>% 
+      select(sigma, sigma_pd) %>% 
+      transmute(
+        sigmas = str_c(sigma, sigma_pd, sep = " ")
+      ) %>% 
+      as.character()
+  } else{
+    read_json(str_c(root_folder, "/data/inits/inits_", run, "_", chain, 
+                    ".json")) %>% 
+      spread_all() %>% 
+      as_tibble() %>% 
+      select(sigma) %>% 
+      as.character()
+  }
 }
 
 write_text_line <- function(string = c("ITERFILE", "SDFILE", "PAFILE"), run,
@@ -65,7 +74,7 @@ write_text_line <- function(string = c("ITERFILE", "SDFILE", "PAFILE"), run,
   
 }
 
-create_model_file <- function(run, chain){
+create_model_file <- function(run, chain, friberg=FALSE){
   
   modelText <- readLines(paste0(dir_name, "/", modelName, "-template.mod"))
   
@@ -76,7 +85,11 @@ create_model_file <- function(run, chain){
   modelText[modelTextLine] <- get_omega(run, chain)
   
   modelTextLine <- grep("SIGMAUPDATE", modelText)
-  modelText[modelTextLine] <- get_sigma(run, chain)
+  if (friberg) {
+    modelText[modelTextLine] <- get_sigma(run, chain, friberg=TRUE)
+  } else {
+    modelText[modelTextLine] <- get_sigma(run, chain)
+  }
   
   modelText <- write_text_line("ITERFILE", run, chain, modelText)
   modelText <- write_text_line("SDFILE", run, chain, modelText)
