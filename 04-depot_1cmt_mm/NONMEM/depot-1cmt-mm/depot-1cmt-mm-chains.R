@@ -1,4 +1,4 @@
-rm(list=ls())
+rm(list = ls())
 
 source("utils/run_chains.R")
 source("utils/write_nonmem_files_with_inits.R")
