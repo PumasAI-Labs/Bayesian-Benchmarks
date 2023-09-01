@@ -83,7 +83,7 @@ depot_2cmt_friberg_exp = @model begin
 end
 
 df = CSV.read("05-friberg/data/multiple_dose_pumas.csv", DataFrame,
-    missingstring=".")
+    missingstring=[".", "NA"])
 rename!(lowercase, df)
 
 pop = read_pumas(
