@@ -4,7 +4,7 @@
 $PROB 
 $INPUT ID	AMT	RATE	II	ADDL	CMT	EVID	SS	LLOQ	BLOQ	MDV	TIME	ODV DV
 
-$DATA ../single_dose.csv IGNORE=@
+$DATA ../../../data/multiple_dose.csv IGNORE=@
 
 $SUBROUTINES ADVAN13 TOL=9
 

@@ -1,62 +1,29 @@
 rm(list = ls())
 
+source("utils/run_chains.R")
+source("utils/write_nonmem_files_with_inits.R")
+
+library(tidyjson)
 library(tidyverse)
 
 # Functions
-lowTriMat <- function(x) {
-  diag(x)[upper.tri(diag(x), diag = T)]
-}
 
-projDir <- "/data/BayesianBenchmarks/"
-modelName <- "depot-1cmt-mm"
+modelName <- "depot-1cmt-mm-md"
+root_folder <- "04-depot_1cmt_mm"
 
-setwd(projDir)
-dir.create(paste0(modelName, "/chains"))
+base_name <- paste0(root_folder, "/NONMEM/", modelName, "/chains/", modelName)
+dir_name <- paste0(root_folder, "/NONMEM/", modelName)
+dir.create(paste0(dir_name, "/chains"))
 
-nChains <- 4
-nTheta <- 4
-nOmega <- 4
+grid_of_runs_and_chains <- expand_grid(run = 1:5, chain = 1:4)
 
+pwalk(grid_of_runs_and_chains, create_model_file)
 
-# Generate initial estimates
-out <- list()
-set.seed(11235)
-for(i in 1:nChains) {
-  out[[i]] <- list(signif(c(rnorm(1, log(70), 0.3),
-                            rnorm(1, log(1), 0.3),
-                            rnorm(1, log(0.25), 0.3),
-                            rnorm(1, log(1), 0.3),
-                            rlnorm(4, log(0.3), 0.3),
-                            rlnorm(1, log(0.2), 0.3)), 4))
-}
+# Submit chains in parallel
+run_chains(root_folder, modelName, nchains = 1, threads_per_chain = 1, run = 1)
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, run = 2)
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, run = 3)
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, run = 4)
+run_chains(root_folder, modelName, nchains = 4, threads_per_chain = 8, run = 5)
 
-
-# Create model file for each chain
-for(i in 1:nChains) {
-  modelText <- readLines(paste0(modelName, "/", modelName, "-template.mod"))
-  modelTextLine <- grep("THETAUPDATE", modelText)
-  modelText[modelTextLine] <- paste(out[i][[1]][[1]][1:nTheta], collapse=" ")
-  
-  modelTextLine <- grep("OMEGAUPDATE", modelText)
-  modelText[modelTextLine] <- paste(lowTriMat(out[i][[1]][[1]][(nTheta+1):(nTheta+nOmega)]), collapse=" ")
-  
-  modelTextLine <- grep("SIGMAUPDATE", modelText)
-  modelText[modelTextLine] <- paste(out[i][[1]][[1]][(nTheta+nOmega+1):length(out[i][[1]][[1]])], collapse=" ")
-  
-  modelTextLine <- grep("ITERFILE", modelText)
-  modelText[modelTextLine] <- gsub("ITERFILE",  paste0(modelName, "-iter-",i,".tab"), modelText[modelTextLine])
-  
-  modelTextLine <- grep("SDFILE", modelText)
-  modelText[modelTextLine] <- gsub("SDFILE",  paste0(modelName, "-sdtab-",i,".tab"), modelText[modelTextLine])
-  
-  modelTextLine <- grep("PAFILE", modelText)
-  modelText[modelTextLine] <- gsub("PAFILE",  paste0(modelName, "-patab-",i,".tab"), modelText[modelTextLine])
-  
-  write(modelText, paste0(modelName, "/chains/", modelName, "-",i,".mod"))
-}
-
-# Submit chains  in parallel
-setwd(paste0(projDir, "/", modelName, "/chains"))
-for(i in 1:nChains){
-  system(paste0("qsub /data/bash/execute_8_nm75.sh ", modelName, "-", i, ".mod"))
-}
+clean_nonmem_dir(root_folder)
