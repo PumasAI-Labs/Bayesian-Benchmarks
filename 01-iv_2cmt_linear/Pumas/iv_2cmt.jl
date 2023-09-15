@@ -1,6 +1,7 @@
 using Pumas
 using DataFrames
 using CSV
+using PDMats
 using Serialization
 using JSON3
 
@@ -12,15 +13,11 @@ iv_2cmt_exp = @model begin
         TVVP ~ LogNormal(log(50), 1)
         σ ~ Constrained(Normal(0, 0.5); lower=0.0)
         C ~ LKJCholesky(4, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
-        ω ∈ Constrained(
-            MvNormal(zeros(4), Diagonal([0.4, 0.4, 0.4, 0.4] .^ 2)),
-            lower=zeros(4),
-            init=ones(4)
-        )
+        ω ~ Constrained(MvNormal(ScalMat(4, 0.4^2)), lower=zeros(4), init=ones(4))
     end
 
     @random begin
-        ηstd ~ MvNormal(I(4)) # Z in the Stan code
+        ηstd ~ MvNormal(ScalMat(4, 1.0)) # Z in the Stan code
     end
 
     @pre begin
@@ -33,19 +30,13 @@ iv_2cmt_exp = @model begin
         Vc = TVVC * exp(η[2])
         Q = TVQ * exp(η[3])
         Vp = TVVP * exp(η[4])
-
-        k_cp = Q / Vc
-        k_pc = Q / Vp
     end
 
-    @dynamics begin
-        Central' = -(CL / Vc + k_cp) * Central + k_pc * Peripheral
-        Peripheral' = k_cp * Central - k_pc * Peripheral
-    end
+    @dynamics Central1Periph1
 
     @derived begin
-        cp := @. Central / Vc
-        dv ~ @. LogNormal(log(cp), σ)
+        cp := Central / Vc
+        dv ~ LogNormal(log(cp), σ)
     end
 end
 

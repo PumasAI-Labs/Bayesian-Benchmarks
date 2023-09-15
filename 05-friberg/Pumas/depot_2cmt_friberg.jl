@@ -1,6 +1,7 @@
 using Pumas
 using DataFrames
 using CSV
+using PDMats
 using Serialization
 using JSON3
 
@@ -18,15 +19,11 @@ depot_2cmt_friberg_exp = @model begin
         σ ~ Constrained(Normal(0, 0.5); lower=0.0)
         σ_pd ~ Constrained(Normal(0, 0.5); lower=0.0)
         C ~ LKJCholesky(9, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
-        ω ∈ Constrained(
-            MvNormal(zeros(9), Diagonal([0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4] .^ 2)),
-            lower=zeros(9),
-            init=ones(9)
-        )
+        ω ~ Constrained(MvNormal(ScalMat(9, 0.4^2)), lower=zeros(9), init=ones(9))
     end
 
     @random begin
-        ηstd ~ MvNormal(float.(Matrix(I(9)))) # Z in the Stan code
+        ηstd ~ MvNormal(ScalMat(9, 1.0)) # Z in the Stan code
     end
 
     @pre begin
@@ -76,9 +73,8 @@ depot_2cmt_friberg_exp = @model begin
     end
 
     @derived begin
-        cp := @. Central / VC
-        dv ~ @. LogNormal(log(cp), σ)
-        e ~ @. LogNormal(log(Circ), σ_pd)
+        dv ~ LogNormal(log(conc), σ)
+        e ~ LogNormal(log(Circ), σ_pd)
     end
 end
 

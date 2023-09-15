@@ -1,6 +1,7 @@
 using Pumas
 using DataFrames
 using CSV
+using PDMats
 using Serialization
 using JSON3
 
@@ -13,15 +14,11 @@ depot_2cmt_exp = @model begin
         TVKA ~ LogNormal(log(1), 1)
         σ ~ Constrained(Normal(0, 0.5), lower=0.0)
         C ~ LKJCholesky(5, 2) # L in the Stan code is the lower triangular part of the Cholesky decomposition
-        ω ∈ Constrained(
-            MvNormal(zeros(5), Diagonal([0.4, 0.4, 0.4, 0.4, 0.4] .^ 2)),
-            lower=zeros(5),
-            init=ones(5)
-        )
+        ω ~ Constrained(MvNormal(ScalMat(5, 0.4^2)), lower=zeros(5), init=ones(5))
     end
 
     @random begin
-        ηstd ~ MvNormal(I(5)) # Z in the Stan code
+        ηstd ~ MvNormal(ScalMat(5, 1.0)) # Z in the Stan code
     end
 
     @pre begin
@@ -35,20 +32,13 @@ depot_2cmt_exp = @model begin
         Q = TVQ * exp(η[3])
         Vp = TVVP * exp(η[4])
         Ka = TVKA * exp(η[5])
-
-        k_cp = Q / Vc
-        k_pc = Q / Vp
     end
 
-    @dynamics begin
-        Depot' = -Ka * Depot
-        Central' = Ka * Depot - (CL / Vc + k_cp) * Central + k_pc * Peripheral
-        Peripheral' = k_cp * Central - k_pc * Peripheral
-    end
+    @dynamics Depots1Central1Periph1
 
     @derived begin
-        cp := @. Central / Vc
-        dv ~ @. LogNormal(log(cp), σ)
+        cp := Central / Vc
+        dv ~ LogNormal(log(cp), σ)
     end
 end
 
