@@ -9,5 +9,7 @@ future_walk(
     single,
     multi
   ),
-  convert_nonmem_to_arrow
+  ~ for (r in 1:5) {
+    convert_nonmem_to_arrow(.x, run = r)
+  } 
 )

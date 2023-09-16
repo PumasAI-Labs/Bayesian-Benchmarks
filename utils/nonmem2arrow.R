@@ -13,9 +13,10 @@ extract_time <- function(lst_file) {
   return(time)
 }
 
-convert_nonmem_to_arrow <- function(nonmem_dir) {
-  ext_files <- dir(nonmem_dir, ".ext", full.names = TRUE)
-  lst_files <- dir(nonmem_dir, ".lst", full.names = TRUE)
+# TODO: fix the new run thing
+convert_nonmem_to_arrow <- function(nonmem_dir, run) {
+  ext_files <- dir(nonmem_dir, pattern = paste0("run", run, "-\\d{1}", "\\.ext"), full.names = TRUE)
+  lst_files <- dir(nonmem_dir, pattern = paste0("run", run, "-\\d{1}", "\\.lst"), full.names = TRUE)
 
   chains <- map_dfr(
     ext_files,
@@ -39,7 +40,7 @@ convert_nonmem_to_arrow <- function(nonmem_dir) {
   
   chains %<>% left_join(times, by = "chain")
 
-  arrow_file <- file.path(nonmem_dir, "chains.arrow")
+  arrow_file <- file.path(nonmem_dir, paste0("chains-run", run, ".arrow"))
     
   # Write Arrow file
   arrow::write_feather(chains, arrow_file)

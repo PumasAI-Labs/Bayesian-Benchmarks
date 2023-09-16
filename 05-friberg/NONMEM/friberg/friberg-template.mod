@@ -4,7 +4,7 @@
 $SIZES LVR=50
 $PROB
 $INPUT ID AMT RATE II ADDL CMT EVID SS LLOQ BLOQ MDV TIME CP ODV DV
-$DATA ../../../data/multiple_dose.csv IGNORE=@
+$DATA ../../../data/multiple_dose_nonmem.csv IGNORE=@
 
 $SUBROUTINES ADVAN13 TOL=6
 
