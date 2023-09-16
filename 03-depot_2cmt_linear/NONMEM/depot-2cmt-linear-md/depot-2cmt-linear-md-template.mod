@@ -2,8 +2,8 @@
 ;Project Name: Bayesian Benchmarks
 
 $PROB 
-$INPUT ID	AMT	RATE	II	ADDL	CMT	EVID	SS	LLOQ	BLOQ	MDV	TIME	DV
-$DATA ../multiple_dose.csv IGNORE=@
+$INPUT ID	AMT	RATE	II	ADDL	CMT	EVID	SS	LLOQ	BLOQ	MDV	TIME	ODV DV
+$DATA ../../../data/multiple_dose.csv IGNORE=@
 
 $SUBROUTINES ADVAN4 TRANS4
 
@@ -26,8 +26,8 @@ K32=Q/V3
 S2=V2
 
 $ERROR
-IPRED=A(2)/V2
-Y=IPRED*(1+EPS(1))
+IPRED=LOG(F)
+Y=IPRED + EPS(1)
 
 ; Initial Estimates  
 $THETA

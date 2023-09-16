@@ -18,7 +18,7 @@ write_inits <- function(run, chain){
        TVVP = rlnorm(1, log(40), 0.3),
        TVKA = rlnorm(1, log(1), 0.3),
        omega = rlnorm(5, log(0.3), 0.3),
-       sigma_p = rlnorm(1, log(0.2), 0.3),
+       sigma = rlnorm(1, log(0.2), 0.3),
        L = diag(5),
        Z = matrix(rnorm(n_subjects*5), nrow = n_subjects, ncol = 5)) %>% 
     map(round, 3) %>% 

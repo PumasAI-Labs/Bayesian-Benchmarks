@@ -1,0 +1,3139 @@
+Mon 07 Aug 2023 02:09:11 PM UTC
+;Model Desc: 03-depot-2cmt-linear-md
+;Project Name: Bayesian Benchmarks
+$PROBLEM   
+$INPUT      ID AMT RATE II ADDL CMT EVID SS LLOQ BLOQ MDV TIME ODV DV
+$DATA      multiple_dose.csv IGNORE=@
+$SUBROUTINE ADVAN4 TRANS4
+$PK 
+MU_1=THETA(1)
+MU_2=THETA(2)
+MU_3=THETA(3)
+MU_4=THETA(4)
+MU_5=THETA(5)
+
+CL=EXP(MU_1+ETA(1))
+V2=EXP(MU_2+ETA(2))
+Q=EXP(MU_3+ETA(3))
+V3=EXP(MU_4+ETA(4))
+KA=EXP(MU_5+ETA(5))
+
+K=CL/V2
+K23=Q/V2
+K32=Q/V3
+S2=V2
+
+$ERROR
+IPRED=LOG(F)
+Y=IPRED + EPS(1)
+
+; Initial Estimates  
+$THETA  1.368
+ 4.087
+ 0.942
+ 3.161
+ 0.263
+$OMEGA  BLOCK(5)
+ 0.325
+ 0.01 0.187
+ 0.01 0.01 0.401
+ 0.01 0.01 0.01 0.227
+ 0.01 0.01 0.01 0.01 0.243
+$SIGMA  0.167
+; Prior Specification
+$PRIOR      NWPRI
+$THETAP  1.386 FIX
+ 4.248 FIX
+ 1.386 FIX
+ 3.689 FIX
+ 0 FIX
+$THETAPV  BLOCK(5) FIX
+ 1
+ 0 1
+ 0 0 1
+ 0 0 0 1
+ 0 0 0 0 1
+$OMEGAP  BLOCK(5) FIX
+ 0.16
+ 0 0.16
+ 0 0 0.16
+ 0 0 0 0.16
+ 0 0 0 0 0.16
+$OMEGAPD  5 FIX
+$SIGMAP  0.25  FIX
+$SIGMAPD  1 FIX
+$ESTIMATION METHOD=NUTS INTERACTION AUTO=1 PRINT=50 NBURN=500
+            NITER=1000 OLKJDF=2 SEED=12345 FILE=psn.ext
+$COVARIANCE UNCONDITIONAL MATRIX=R PRINT=E
+$TABLE      ID EVID TIME IPRED NOPRINT ONEHEADER FORMAT=,1PE13.6
+            FILE=depot-2cmt-linear-md-sdtab-run5-1.tab
+$TABLE      ID CL V2 Q V3 KA K K23 K32 ETAS(1:LAST) NOPRINT NOAPPEND
+            ONEHEADER FORMAT=,1PE13.6
+            FILE=depot-2cmt-linear-md-patab-run5-1.tab
+
+
+NM-TRAN MESSAGES
+  
+ WARNINGS AND ERRORS (IF ANY) FOR PROBLEM    1
+             
+ (WARNING  2) NM-TRAN INFERS THAT THE DATA ARE POPULATION.
+  
+Note: Analytical 2nd Derivatives are constructed in FSUBS but are never used.
+      You may insert $ABBR DERIV2=NO after the first $PROB to save FSUBS construction and compilation time
+  
+
+License Registered to: Pumas AI Inc
+Expiration Date:    14 SEP 2023
+Current Date:        7 AUG 2023
+Days until program expires :  37
+1NONLINEAR MIXED EFFECTS MODEL PROGRAM (NONMEM) VERSION 7.5.1
+ ORIGINALLY DEVELOPED BY STUART BEAL, LEWIS SHEINER, AND ALISON BOECKMANN
+ CURRENT DEVELOPERS ARE ROBERT BAUER, ICON DEVELOPMENT SOLUTIONS,
+ AND ALISON BOECKMANN. IMPLEMENTATION, EFFICIENCY, AND STANDARDIZATION
+ PERFORMED BY NOUS INFOSYSTEMS.
+
+ PROBLEM NO.:         1
+
+0DATA CHECKOUT RUN:              NO
+ DATA SET LOCATED ON UNIT NO.:    2
+ THIS UNIT TO BE REWOUND:        NO
+ NO. OF DATA RECS IN DATA SET:     4800
+ NO. OF DATA ITEMS IN DATA SET:  14
+ ID DATA ITEM IS DATA ITEM NO.:   1
+ DEP VARIABLE IS DATA ITEM NO.:  14
+ MDV DATA ITEM IS DATA ITEM NO.: 11
+0INDICES PASSED TO SUBROUTINE PRED:
+   7  12   2   3   8   4   6   0   0   0   5
+0LABELS FOR DATA ITEMS:
+ ID AMT RATE II ADDL CMT EVID SS LLOQ BLOQ MDV TIME ODV DV
+0(NONBLANK) LABELS FOR PRED-DEFINED ITEMS:
+ CL V2 Q V3 KA K K23 K32 IPRED
+0FORMAT FOR DATA:
+ (2E3.0,E1.0,E2.0,7E1.0,E6.0,E20.0,E22.0)
+
+ TOT. NO. OF OBS RECS:     4680
+ TOT. NO. OF INDIVIDUALS:      120
+0LENGTH OF THETA:  12
+0DEFAULT THETA BOUNDARY TEST OMITTED:    NO
+0OMEGA HAS BLOCK FORM:
+  1
+  1  1
+  1  1  1
+  1  1  1  1
+  1  1  1  1  1
+  0  0  0  0  0  2
+  0  0  0  0  0  2  2
+  0  0  0  0  0  2  2  2
+  0  0  0  0  0  2  2  2  2
+  0  0  0  0  0  2  2  2  2  2
+  0  0  0  0  0  0  0  0  0  0  3
+  0  0  0  0  0  0  0  0  0  0  3  3
+  0  0  0  0  0  0  0  0  0  0  3  3  3
+  0  0  0  0  0  0  0  0  0  0  3  3  3  3
+  0  0  0  0  0  0  0  0  0  0  3  3  3  3  3
+0DEFAULT OMEGA BOUNDARY TEST OMITTED:    NO
+0SIGMA HAS BLOCK FORM:
+  1
+  0  2
+0DEFAULT SIGMA BOUNDARY TEST OMITTED:    NO
+0INITIAL ESTIMATE OF THETA:
+ LOWER BOUND    INITIAL EST    UPPER BOUND
+ -0.1000E+07     0.1368E+01     0.1000E+07
+ -0.1000E+07     0.4087E+01     0.1000E+07
+ -0.1000E+07     0.9420E+00     0.1000E+07
+ -0.1000E+07     0.3161E+01     0.1000E+07
+ -0.1000E+07     0.2630E+00     0.1000E+07
+  0.1386E+01     0.1386E+01     0.1386E+01
+  0.4248E+01     0.4248E+01     0.4248E+01
+  0.1386E+01     0.1386E+01     0.1386E+01
+  0.3689E+01     0.3689E+01     0.3689E+01
+  0.0000E+00     0.0000E+00     0.0000E+00
+  0.5000E+01     0.5000E+01     0.5000E+01
+  0.1000E+01     0.1000E+01     0.1000E+01
+0INITIAL ESTIMATE OF OMEGA:
+ BLOCK SET NO.   BLOCK                                                                    FIXED
+        1                                                                                   NO
+                  0.3250E+00
+                  0.1000E-01   0.1870E+00
+                  0.1000E-01   0.1000E-01   0.4010E+00
+                  0.1000E-01   0.1000E-01   0.1000E-01   0.2270E+00
+                  0.1000E-01   0.1000E-01   0.1000E-01   0.1000E-01   0.2430E+00
+        2                                                                                  YES
+                  0.1000E+01
+                  0.0000E+00   0.1000E+01
+                  0.0000E+00   0.0000E+00   0.1000E+01
+                  0.0000E+00   0.0000E+00   0.0000E+00   0.1000E+01
+                  0.0000E+00   0.0000E+00   0.0000E+00   0.0000E+00   0.1000E+01
+        3                                                                                  YES
+                  0.1600E+00
+                  0.0000E+00   0.1600E+00
+                  0.0000E+00   0.0000E+00   0.1600E+00
+                  0.0000E+00   0.0000E+00   0.0000E+00   0.1600E+00
+                  0.0000E+00   0.0000E+00   0.0000E+00   0.0000E+00   0.1600E+00
+0INITIAL ESTIMATE OF SIGMA:
+ BLOCK SET NO.   BLOCK                                                                    FIXED
+        1                                                                                   NO
+                  0.1670E+00
+        2                                                                                  YES
+                  0.2500E+00
+0COVARIANCE STEP OMITTED:        NO
+ R MATRIX SUBSTITUTED:          YES
+ S MATRIX SUBSTITUTED:           NO
+ EIGENVLS. PRINTED:             YES
+ COMPRESSED FORMAT:              NO
+ GRADIENT METHOD USED:     NOSLOW
+ SIGDIGITS ETAHAT (SIGLO):                  -1
+ SIGDIGITS GRADIENTS (SIGL):                -1
+ EXCLUDE COV FOR FOCE (NOFCOV):              NO
+ Cholesky Transposition of R Matrix (CHOLROFF):0
+ KNUTHSUMOFF:                                -1
+ RESUME COV ANALYSIS (RESUME):               NO
+ SIR SAMPLE SIZE (SIRSAMPLE):
+ NON-LINEARLY TRANSFORM THETAS DURING COV (THBND): 1
+ PRECONDTIONING CYCLES (PRECOND):        0
+ PRECONDTIONING TYPES (PRECONDS):        TOS
+ FORCED PRECONDTIONING CYCLES (PFCOND):0
+ PRECONDTIONING TYPE (PRETYPE):        0
+ FORCED POS. DEFINITE SETTING DURING PRECONDITIONING: (FPOSDEF):0
+ SIMPLE POS. DEFINITE SETTING: (POSDEF):-1
+0TABLES STEP OMITTED:    NO
+ NO. OF TABLES:           2
+ SEED NUMBER (SEED):    11456
+ NPDTYPE:    0
+ INTERPTYPE:    0
+ RANMETHOD:             3U
+ MC SAMPLES (ESAMPLE):    300
+ WRES SQUARE ROOT TYPE (WRESCHOL): EIGENVALUE
+0-- TABLE   1 --
+0RECORDS ONLY:    ALL
+04 COLUMNS APPENDED:    YES
+ PRINTED:                NO
+ HEADERS:               ONE
+ FILE TO BE FORWARDED:   NO
+ FORMAT:                ,1PE13.6
+ IDFORMAT:
+ LFORMAT:
+ RFORMAT:
+ FIXED_EFFECT_ETAS:
+0USER-CHOSEN ITEMS:
+ ID EVID TIME IPRED
+0-- TABLE   2 --
+0RECORDS ONLY:    ALL
+04 COLUMNS APPENDED:    NO
+ PRINTED:                NO
+ HEADERS:               ONE
+ FILE TO BE FORWARDED:   NO
+ FORMAT:                ,1PE13.6
+ IDFORMAT:
+ LFORMAT:
+ RFORMAT:
+ FIXED_EFFECT_ETAS:
+0USER-CHOSEN ITEMS:
+ ID CL V2 Q V3 KA K K23 K32 ETA1 ETA2 ETA3 ETA4 ETA5
+0
+ PRIOR SUBROUTINE USER-SUPPLIED
+1DOUBLE PRECISION PREDPP VERSION 7.5.1
+
+ TWO COMPARTMENT MODEL WITH FIRST-ORDER ABSORPTION (ADVAN4)
+0MAXIMUM NO. OF BASIC PK PARAMETERS:   5
+0BASIC PK PARAMETERS (AFTER TRANSLATION):
+   BASIC PK PARAMETER NO.  1: ELIMINATION RATE (K)
+   BASIC PK PARAMETER NO.  2: CENTRAL-TO-PERIPH. RATE (K23)
+   BASIC PK PARAMETER NO.  3: PERIPH.-TO-CENTRAL RATE (K32)
+   BASIC PK PARAMETER NO.  5: ABSORPTION RATE (KA)
+ TRANSLATOR WILL CONVERT PARAMETERS
+ CL, V2, Q, V3 TO K, K23, K32 (TRANS4)
+0COMPARTMENT ATTRIBUTES
+ COMPT. NO.   FUNCTION   INITIAL    ON/OFF      DOSE      DEFAULT    DEFAULT
+                         STATUS     ALLOWED    ALLOWED    FOR DOSE   FOR OBS.
+    1         DEPOT        OFF        YES        YES        YES        NO
+    2         CENTRAL      ON         NO         YES        NO         YES
+    3         PERIPH.      ON         NO         YES        NO         NO
+    4         OUTPUT       OFF        YES        NO         NO         NO
+1
+ ADDITIONAL PK PARAMETERS - ASSIGNMENT OF ROWS IN GG
+ COMPT. NO.                             INDICES
+              SCALE      BIOAVAIL.   ZERO-ORDER  ZERO-ORDER  ABSORB
+                         FRACTION    RATE        DURATION    LAG
+    1            *           *           *           *           *
+    2            6           *           *           *           *
+    3            *           *           *           *           *
+    4            *           -           -           -           -
+             - PARAMETER IS NOT ALLOWED FOR THIS MODEL
+             * PARAMETER IS NOT SUPPLIED BY PK SUBROUTINE;
+               WILL DEFAULT TO ONE IF APPLICABLE
+0DATA ITEM INDICES USED BY PRED ARE:
+   EVENT ID DATA ITEM IS DATA ITEM NO.:      7
+   TIME DATA ITEM IS DATA ITEM NO.:         12
+   DOSE AMOUNT DATA ITEM IS DATA ITEM NO.:   2
+   DOSE RATE DATA ITEM IS DATA ITEM NO.:     3
+   STEADY STATE DATA ITEM IS DATA ITEM NO.:  8
+   INTERVAL DATA ITEM IS DATA ITEM NO.:      4
+   ADDL. DOSES DATA ITEM IS DATA ITEM NO.:   5
+   COMPT. NO. DATA ITEM IS DATA ITEM NO.:    6
+
+0PK SUBROUTINE CALLED WITH EVERY EVENT RECORD.
+ PK SUBROUTINE NOT CALLED AT NONEVENT (ADDITIONAL OR LAGGED) DOSE TIMES.
+0ERROR SUBROUTINE CALLED WITH EVERY EVENT RECORD.
+
+ #PARA: PARAFILE=/opt/NONMEM/nm751/run/mpilinux8.pnm, PROTOCOL=MPI, NODES= 8
+
+1
+
+
+ #TBLN:      1
+ #METH: NUTS Bayesian Analysis
+
+ ESTIMATION STEP OMITTED:                 NO
+ ANALYSIS TYPE:                           POPULATION
+ NUMBER OF SADDLE POINT RESET ITERATIONS:      0
+ GRADIENT METHOD USED:               NOSLOW
+ CONDITIONAL ESTIMATES USED:              YES
+ CENTERED ETA:                            NO
+ EPS-ETA INTERACTION:                     YES
+ LAPLACIAN OBJ. FUNC.:                    NO
+ NO. OF FUNCT. EVALS. ALLOWED:            3968
+ NO. OF SIG. FIGURES REQUIRED:            3
+ INTERMEDIATE PRINTOUT:                   YES
+ ESTIMATE OUTPUT TO MSF:                  NO
+ IND. OBJ. FUNC. VALUES SORTED:           NO
+ NUMERICAL DERIVATIVE
+       FILE REQUEST (NUMDER):               NONE
+ MAP (ETAHAT) ESTIMATION METHOD (OPTMAP):   0
+ ETA HESSIAN EVALUATION METHOD (ETADER):    0
+ INITIAL ETA FOR MAP ESTIMATION (MCETA):    0
+ SIGDIGITS FOR MAP ESTIMATION (SIGLO):      100
+ GRADIENT SIGDIGITS OF
+       FIXED EFFECTS PARAMETERS (SIGL):     100
+ NOPRIOR SETTING (NOPRIOR):                 0
+ NOCOV SETTING (NOCOV):                     OFF
+ DERCONT SETTING (DERCONT):                 OFF
+ FINAL ETA RE-EVALUATION (FNLETA):          1
+ EXCLUDE NON-INFLUENTIAL (NON-INFL.) ETAS
+       IN SHRINKAGE (ETASTYPE):             NO
+ NON-INFL. ETA CORRECTION (NONINFETA):      0
+ RAW OUTPUT FILE (FILE): psn.ext
+ EXCLUDE TITLE (NOTITLE):                   NO
+ EXCLUDE COLUMN LABELS (NOLABEL):           NO
+ FORMAT FOR ADDITIONAL FILES (FORMAT):      S1PE12.5
+ PARAMETER ORDER FOR OUTPUTS (ORDER):       TSOL
+ KNUTHSUMOFF:                               0
+ INCLUDE LNTWOPI:                           NO
+ INCLUDE CONSTANT TERM TO PRIOR (PRIORC):   NO
+ INCLUDE CONSTANT TERM TO OMEGA (ETA) (OLNTWOPI):NO
+ EM OR BAYESIAN METHOD USED:                MCMC BAYESIAN (BAYES)
+ BAYES INDIVIDUAL PARAMETERS ONLY: NO
+ MU MODELING PATTERN (MUM):
+ GRADIENT/GIBBS PATTERN (GRD):
+ AUTOMATIC SETTING FEATURE (AUTO):          1
+ CONVERGENCE TYPE (CTYPE):                  0
+ KEEP ITERATIONS (THIN):            1
+ BURN-IN ITERATIONS (NBURN):                500
+ FIRST ITERATION FOR MAP (MAPITERS):          NO
+ ITERATIONS (NITER):                        1000
+ ANNEAL SETTING (CONSTRAIN):                 1
+ STARTING SEED FOR MC METHODS (SEED):       12345
+ MC SAMPLES PER SUBJECT (ISAMPLE):          1
+ RANDOM SAMPLING METHOD (RANMETHOD):        3U
+ PROPOSAL DENSITY SCALING RANGE
+              (ISCALE_MIN, ISCALE_MAX):     1.000000000000000E-06   ,1000000.00000000
+ SAMPLE ACCEPTANCE RATE (IACCEPT):          0.400000000000000
+ METROPOLIS HASTINGS POPULATION SAMPLING FOR NON-GIBBS
+ SAMPLED THETAS AND SIGMAS:
+ PROPOSAL DENSITY SCALING RANGE
+              (PSCALE_MIN, PSCALE_MAX):   1.000000000000000E-02   ,1000.00000000000
+ SAMPLE ACCEPTANCE RATE (PACCEPT):                       0.500000000000000
+ SAMPLES FOR GLOBAL SEARCH KERNEL (PSAMPLE_M1):          1
+ SAMPLES FOR LOCAL SEARCH KERNEL (PSAMPLE_M2):           -1
+ SAMPLES FOR LOCAL UNIVARIATE KERNEL (PSAMPLE_M3):       1
+ METROPOLIS HASTINGS POPULATION SAMPLING FOR NON-GIBBS
+ SAMPLED OMEGAS:
+ SAMPLE ACCEPTANCE RATE (OACCEPT):                       0.500000000000000
+ SAMPLES FOR GLOBAL SEARCH KERNEL (OSAMPLE_M1):          -1
+ SAMPLES FOR LOCAL SEARCH KERNEL (OSAMPLE_M2):           -1
+ SAMPLES FOR LOCAL UNIVARIATE SEARCH KERNEL (OSAMPLE_M3):-1
+ MASS/IMP./POST. MATRIX REFRESH SETTING (MASSREST):      -1
+ MASS MATRIX ACCUMULATION ITERATIONS (MADAPT):          -1
+ MASS MATRIX BLOCKING TYPE (NUTS_MASS):                 B
+ MODEL PARAMETERS TRANSFORMED BY MASS MATRIX (NUTS_TRANSFORM=0)
+ POWER TERM WEIGHTING FOR MASS MATRIX ACCUM. (KAPPA):   1.00000000000000
+ NUTS SAMPLE ACCEPTANCE RATE (NUTS_DELTA):                   0.800000000000000
+ NUTS GAMMA SETTING (NUTS_GAMMA):                            5.000000000000000E-02
+ USER DEFINED PRIOR SETTING FOR THETAS: (TPU):        0.00000000000000
+ DEG. FR. FOR LKJ CORRELATION PRIOR FOR OMEGAS (OLKJDF): 2.00000000000000
+ WEIGHT FACTOR FOR STD PRIOR FOR SIGMAS (SVARF): -1.000000000000000+300
+ NUTS WARMUP METHOD (NUTS_TEST):       0
+ NUTS MAXIMAL DEPTH SEARCH (NUTS_MAXDEPTH):       10
+ NUTS STAGE I WARMUP ITERATIONS (NUTS_INIT):       75.0000000000000
+ NUTS STAGE II BASE WARMUP ITERATIONS (NUTS_BASE): -3.00000000000000
+ NUTS STAGE III FINAL ITERATIONS (NUTS_TERM): 50.0000000000000
+ INITIAL ITERATIONS FOR STEP NUTS SIZE ASSESSMENT (NUTS_STEPITER): 1
+ INTERVAL ITERATIONS FOR STEP NUTS SIZE ASSESSMENT (NUTS_STEPINTER):0
+ ETA PARAMETERIZATION (NUTS_EPARAM):0
+ OMEGA PARAMETERIZATION (NUTS_OPARAM):1
+ SIGMA PARAMETERIZATION (NUTS_SPARAM):1
+ NUTS REGULARIZING METHOD (NUTS_REG): 0.00000000000000
+
+
+ THE FOLLOWING LABELS ARE EQUIVALENT
+ PRED=PREDI
+ RES=RESI
+ WRES=WRESI
+ IWRS=IWRESI
+ IPRD=IPREDI
+ IRS=IRESI
+
+ EM/BAYES SETUP:
+ THETAS THAT ARE MU MODELED:
+   1   2   3   4   5
+ THETAS THAT ARE GIBBS SAMPLED:
+   1   2   3   4   5
+ THETAS THAT ARE METROPOLIS-HASTINGS SAMPLED:
+ 
+ SIGMAS THAT ARE GIBBS SAMPLED:
+   1
+ SIGMAS THAT ARE METROPOLIS-HASTINGS SAMPLED:
+ 
+ OMEGAS ARE GIBBS SAMPLED
+
+ MONITORING OF SEARCH:
+
+ Burn-in Mode
+ iteration         -342 MCMCOBJ=   -2679.2427232228656     
+ iteration         -300 MCMCOBJ=   -11678.602411812068     
+ iteration         -250 MCMCOBJ=   -11498.602993067265     
+ iteration         -200 MCMCOBJ=   -11621.094787391577     
+ iteration         -150 MCMCOBJ=   -11360.070672174044     
+ iteration         -100 MCMCOBJ=   -11287.671928406526     
+ iteration          -50 MCMCOBJ=   -11569.337816310572     
+ Sampling Mode
+ iteration            0 MCMCOBJ=   -11380.998645323456     
+ iteration           50 MCMCOBJ=   -11643.072275951827     
+ iteration          100 MCMCOBJ=   -11679.596645257789     
+ iteration          150 MCMCOBJ=   -11756.277533915065     
+ iteration          200 MCMCOBJ=   -11800.327222732714     
+ iteration          250 MCMCOBJ=   -11763.729479300022     
+ iteration          300 MCMCOBJ=   -11766.561205675414     
+ iteration          350 MCMCOBJ=   -11820.621261396123     
+ iteration          400 MCMCOBJ=   -11798.757310405823     
+ iteration          450 MCMCOBJ=   -11764.569839585600     
+ iteration          500 MCMCOBJ=   -11765.775185022903     
+ iteration          550 MCMCOBJ=   -11788.686803804067     
+ iteration          600 MCMCOBJ=   -11822.156018512016     
+ iteration          650 MCMCOBJ=   -11784.411828016449     
+ iteration          700 MCMCOBJ=   -11813.678299457650     
+ iteration          750 MCMCOBJ=   -11824.016503604680     
+ iteration          800 MCMCOBJ=   -11797.934357903217     
+ iteration          850 MCMCOBJ=   -11797.054324807656     
+ iteration          900 MCMCOBJ=   -11825.158884056640     
+ iteration          950 MCMCOBJ=   -11816.352580190591     
+ iteration         1000 MCMCOBJ=   -11856.291264476306     
+
+ #TERM:
+ BURN-IN WAS NOT TESTED FOR CONVERGENCE
+ STATISTICAL PORTION WAS COMPLETED
+
+ ETABAR IS THE ARITHMETIC MEAN OF THE ETA-ESTIMATES,
+ AND THE P-VALUE IS GIVEN FOR THE NULL HYPOTHESIS THAT THE TRUE MEAN IS 0.
+
+ ETABAR:        -2.1728E-02  3.8813E-02 -1.1032E-02  1.5577E-02 -1.5932E-02
+ SE:             2.7178E-02  2.8851E-02  9.2972E-03  2.2801E-02  1.7126E-02
+ N:                     120         120         120         120         120
+
+ P VAL.:         4.2402E-01  1.7853E-01  2.3540E-01  4.9451E-01  3.5221E-01
+
+ ETASHRINKSD(%)  1.4388E+00  1.0839E+01  3.0515E+01  1.3154E+01  1.8838E+01
+ ETASHRINKVR(%)  2.8568E+00  2.0503E+01  5.1719E+01  2.4578E+01  3.4127E+01
+ EBVSHRINKSD(%)  3.6139E-01  2.8407E+00  3.5866E+01  1.1321E+01  2.1278E+01
+ EBVSHRINKVR(%)  7.2148E-01  5.6007E+00  5.8868E+01  2.1361E+01  3.8029E+01
+ RELATIVEINF(%)  9.9846E+01  8.2341E+01  1.0000E-10  1.0000E+02  5.6210E+01
+ EPSSHRINKSD(%)  2.7745E-01
+ EPSSHRINKVR(%)  5.5413E-01
+
+  
+ TOTAL DATA POINTS NORMALLY DISTRIBUTED (N):         4680
+ N*LOG(2PI) CONSTANT TO OBJECTIVE FUNCTION:    8601.2646707957356     
+ OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -11763.395591894734     
+ OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -3162.1309210989984     
+ REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
+  
+ TOTAL EFFECTIVE ETAS (NIND*NETA):                           600
+ NIND*NETA*LOG(2PI) CONSTANT TO OBJECTIVE FUNCTION:    1102.7262398456071     
+ OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -11763.395591894734     
+ OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -10660.669352049126     
+ REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
+  
+ PRIOR CONSTANT TO OBJECTIVE FUNCTION:    23.073772503052208     
+ OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -11763.395591894734     
+ OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -11740.321819391682     
+ REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
+  
+ #TERE:
+ Elapsed estimation  time in seconds:   582.89
+ Elapsed covariance  time in seconds:     0.00
+1
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ ************************************************************************************************************************
+ ********************                                                                                ********************
+ ********************                              NUTS BAYESIAN ANALYSIS                            ********************
+ #OBJT:**************                       AVERAGE VALUE OF LIKELIHOOD FUNCTION                     ********************
+ ********************                                                                                ********************
+ ************************************************************************************************************************
+ 
+
+
+
+
+
+ #OBJV:********************************************   -11763.396       **************************************************
+ #OBJS:********************************************       93.788 (STD) **************************************************
+1
+ ************************************************************************************************************************
+ ********************                                                                                ********************
+ ********************                              NUTS BAYESIAN ANALYSIS                            ********************
+ ********************                             FINAL PARAMETER ESTIMATE                           ********************
+ ********************                                                                                ********************
+ ************************************************************************************************************************
+ 
+
+
+ THETA - VECTOR OF FIXED EFFECTS PARAMETERS   *********
+
+
+         TH 1      TH 2      TH 3      TH 4      TH 5     
+ 
+         1.44E+00  4.29E+00  1.22E+00  3.83E+00  1.42E-01
+ 
+
+
+ OMEGA - COV MATRIX FOR RANDOM EFFECTS - ETAS  ********
+
+
+         ETA1      ETA2      ETA3      ETA4      ETA5     
+ 
+ ETA1
++        9.12E-02
+ 
+ ETA2
++       -5.73E-03  1.26E-01
+ 
+ ETA3
++       -3.46E-03 -2.47E-02  2.15E-02
+ 
+ ETA4
++        1.57E-03 -1.17E-03 -2.53E-02  8.27E-02
+ 
+ ETA5
++        7.19E-03 -1.11E-02 -6.58E-03  1.25E-02  5.34E-02
+ 
+
+
+ SIGMA - COV MATRIX FOR RANDOM EFFECTS - EPSILONS  ****
+
+
+         EPS1     
+ 
+ EPS1
++        3.83E-02
+ 
+1
+
+
+ OMEGA - CORR MATRIX FOR RANDOM EFFECTS - ETAS  *******
+
+
+         ETA1      ETA2      ETA3      ETA4      ETA5     
+ 
+ ETA1
++        3.02E-01
+ 
+ ETA2
++       -5.63E-02  3.54E-01
+ 
+ ETA3
++       -1.03E-01 -5.05E-01  1.40E-01
+ 
+ ETA4
++        1.88E-02 -8.17E-03 -6.54E-01  2.86E-01
+ 
+ ETA5
++        1.07E-01 -1.41E-01 -2.14E-01  1.96E-01  2.29E-01
+ 
+
+
+ SIGMA - CORR MATRIX FOR RANDOM EFFECTS - EPSILONS  ***
+
+
+         EPS1     
+ 
+ EPS1
++        1.96E-01
+ 
+1
+ ************************************************************************************************************************
+ ********************                                                                                ********************
+ ********************                              NUTS BAYESIAN ANALYSIS                            ********************
+ ********************                STANDARD ERROR OF ESTIMATE (From Sample Variance)               ********************
+ ********************                                                                                ********************
+ ************************************************************************************************************************
+ 
+
+
+ THETA - VECTOR OF FIXED EFFECTS PARAMETERS   *********
+
+
+         TH 1      TH 2      TH 3      TH 4      TH 5     
+ 
+         1.76E-02  2.04E-02  5.99E-02  3.38E-02  3.82E-02
+ 
+
+
+ OMEGA - COV MATRIX FOR RANDOM EFFECTS - ETAS  ********
+
+
+         ETA1      ETA2      ETA3      ETA4      ETA5     
+ 
+ ETA1
++        7.44E-03
+ 
+ ETA2
++        6.95E-03  1.82E-02
+ 
+ ETA3
++        9.71E-03  1.02E-02  1.74E-02
+ 
+ ETA4
++        8.12E-03  8.52E-03  8.79E-03  1.53E-02
+ 
+ ETA5
++        8.03E-03  8.56E-03  8.07E-03  6.40E-03  1.47E-02
+ 
+
+
+ SIGMA - COV MATRIX FOR RANDOM EFFECTS - EPSILONS  ****
+
+
+         EPS1     
+ 
+ EPS1
++        9.41E-04
+ 
+1
+
+
+ OMEGA - CORR MATRIX FOR RANDOM EFFECTS - ETAS  *******
+
+
+         ETA1      ETA2      ETA3      ETA4      ETA5     
+ 
+ ETA1
++        1.21E-02
+ 
+ ETA2
++        6.88E-02  2.61E-02
+ 
+ ETA3
++        2.05E-01  1.77E-01  4.19E-02
+ 
+ ETA4
++        9.03E-02  8.39E-02  1.87E-01  2.66E-02
+ 
+ ETA5
++        1.13E-01  1.03E-01  1.97E-01  9.09E-02  2.86E-02
+ 
+
+
+ SIGMA - CORR MATRIX FOR RANDOM EFFECTS - EPSILONS  ***
+
+
+         EPS1     
+ 
+ EPS1
++        2.39E-03
+ 
+1
+ ************************************************************************************************************************
+ ********************                                                                                ********************
+ ********************                              NUTS BAYESIAN ANALYSIS                            ********************
+ ********************               COVARIANCE MATRIX OF ESTIMATE (From Sample Variance)             ********************
+ ********************                                                                                ********************
+ ************************************************************************************************************************
+ 
+
+            TH 1      TH 2      TH 3      TH 4      TH 5      OM11      OM12      OM13      OM14      OM15      OM22      OM23  
+             OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
+ 
+ TH 1
++        3.10E-04
+ 
+ TH 2
++       -8.40E-05  4.17E-04
+ 
+ TH 3
++       -2.30E-04 -3.82E-05  3.58E-03
+ 
+ TH 4
++       -2.35E-04  7.31E-06  1.15E-03  1.14E-03
+ 
+ TH 5
++        2.70E-04 -1.10E-04 -1.60E-03 -7.48E-04  1.46E-03
+ 
+ OM11
++       -1.53E-05  4.11E-07  8.41E-05  8.78E-05 -5.83E-05  5.53E-05
+ 
+ OM12
++       -3.20E-05  3.18E-05 -2.62E-05  4.54E-05 -5.01E-05  1.36E-05  4.83E-05
+ 
+ OM13
++       -4.75E-05  3.32E-05  2.30E-04  1.13E-04 -1.67E-04  1.09E-05 -1.26E-05  9.44E-05
+ 
+ OM14
++        4.35E-05 -5.12E-05 -1.67E-04 -1.03E-04  1.63E-04 -1.16E-05 -1.77E-05 -3.04E-05  6.60E-05
+ 
+ OM15
++        6.69E-05 -5.50E-05 -1.89E-04 -1.52E-04  1.70E-04 -8.35E-06 -1.23E-05 -3.48E-05  3.33E-05  6.45E-05
+ 
+ OM22
++       -2.30E-05  2.66E-06 -3.25E-04  7.11E-05  1.22E-04  2.44E-05  4.10E-05 -7.64E-05  4.54E-05  1.78E-06  3.32E-04
+ 
+ OM23
++       -2.23E-05 -9.49E-06  3.44E-04  6.73E-05 -1.43E-04 -2.08E-06 -2.51E-07  2.27E-05 -2.28E-05 -1.76E-05 -9.39E-05  1.04E-04
+ 
+ OM24
++        4.29E-05 -7.11E-05  3.70E-05 -2.89E-06  5.19E-05 -1.15E-05 -1.92E-05 -1.29E-05  6.07E-06  1.63E-05 -4.52E-05  1.89E-05
+          7.25E-05
+ 
+ OM25
++       -1.60E-05  3.33E-05  2.22E-04  5.95E-05 -8.30E-05 -1.40E-07 -6.60E-06  2.39E-05 -1.48E-05 -1.52E-05 -2.66E-05  2.60E-06
+         -6.80E-06  7.33E-05
+ 
+ OM33
++       -6.60E-05  4.30E-05  4.44E-04  2.79E-04 -3.08E-04  3.03E-05  2.18E-06  7.45E-05 -4.53E-05 -4.76E-05 -2.07E-05 -3.80E-05
+         -1.44E-05  6.61E-05  3.04E-04
+ 
+ OM34
++       -4.35E-05  3.17E-05 -5.43E-05  2.73E-05 -6.41E-05  1.20E-05  1.80E-05  1.30E-05 -8.60E-06 -1.20E-05  3.88E-05 -1.81E-06
+         -3.55E-05 -1.56E-05 -2.91E-05  7.72E-05
+ 
+ OM35
++       -3.86E-05  4.82E-05 -1.23E-04  2.91E-05 -5.44E-05  5.34E-06  1.79E-05  1.50E-05 -1.23E-05 -1.20E-05  3.35E-05 -2.61E-05
+         -2.88E-05 -1.57E-05  3.03E-05  3.45E-05  6.51E-05
+ 
+ OM44
++        2.14E-05  2.47E-05 -1.56E-04 -1.36E-04  1.04E-04 -1.36E-05 -1.69E-05  4.03E-05 -1.10E-05  1.73E-05 -7.79E-05 -3.43E-07
+         -2.96E-05  4.07E-06 -4.24E-05  3.11E-05  1.64E-05  2.34E-04
+ 
+ OM45
++       -1.79E-05  1.56E-05  8.37E-05  7.92E-05 -4.83E-05  5.15E-06  3.11E-06  1.22E-05 -8.28E-06 -1.48E-05  3.02E-06  7.02E-06
+         -7.69E-07  3.20E-07  1.54E-05 -1.07E-06  2.62E-06 -1.62E-05  4.10E-05
+ 
+1
+
+            TH 1      TH 2      TH 3      TH 4      TH 5      OM11      OM12      OM13      OM14      OM15      OM22      OM23  
+             OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
+ 
+ OM55
++       -4.52E-05 -2.92E-05  4.32E-04  1.17E-04 -1.41E-04  6.88E-06 -6.32E-06  3.51E-05 -2.24E-05 -2.36E-05 -9.02E-05  7.64E-05
+          7.02E-06  4.48E-05  1.83E-05 -5.35E-06 -5.18E-05  2.78E-05  3.43E-06  2.15E-04
+ 
+ SG11
++       -5.71E-06  4.42E-06  3.11E-05  1.08E-05 -2.03E-05 -2.03E-07 -4.99E-07  6.33E-06 -4.15E-06 -3.72E-06 -8.89E-06  4.03E-06
+         -8.65E-07  2.50E-06  5.15E-06  1.23E-06  7.91E-07  3.43E-06  7.32E-07  4.98E-06  8.85E-07
+ 
+1
+ ************************************************************************************************************************
+ ********************                                                                                ********************
+ ********************                              NUTS BAYESIAN ANALYSIS                            ********************
+ ********************              CORRELATION MATRIX OF ESTIMATE (From Sample Variance)             ********************
+ ********************                                                                                ********************
+ ************************************************************************************************************************
+ 
+
+            TH 1      TH 2      TH 3      TH 4      TH 5      OM11      OM12      OM13      OM14      OM15      OM22      OM23  
+             OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
+ 
+ TH 1
++        1.76E-02
+ 
+ TH 2
++       -2.34E-01  2.04E-02
+ 
+ TH 3
++       -2.18E-01 -3.13E-02  5.99E-02
+ 
+ TH 4
++       -3.96E-01  1.06E-02  5.69E-01  3.38E-02
+ 
+ TH 5
++        4.01E-01 -1.41E-01 -7.02E-01 -5.81E-01  3.82E-02
+ 
+ OM11
++       -1.17E-01  2.71E-03  1.89E-01  3.50E-01 -2.05E-01  7.44E-03
+ 
+ OM12
++       -2.61E-01  2.24E-01 -6.30E-02  1.93E-01 -1.89E-01  2.63E-01  6.95E-03
+ 
+ OM13
++       -2.78E-01  1.68E-01  3.95E-01  3.44E-01 -4.50E-01  1.51E-01 -1.86E-01  9.71E-03
+ 
+ OM14
++        3.04E-01 -3.09E-01 -3.43E-01 -3.77E-01  5.27E-01 -1.92E-01 -3.13E-01 -3.85E-01  8.12E-03
+ 
+ OM15
++        4.73E-01 -3.36E-01 -3.93E-01 -5.60E-01  5.55E-01 -1.40E-01 -2.20E-01 -4.47E-01  5.10E-01  8.03E-03
+ 
+ OM22
++       -7.17E-02  7.16E-03 -2.98E-01  1.16E-01  1.75E-01  1.80E-01  3.24E-01 -4.32E-01  3.07E-01  1.22E-02  1.82E-02
+ 
+ OM23
++       -1.24E-01 -4.55E-02  5.62E-01  1.95E-01 -3.66E-01 -2.73E-02 -3.53E-03  2.29E-01 -2.75E-01 -2.15E-01 -5.04E-01  1.02E-02
+ 
+ OM24
++        2.86E-01 -4.09E-01  7.25E-02 -1.01E-02  1.60E-01 -1.82E-01 -3.24E-01 -1.56E-01  8.78E-02  2.39E-01 -2.91E-01  2.17E-01
+          8.52E-03
+ 
+ OM25
++       -1.06E-01  1.91E-01  4.33E-01  2.06E-01 -2.54E-01 -2.19E-03 -1.11E-01  2.88E-01 -2.13E-01 -2.21E-01 -1.70E-01  2.97E-02
+         -9.32E-02  8.56E-03
+ 
+ OM33
++       -2.15E-01  1.21E-01  4.25E-01  4.74E-01 -4.63E-01  2.34E-01  1.80E-02  4.40E-01 -3.20E-01 -3.40E-01 -6.51E-02 -2.13E-01
+         -9.67E-02  4.43E-01  1.74E-02
+ 
+ OM34
++       -2.81E-01  1.77E-01 -1.03E-01  9.20E-02 -1.91E-01  1.84E-01  2.95E-01  1.52E-01 -1.21E-01 -1.70E-01  2.42E-01 -2.02E-02
+         -4.74E-01 -2.08E-01 -1.90E-01  8.79E-03
+ 
+ OM35
++       -2.72E-01  2.93E-01 -2.55E-01  1.07E-01 -1.76E-01  8.89E-02  3.20E-01  1.91E-01 -1.88E-01 -1.85E-01  2.28E-01 -3.17E-01
+         -4.19E-01 -2.27E-01  2.15E-01  4.86E-01  8.07E-03
+ 
+ OM44
++        7.92E-02  7.91E-02 -1.71E-01 -2.62E-01  1.78E-01 -1.20E-01 -1.59E-01  2.71E-01 -8.86E-02  1.40E-01 -2.79E-01 -2.19E-03
+         -2.27E-01  3.10E-02 -1.59E-01  2.31E-01  1.32E-01  1.53E-02
+ 
+ OM45
++       -1.59E-01  1.19E-01  2.18E-01  3.66E-01 -1.98E-01  1.08E-01  6.99E-02  1.96E-01 -1.59E-01 -2.88E-01  2.59E-02  1.07E-01
+         -1.41E-02  5.84E-03  1.38E-01 -1.90E-02  5.07E-02 -1.65E-01  6.40E-03
+ 
+1
+
+            TH 1      TH 2      TH 3      TH 4      TH 5      OM11      OM12      OM13      OM14      OM15      OM22      OM23  
+             OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
+ 
+ OM55
++       -1.75E-01 -9.75E-02  4.92E-01  2.35E-01 -2.51E-01  6.30E-02 -6.19E-02  2.46E-01 -1.88E-01 -2.00E-01 -3.37E-01  5.09E-01
+          5.61E-02  3.56E-01  7.16E-02 -4.15E-02 -4.37E-01  1.24E-01  3.65E-02  1.47E-02
+ 
+ SG11
++       -3.45E-01  2.30E-01  5.52E-01  3.40E-01 -5.67E-01 -2.91E-02 -7.63E-02  6.93E-01 -5.43E-01 -4.93E-01 -5.18E-01  4.19E-01
+         -1.08E-01  3.11E-01  3.14E-01  1.48E-01  1.04E-01  2.38E-01  1.22E-01  3.61E-01  9.41E-04
+ 
+1
+ ************************************************************************************************************************
+ ********************                                                                                ********************
+ ********************                              NUTS BAYESIAN ANALYSIS                            ********************
+ ********************           INVERSE COVARIANCE MATRIX OF ESTIMATE (From Sample Variance)         ********************
+ ********************                                                                                ********************
+ ************************************************************************************************************************
+ 
+
+            TH 1      TH 2      TH 3      TH 4      TH 5      OM11      OM12      OM13      OM14      OM15      OM22      OM23  
+             OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
+ 
+ TH 1
++        5.11E+03
+ 
+ TH 2
++        1.76E+02  3.83E+03
+ 
+ TH 3
++       -2.68E+02  2.04E+02  1.56E+03
+ 
+ TH 4
++        4.51E+02  4.31E+02 -4.05E+02  2.60E+03
+ 
+ TH 5
++       -2.04E+02 -2.08E+02  8.91E+02  1.38E+02  2.51E+03
+ 
+ OM11
++       -5.65E+02  1.12E+02 -1.01E+03 -1.41E+03 -7.37E+02  2.71E+04
+ 
+ OM12
++        7.53E+02 -4.24E+02  1.26E+03 -4.09E+02  5.67E+02 -5.01E+03  4.02E+04
+ 
+ OM13
++        2.05E+02  7.09E+02  1.25E+03 -6.41E+02  3.20E+02 -7.43E+03  1.04E+04  3.41E+04
+ 
+ OM14
++        1.95E+02  1.66E+03 -1.07E+03  7.03E+02 -2.01E+03  5.94E+03  1.19E+04 -4.52E+03  3.62E+04
+ 
+ OM15
++       -1.60E+03  2.20E+03 -6.81E+02  2.42E+03 -1.00E+03 -3.91E+03  2.15E+00  7.28E+03 -8.16E+03  3.79E+04
+ 
+ OM22
++        4.78E+02  1.23E+02 -4.50E+02 -1.55E+03 -4.02E+02 -5.29E+02 -2.85E+03  3.87E+03 -4.00E+03  3.16E+03  9.59E+03
+ 
+ OM23
++        6.53E+02 -9.75E+02 -3.81E+03 -3.84E+02  2.79E+02  2.20E+03 -8.05E+03 -5.54E+03  1.68E+03  1.93E+03  6.66E+03  3.79E+04
+ 
+ OM24
++       -1.18E+03  2.70E+03  4.01E+02 -2.22E+03 -1.01E+03  3.78E+03  6.64E+03  2.10E+03  5.67E+03 -4.20E+03  3.44E+03 -3.54E+03
+          2.97E+04
+ 
+ OM25
++        1.10E+02 -2.28E+03 -1.57E+03  1.19E+02 -5.03E+02  4.17E+03  3.31E+01 -2.90E+03  2.77E+03 -4.44E+02 -3.60E+02  6.60E+03
+          3.00E+03  2.64E+04
+ 
+ OM33
++        7.35E+01 -1.34E+02 -1.50E+03 -9.15E+02  5.54E+02 -1.16E+03 -1.59E+03 -6.17E+03  1.93E+03 -6.80E+02  1.51E+03  1.23E+04
+          7.19E+01 -2.78E+03  1.24E+04
+ 
+ OM34
++        6.01E+02  4.15E+01 -2.10E+01 -3.80E+02  1.62E+03 -3.85E+03 -1.61E+03 -4.78E+03 -1.06E+02 -1.85E+03 -3.25E+03  2.77E+03
+          5.25E+03  2.33E+03  7.70E+03  3.01E+04
+ 
+ OM35
++        1.62E+03 -9.76E+02  2.22E+03 -8.08E+02  1.68E+03  3.50E+03 -6.04E+03 -2.20E+03 -2.54E+02 -2.15E+03 -6.71E+02 -1.99E+03
+          3.62E+03  7.12E+03 -8.01E+03 -1.21E+04  4.54E+04
+ 
+ OM44
++       -7.76E+02  2.63E+02  1.68E+01  2.56E+01 -1.02E+03  1.19E+03  1.83E+03 -3.39E+03  3.42E+03 -3.31E+03  1.17E+03  1.65E+03
+          3.90E+03 -5.92E+02  1.67E+03 -1.59E+03 -2.91E+03  8.21E+03
+ 
+ OM45
++       -9.74E+00 -1.36E+03 -8.02E+02 -1.99E+03 -6.89E+02  1.47E+03 -5.42E+02 -5.46E+03  1.32E+03  1.74E+03  1.72E+02  1.65E+03
+          8.93E+02  3.36E+03  2.14E+03  2.98E+03 -1.06E+03  1.49E+03  3.10E+04
+ 
+1
+
+            TH 1      TH 2      TH 3      TH 4      TH 5      OM11      OM12      OM13      OM14      OM15      OM22      OM23  
+             OM24      OM25      OM33      OM34      OM35      OM44      OM45      OM55      SG11  
+ 
+ OM55
++        1.16E+03  8.84E+02  1.18E+01 -3.92E+02 -2.84E+02 -6.45E+02 -1.48E+03  1.04E+03 -1.15E+03  1.18E+03  7.46E+02 -5.17E+03
+          1.19E+03 -3.12E+03 -1.65E+03 -2.83E+03  8.50E+03 -1.86E+03  1.37E+02  1.02E+04
+ 
+ SG11
++        1.84E+04 -1.20E+04 -2.35E+04 -2.15E+03  3.08E+03  8.29E+04  1.66E+04 -1.31E+05  8.26E+04  5.15E+04  5.10E+04  2.54E+04
+          4.98E+03  5.13E+03  1.93E+04 -3.24E+04 -3.84E+04 -2.10E+04  3.37E+04 -1.12E+04  4.27E+06
+ 
+1
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ ************************************************************************************************************************
+ ********************                                                                                ********************
+ ********************                              NUTS BAYESIAN ANALYSIS                            ********************
+ ********************           EIGENVALUES OF COR MATRIX OF ESTIMATE (From Sample Variance)         ********************
+ ********************                                                                                ********************
+ ************************************************************************************************************************
+ 
+
+             1         2         3         4         5         6         7         8         9        10        11        12
+             13        14        15        16        17        18        19        20        21
+ 
+         9.54E-02  1.70E-01  1.94E-01  2.09E-01  2.20E-01  2.55E-01  3.25E-01  3.61E-01  3.68E-01  4.21E-01  5.18E-01  5.90E-01
+          6.60E-01  8.78E-01  9.55E-01  1.13E+00  1.20E+00  1.59E+00  2.13E+00  3.28E+00  5.45E+00
+ 
+ Elapsed postprocess time in seconds:     0.20
+0WARNING: IN TABLE   1, ROW        1, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW       41, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW       81, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW      961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     1961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     2961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     3961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   1, ROW     4761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW        1, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW        1, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW        1, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW        1, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW        1, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW        1, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW        1, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW        1, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       41, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       41, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       41, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       41, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       41, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       41, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       41, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       41, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       81, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       81, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       81, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       81, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       81, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       81, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       81, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW       81, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW      961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     1961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     2961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3801, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3841, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3881, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3921, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     3961, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4001, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4041, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4081, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4121, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4161, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4201, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4241, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4281, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4321, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4361, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4401, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4441, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4481, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4521, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4561, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4601, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4641, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4681, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4721, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+0WARNING: IN TABLE   2, ROW     4761, PRED-DEFINED ITEM, NUMBER   9
+ IS LARGER THAN  0.3D+39
+ Elapsed finaloutput time in seconds:     0.46
+ #CPUT: Total CPU Time in Seconds,     1888.117
+Stop Time:
+Mon 07 Aug 2023 02:19:05 PM UTC

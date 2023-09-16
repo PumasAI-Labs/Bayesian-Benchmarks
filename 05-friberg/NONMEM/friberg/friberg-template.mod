@@ -3,8 +3,8 @@
 
 $SIZES LVR=50
 $PROB
-$INPUT ID AMT RATE II ADDL CMT EVID SS LLOQ BLOQ MDV TIME CP DV
-$DATA ../../../data/multiple_dose.csv IGNORE=@
+$INPUT ID AMT RATE II ADDL CMT EVID SS LLOQ BLOQ MDV TIME CP ODV DV
+$DATA ../../../data/multiple_dose_nonmem.csv IGNORE=@
 
 $SUBROUTINES ADVAN13 TOL=6
 
@@ -81,11 +81,11 @@ DADT(8) = KTR * A(7) - KCIRC * A(8)
 
 
 $ERROR 
-IPRED = F
+IPRED = LOG(F)
 IND = 0
 IF(CMT.EQ.2) IND = 1 
-YPK = IPRED*(1+EPS(1)) ; Prop Err PK
-YPD = IPRED*(1+EPS(2)) ; Prop Err PD
+YPK = IPRED + EPS(1) ; Exp Err PK
+YPD = IPRED + EPS(2) ; Exp Err PD
 Y = YPK*IND + YPD*(1-IND)
 
 ; Initial Estimates

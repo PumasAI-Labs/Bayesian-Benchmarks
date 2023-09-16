@@ -3,7 +3,7 @@
 // Friberg-Karlsson model for myelosuppression
 // IIV on CL, VC, Q, VP, KA, MTT, CIRC0, GAMMA, ALPHA
 // proportional error - DV = IPRED*(1 + eps_p) for both PK and PD
-// ODE solution using Torsten - full ODE system
+// ODE solution using Torsten - coupled ODE system
 // Implements threading for within-chain parallelization 
 // Deals with BLOQ values by the "CDF trick" (M4)
 // Since we have a normal distribution on the error, but the DV must be > 0, it
