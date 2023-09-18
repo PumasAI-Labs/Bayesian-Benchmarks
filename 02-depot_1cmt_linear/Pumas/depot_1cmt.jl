@@ -33,10 +33,7 @@ depot_1cmt_exp = @model begin
         Ka = TVKA * exp(η[3])
     end
 
-    @dynamics begin
-        Depot' = -Ka * Depot
-        Central' = Ka * Depot - (CL / Vc) * Central
-    end
+    @dynamics Depots1Central1
 
     @derived begin
         cp := @. Central / Vc

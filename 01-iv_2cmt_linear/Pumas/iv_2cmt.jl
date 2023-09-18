@@ -33,15 +33,9 @@ iv_2cmt_exp = @model begin
         Vc = TVVC * exp(η[2])
         Q = TVQ * exp(η[3])
         Vp = TVVP * exp(η[4])
-
-        k_cp = Q / Vc
-        k_pc = Q / Vp
     end
 
-    @dynamics begin
-        Central' = -(CL / Vc + k_cp) * Central + k_pc * Peripheral
-        Peripheral' = k_cp * Central - k_pc * Peripheral
-    end
+    @dynamics Central1Periph1
 
     @derived begin
         cp := @. Central / Vc
