@@ -35,16 +35,9 @@ depot_2cmt_exp = @model begin
         Q = TVQ * exp(η[3])
         Vp = TVVP * exp(η[4])
         Ka = TVKA * exp(η[5])
-
-        k_cp = Q / Vc
-        k_pc = Q / Vp
     end
 
-    @dynamics begin
-        Depot' = -Ka * Depot
-        Central' = Ka * Depot - (CL / Vc + k_cp) * Central + k_pc * Peripheral
-        Peripheral' = k_cp * Central - k_pc * Peripheral
-    end
+    @dynamics Depots1Central1Periph1
 
     @derived begin
         cp := @. Central / Vc
