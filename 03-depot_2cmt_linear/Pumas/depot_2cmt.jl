@@ -1,4 +1,11 @@
-using Pumas
+using Distributed
+if nprocs() < 5
+    addprocs(
+        5 - nprocs(),
+        exeflags = ["--threads=$(Threads.nthreads())", "--project=$(Base.active_project())"],
+    )
+end
+@everywhere using Pumas
 using DataFrames
 using CSV
 using Serialization
@@ -92,6 +99,7 @@ pumas_fits = map(
             nchains=4,
             parallel_chains=true,
             parallel_subjects=true,
+            ensemblealg = EnsembleSplitThreads(),
         )
     ),
     iparams
@@ -115,6 +123,7 @@ pumas_fits_multi = map(
             nchains=4,
             parallel_chains=true,
             parallel_subjects=true,
+            ensemblealg = EnsembleSplitThreads(),
         )
     ),
     iparams
