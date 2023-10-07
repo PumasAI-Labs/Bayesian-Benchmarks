@@ -2,7 +2,7 @@ using Distributed
 if nprocs() < 5
     addprocs(
         5 - nprocs(),
-        exeflags = ["--threads=$(Threads.nthreads())", "--project=$(Base.active_project())"],
+        exeflags=["--threads=$(Threads.nthreads())", "--project=$(Base.active_project())"],
     )
 end
 @everywhere using Pumas
@@ -93,6 +93,21 @@ end
 
 iparams = map(parse_json, json_inits)
 
+# dummy fit to trigger precompilation
+fit(
+    depot_1cmt_mm_exp,
+    pop,
+    iparams[1],
+    BayesMCMC(
+        nsamples=10,
+        nadapts=5,
+        nchains=4,
+        parallel_chains=true,
+        parallel_subjects=true,
+        ensemblealg=EnsembleSplitThreads(),
+    )
+)
+
 pumas_fits = map(
     p -> fit(
         depot_1cmt_mm_exp,
@@ -104,7 +119,7 @@ pumas_fits = map(
             nchains=4,
             parallel_chains=true,
             parallel_subjects=true,
-            ensemblealg = EnsembleSplitThreads(),
+            ensemblealg=EnsembleSplitThreads(),
         )
     ),
     iparams
@@ -115,6 +130,21 @@ map(
     (i, f) -> serialize("04-depot_1cmt_mm/Pumas/fit_single_dose_$i.jls", f),
     1:length(my_fits),
     my_fits
+)
+
+# dummy fit to trigger precompilation
+fit(
+    depot_1cmt_mm_exp,
+    pop_multi,
+    iparams[1],
+    BayesMCMC(
+        nsamples=10,
+        nadapts=5,
+        nchains=4,
+        parallel_chains=true,
+        parallel_subjects=true,
+        ensemblealg=EnsembleSplitThreads(),
+    )
 )
 
 pumas_fits_multi = map(
@@ -128,7 +158,7 @@ pumas_fits_multi = map(
             nchains=4,
             parallel_chains=true,
             parallel_subjects=true,
-            ensemblealg = EnsembleSplitThreads(),
+            ensemblealg=EnsembleSplitThreads(),
         )
     ),
     iparams
