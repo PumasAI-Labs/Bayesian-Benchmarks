@@ -1,4 +1,11 @@
-using Pumas
+using Distributed
+if nprocs() < 5
+    addprocs(
+        5 - nprocs(),
+        exeflags=["--threads=$(Threads.nthreads())", "--project=$(Base.active_project())"],
+    )
+end
+@everywhere using Pumas
 using DataFrames
 using CSV
 using Serialization
@@ -35,16 +42,9 @@ depot_2cmt_exp = @model begin
         Q = TVQ * exp(η[3])
         Vp = TVVP * exp(η[4])
         Ka = TVKA * exp(η[5])
-
-        k_cp = Q / Vc
-        k_pc = Q / Vp
     end
 
-    @dynamics begin
-        Depot' = -Ka * Depot
-        Central' = Ka * Depot - (CL / Vc + k_cp) * Central + k_pc * Peripheral
-        Peripheral' = k_cp * Central - k_pc * Peripheral
-    end
+    @dynamics Depots1Central1Periph1
 
     @derived begin
         cp := @. Central / Vc
@@ -88,6 +88,21 @@ end
 
 iparams = map(parse_json, json_inits)
 
+# dummy fit to trigger precompilation
+fit(
+    depot_2cmt_exp,
+    pop,
+    iparams[1],
+    BayesMCMC(
+        nsamples=10,
+        nadapts=5,
+        nchains=4,
+        parallel_chains=true,
+        parallel_subjects=true,
+        ensemblealg=EnsembleSplitThreads(),
+    )
+)
+
 pumas_fits = map(
     p -> fit(
         depot_2cmt_exp,
@@ -99,6 +114,7 @@ pumas_fits = map(
             nchains=4,
             parallel_chains=true,
             parallel_subjects=true,
+            ensemblealg=EnsembleSplitThreads(),
         )
     ),
     iparams
@@ -109,6 +125,21 @@ map(
     (i, f) -> serialize("03-depot_2cmt_linear/Pumas/fit_single_dose_$i.jls", f),
     1:length(my_fits),
     my_fits
+)
+
+# dummy fit to trigger precompilation
+fit(
+    depot_2cmt_exp,
+    pop_multi,
+    iparams[1],
+    BayesMCMC(
+        nsamples=10,
+        nadapts=5,
+        nchains=4,
+        parallel_chains=true,
+        parallel_subjects=true,
+        ensemblealg=EnsembleSplitThreads(),
+    )
 )
 
 pumas_fits_multi = map(
@@ -122,6 +153,7 @@ pumas_fits_multi = map(
             nchains=4,
             parallel_chains=true,
             parallel_subjects=true,
+            ensemblealg=EnsembleSplitThreads(),
         )
     ),
     iparams
