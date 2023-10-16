@@ -3,7 +3,6 @@ library(furrr)
 library(stringr)
 
 env_multi = str_c("05-friberg/Stan/Torsten/Fits/multiple_dose_", 1:5, ".rds")
-env_multi_coupled = str_c("05-friberg/Stan/Torsten/Fits/multiple_dose_coupled_", 1:5, ".rds")
 
 parameters = c(
   "TVCL",
@@ -22,8 +21,7 @@ parameters = c(
 
 future_walk(
   c(
-    env_multi,
-    env_multi_coupled
+    env_multi
   ),
   ~ convert_env_to_arrow(.x, parameters=parameters)
 )
