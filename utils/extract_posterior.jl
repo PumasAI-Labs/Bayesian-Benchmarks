@@ -237,7 +237,7 @@ stan_df = DataFrame(;
     )
 )
 
-CSV.write("results/stan.csv", stan_df)
+CSV.write("results/stan/stan.csv", stan_df)
 
 # NONMEM
 # nonmem_files_01_sd = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "NONMEM", "iv-2cmt-linear", "chains"); join=true))
@@ -297,7 +297,7 @@ nonmem_df = DataFrame(;
     )
 )
 
-CSV.write("results/nonmem.csv", nonmem_df)
+CSV.write("results/nonmem/nonmem.csv", nonmem_df)
 
 # Pumas
 # Stan
@@ -358,7 +358,7 @@ pumas_df = DataFrame(;
     )
 )
 
-CSV.write("results/pumas.csv", pumas_df)
+CSV.write("results/pumas/pumas.csv", pumas_df)
 
 @rtransform! stan_df :software = "stan"
 @rtransform! nonmem_df :software = "nonmem"
@@ -406,3 +406,59 @@ fig = draw(
 )
 
 save("results/results.png", fig; px_per_unit=3)
+
+# More details per model
+function extract_chn_model(chns)
+    parameters = DataFrame(summarystats(first(chns)))[:, :parameters]
+    df = mapreduce(p -> _summary_params(chns, p), vcat, parameters)
+    return df
+end
+function _get_params(chn::Chains, p::Symbol)
+    df = @chain DataFrame(summarystats(chn)) begin
+        @rsubset :parameters == p
+    end
+    return Vector(df[1, :])[2:end]
+end
+function _summary_params(chns, p::Symbol)
+    names_df = names(DataFrame(summarystats(first(chns))))
+    flat = Iterators.flatten(_get_params.(chns, p)) |> collect
+    summary_params = reshape(flat, :, 5)
+    means = reshape(mean(summary_params; dims=2), 1, :)
+    summ_df = DataFrame(means, names_df[2:end]; copycols=true)
+    @rtransform! summ_df :parameters = p
+    select!(summ_df, :parameters, :)
+    return summ_df
+end
+function save_chn_model(chns, model, software)
+    CSV.write(joinpath(pwd(), "results", software, "$(model).csv"), extract_chn_model(chns))
+end
+
+softwares = ["stan", "nonmem", "pumas"]
+# 01-md
+chains_01 = [
+    stan_chn_01_md,
+    nonmem_chn_01_md,
+    pumas_chn_01_md,
+]
+map((c, s) -> save_chn_model(c, "01-md", s), chains_01, softwares)
+# 02-md
+chains_02 = [
+    stan_chn_02_md,
+    nonmem_chn_02_md,
+    pumas_chn_02_md,
+]
+map((c, s) -> save_chn_model(c, "02-md", s), chains_02, softwares)
+# 03-md
+chains_03 = [
+    stan_chn_03_md,
+    nonmem_chn_03_md,
+    pumas_chn_03_md,
+]
+map((c, s) -> save_chn_model(c, "03-md", s), chains_03, softwares)
+# 05
+chains_05 = [
+    stan_chn_05,
+    nonmem_chn_05,
+    pumas_chn_05,
+]
+map((c, s) -> save_chn_model(c, "05", s), chains_05, softwares)
