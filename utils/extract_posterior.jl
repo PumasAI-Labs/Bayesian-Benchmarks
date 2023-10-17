@@ -433,32 +433,54 @@ function save_chn_model(chns, model, software)
     CSV.write(joinpath(pwd(), "results", software, "$(model).csv"), extract_chn_model(chns))
 end
 
-softwares = ["stan", "nonmem", "pumas"]
-# 01-md
-chains_01 = [
+models_names = [
+    "01-md",
+    "02-md",
+    "03-md",
+    "05",
+]
+# Stan
+chains_stan = [
     stan_chn_01_md,
-    nonmem_chn_01_md,
-    pumas_chn_01_md,
-]
-map((c, s) -> save_chn_model(c, "01-md", s), chains_01, softwares)
-# 02-md
-chains_02 = [
     stan_chn_02_md,
-    nonmem_chn_02_md,
-    pumas_chn_02_md,
-]
-map((c, s) -> save_chn_model(c, "02-md", s), chains_02, softwares)
-# 03-md
-chains_03 = [
     stan_chn_03_md,
-    nonmem_chn_03_md,
-    pumas_chn_03_md,
-]
-map((c, s) -> save_chn_model(c, "03-md", s), chains_03, softwares)
-# 05
-chains_05 = [
     stan_chn_05,
+]
+map((c, m) -> save_chn_model(c, m, "stan"), chains_stan, models_names)
+# NONMEM
+chains_nonmem = [
+    nonmem_chn_01_md,
+    nonmem_chn_02_md,
+    nonmem_chn_03_md,
     nonmem_chn_05,
+]
+map((c, m) -> save_chn_model(c, m, "nonmem"), chains_nonmem, models_names)
+# Pumas
+chains_pumas = [
+    pumas_chn_01_md,
+    pumas_chn_02_md,
+    pumas_chn_03_md,
     pumas_chn_05,
 ]
-map((c, s) -> save_chn_model(c, "05", s), chains_05, softwares)
+map((c, m) -> save_chn_model(c, m, "pumas"), chains_pumas, models_names)
+
+# Rhats within across software implementations
+#= WIP
+function merge_chain(chn)
+    df = DataFrame(chn)
+    @rtransform! df :chain = 1
+    select!(df, Not(:chain, :iteration))
+    if "lp__" in names(df)
+        select!(df, Not("lp__"))
+    end
+    return Chains(Matrix(df), names(df))
+end
+function merge_chains(chns)
+    return mapreduce(merge_chain, chainscat, chns)
+end
+function merge_chains_software(vec_of_chns)
+    return mapreduce(merge_chains, chainscat, vec_of_chns)
+end
+merge_chains(stan_chn_01_md)
+merge_chains_software(chains_01)
+=#
