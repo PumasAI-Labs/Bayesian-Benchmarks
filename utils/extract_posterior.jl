@@ -180,58 +180,58 @@ function mean_rhat(chn)
 end
 
 # Stan
-stan_files_01_sd = filter(f -> contains(f, r"single.*\d.arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Stan", "Torsten", "Fits"); join=true))
+# stan_files_01_sd = filter(f -> contains(f, r"single.*\d.arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Stan", "Torsten", "Fits"); join=true))
 stan_files_01_md = filter(f -> contains(f, r"multi.*\d.arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Stan", "Torsten", "Fits"); join=true))
-stan_files_02_sd = filter(f -> contains(f, r"single.*\d.arrow"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "Stan", "Torsten", "Fits"); join=true))
+# stan_files_02_sd = filter(f -> contains(f, r"single.*\d.arrow"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "Stan", "Torsten", "Fits"); join=true))
 stan_files_02_md = filter(f -> contains(f, r"multi.*\d.arrow"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "Stan", "Torsten", "Fits"); join=true))
-stan_files_03_sd = filter(f -> contains(f, r"single.*\d.arrow"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "Stan", "Torsten", "Fits"); join=true))
+# stan_files_03_sd = filter(f -> contains(f, r"single.*\d.arrow"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "Stan", "Torsten", "Fits"); join=true))
 stan_files_03_md = filter(f -> contains(f, r"multi.*\d.arrow"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "Stan", "Torsten", "Fits"); join=true))
 # stan_files_04_sd = filter(f -> contains(f, r"single.*\d.arrow"), readdir(joinpath(pwd(), "04-depot_1cmt_mm", "Stan", "Torsten", "Fits"); join=true))
 # stan_files_04_md = filter(f -> contains(f, r"multi.*\d.arrow"), readdir(joinpath(pwd(), "04-depot_1cmt_mm", "Stan", "Torsten", "Fits"); join=true))
 stan_files_05 = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "05-friberg", "Stan", "Torsten", "Fits"); join=true))
 
-stan_chn_01_sd = rename_stan.(get_chains_stan.(files_01_sd))
-stan_chn_01_md = rename_stan.(get_chains_stan.(files_01_md))
-stan_chn_02_sd = rename_stan.(get_chains_stan.(files_02_sd))
-stan_chn_02_md = rename_stan.(get_chains_stan.(files_02_md))
-stan_chn_03_sd = rename_stan.(get_chains_stan.(files_03_sd))
-stan_chn_03_md = rename_stan.(get_chains_stan.(files_03_md))
-# stan_chn_04_sd = rename_stan.(get_chains_stan.(files_04_sd))
-# stan_chn_04_md = rename_stan.(get_chains_stan.(files_04_md))
-stan_chn_05 = rename_stan.(get_chains_stan.(files_05))
+# stan_chn_01_sd = rename_stan.(get_chains_stan.(stan_files_01_sd))
+stan_chn_01_md = rename_stan.(get_chains_stan.(stan_files_01_md))
+# stan_chn_02_sd = rename_stan.(get_chains_stan.(stan_files_02_sd))
+stan_chn_02_md = rename_stan.(get_chains_stan.(stan_files_02_md))
+# stan_chn_03_sd = rename_stan.(get_chains_stan.(stan_files_03_sd))
+stan_chn_03_md = rename_stan.(get_chains_stan.(stan_files_03_md))
+# stan_chn_04_sd = rename_stan.(get_chains_stan.(stan_files_04_sd))
+# stan_chn_04_md = rename_stan.(get_chains_stan.(stan_files_04_md))
+stan_chn_05 = rename_stan.(get_chains_stan.(stan_files_05))
 
 stan_df = DataFrame(;
     model=[
-        "01_single_dose", "01_mult_dose",
-        "02_single_dose", "02_mult_dose",
-        "03_single_dose", "03_mult_dose",
-        # "04_single_dose", "04_mult_dose",
+        "01_mult_dose",
+        "02_mult_dose",
+        "03_mult_dose",
+        #  "04_mult_dose",
         "05",
     ],
     mean_ess=map(c -> mean(mean_ess.(c)),
         [
-            stan_chn_01_sd, stan_chn_01_md,
-            stan_chn_02_sd, stan_chn_02_md,
-            stan_chn_03_sd, stan_chn_03_md,
-            # stan_chn_04_sd, stan_chn_04_md,
+            stan_chn_01_md,
+            stan_chn_02_md,
+            stan_chn_03_md,
+            # stan_chn_04_md,
             stan_chn_05,
         ]
     ),
     mean_ess_sec=map(c -> mean(mean_ess_sec.(c)),
         [
-            stan_chn_01_sd, stan_chn_01_md,
-            stan_chn_02_sd, stan_chn_02_md,
-            stan_chn_03_sd, stan_chn_03_md,
-            # stan_chn_04_sd, stan_chn_04_md,
+            stan_chn_01_md,
+            stan_chn_02_md,
+            stan_chn_03_md,
+            #  stan_chn_04_md,
             stan_chn_05,
         ]
     ),
     mean_rhat=map(c -> mean(mean_rhat.(c)),
         [
-            stan_chn_01_sd, stan_chn_01_md,
-            stan_chn_02_sd, stan_chn_02_md,
-            stan_chn_03_sd, stan_chn_03_md,
-            # stan_chn_04_sd, stan_chn_04_md,
+            stan_chn_01_md,
+            stan_chn_02_md,
+            stan_chn_03_md,
+            # stan_chn_04_md,
             stan_chn_05,
         ]
     )
@@ -240,21 +240,21 @@ stan_df = DataFrame(;
 CSV.write("results/stan.csv", stan_df)
 
 # NONMEM
-nonmem_files_01_sd = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "NONMEM", "iv-2cmt-linear", "chains"); join=true))
+# nonmem_files_01_sd = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "NONMEM", "iv-2cmt-linear", "chains"); join=true))
 nonmem_files_01_md = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "NONMEM", "iv-2cmt-linear-md", "chains"); join=true))
-nonmem_files_02_sd = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "NONMEM", "depot-1cmt-linear", "chains"); join=true))
+# nonmem_files_02_sd = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "NONMEM", "depot-1cmt-linear", "chains"); join=true))
 nonmem_files_02_md = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "NONMEM", "depot-1cmt-linear-md", "chains"); join=true))
-nonmem_files_03_sd = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "NONMEM", "depot-2cmt-linear", "chains"); join=true))
+# nonmem_files_03_sd = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "NONMEM", "depot-2cmt-linear", "chains"); join=true))
 nonmem_files_03_md = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "NONMEM", "depot-2cmt-linear-md", "chains"); join=true))
 # nonmem_files_04_sd = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "04-depot_1cmt_mm", "NONMEM", "depot-1cmt-mm", "chains"); join=true))
 # nonmem_files_04_md = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "04-depot_1cmt_mm", "NONMEM", "depot-1cmt-mm-md", "chains"); join=true))
 nonmem_files_05 = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "05-friberg", "NONMEM", "friberg", "chains"); join=true))
 
-nonmem_chn_01_sd = rename_nonmem.(get_chains_nonmen.(nonmem_files_01_sd))
+# nonmem_chn_01_sd = rename_nonmem.(get_chains_nonmen.(nonmem_files_01_sd))
 nonmem_chn_01_md = rename_nonmem.(get_chains_nonmen.(nonmem_files_01_md))
-nonmem_chn_02_sd = rename_nonmem.(get_chains_nonmen.(nonmem_files_02_sd))
+# nonmem_chn_02_sd = rename_nonmem.(get_chains_nonmen.(nonmem_files_02_sd))
 nonmem_chn_02_md = rename_nonmem.(get_chains_nonmen.(nonmem_files_02_md))
-nonmem_chn_03_sd = rename_nonmem.(get_chains_nonmen.(nonmem_files_03_sd))
+# nonmem_chn_03_sd = rename_nonmem.(get_chains_nonmen.(nonmem_files_03_sd))
 nonmem_chn_03_md = rename_nonmem.(get_chains_nonmen.(nonmem_files_03_md))
 # nonmem_chn_04_sd = rename_nonmem.(get_chains_nonmen.(nonmem_files_04_sd))
 # nonmem_chn_04_md = rename_nonmem.(get_chains_nonmen.(nonmem_files_04_md))
@@ -262,36 +262,36 @@ nonmem_chn_05 = rename_nonmem.(get_chains_nonmen.(nonmem_files_05))
 
 nonmem_df = DataFrame(;
     model=[
-        "01_single_dose", "01_mult_dose",
-        "02_single_dose", "02_mult_dose",
-        "03_single_dose", "03_mult_dose",
-        # "04_single_dose", "04_mult_dose",
+        "01_mult_dose",
+        "02_mult_dose",
+        "03_mult_dose",
+        #  "04_mult_dose",
         "05",
     ],
     mean_ess=map(c -> mean(mean_ess.(c)),
         [
-            nonmem_chn_01_sd, nonmem_chn_01_md,
-            nonmem_chn_02_sd, nonmem_chn_02_md,
-            nonmem_chn_03_sd, nonmem_chn_03_md,
-            # nonmem_chn_04_sd, nonmem_chn_04_md,
+            nonmem_chn_01_md,
+            nonmem_chn_02_md,
+            nonmem_chn_03_md,
+            # nonmem_chn_04_md,
             nonmem_chn_05,
         ]
     ),
     mean_ess_sec=map(c -> mean(mean_ess_sec.(c)),
         [
-            nonmem_chn_01_sd, nonmem_chn_01_md,
-            nonmem_chn_02_sd, nonmem_chn_02_md,
-            nonmem_chn_03_sd, nonmem_chn_03_md,
-            # nonmem_chn_04_sd, nonmem_chn_04_md,
+            nonmem_chn_01_md,
+            nonmem_chn_02_md,
+            nonmem_chn_03_md,
+            # nonmem_chn_04_md,
             nonmem_chn_05,
         ]
     ),
     mean_rhat=map(c -> mean(mean_rhat.(c)),
         [
-            nonmem_chn_01_sd, nonmem_chn_01_md,
-            nonmem_chn_02_sd, nonmem_chn_02_md,
-            nonmem_chn_03_sd, nonmem_chn_03_md,
-            # nonmem_chn_04_sd, nonmem_chn_04_md,
+            nonmem_chn_01_md,
+            nonmem_chn_02_md,
+            nonmem_chn_03_md,
+            # nonmem_chn_04_md,
             nonmem_chn_05,
         ]
     )
@@ -301,21 +301,21 @@ CSV.write("results/nonmem.csv", nonmem_df)
 
 # Pumas
 # Stan
-pumas_files_01_sd = filter(f -> contains(f, r"single.*\d.jls"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Pumas"); join=true))
+# pumas_files_01_sd = filter(f -> contains(f, r"single.*\d.jls"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Pumas"); join=true))
 pumas_files_01_md = filter(f -> contains(f, r"multi.*\d.jls"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Pumas"); join=true))
-pumas_files_02_sd = filter(f -> contains(f, r"single.*\d.jls"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "Pumas"); join=true))
+# pumas_files_02_sd = filter(f -> contains(f, r"single.*\d.jls"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "Pumas"); join=true))
 pumas_files_02_md = filter(f -> contains(f, r"multi.*\d.jls"), readdir(joinpath(pwd(), "02-depot_1cmt_linear", "Pumas"); join=true))
-pumas_files_03_sd = filter(f -> contains(f, r"single.*\d.jls"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "Pumas"); join=true))
+# pumas_files_03_sd = filter(f -> contains(f, r"single.*\d.jls"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "Pumas"); join=true))
 pumas_files_03_md = filter(f -> contains(f, r"multi.*\d.jls"), readdir(joinpath(pwd(), "03-depot_2cmt_linear", "Pumas"); join=true))
 # pumas_files_04_sd = filter(f -> contains(f, r"single.*\d.jls"), readdir(joinpath(pwd(), "04-depot_1cmt_mm", "Pumas"); join=true))
 # pumas_files_04_md = filter(f -> contains(f, r"multi.*\d.jls"), readdir(joinpath(pwd(), "04-depot_1cmt_mm", "Pumas"); join=true))
 pumas_files_05 = filter(f -> contains(f, r"\d.jls"), readdir(joinpath(pwd(), "05-friberg", "Pumas"); join=true))
 
-pumas_chn_01_sd = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_01_sd))))
+# pumas_chn_01_sd = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_01_sd))))
 pumas_chn_01_md = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_01_md))))
-pumas_chn_02_sd = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_02_sd))))
+# pumas_chn_02_sd = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_02_sd))))
 pumas_chn_02_md = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_02_md))))
-pumas_chn_03_sd = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_03_sd))))
+# pumas_chn_03_sd = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_03_sd))))
 pumas_chn_03_md = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_03_md))))
 # pumas_chn_04_sd = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_04_sd))))
 # pumas_chn_04_md = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_04_md))))
@@ -323,36 +323,36 @@ pumas_chn_05 = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_05))
 
 pumas_df = DataFrame(;
     model=[
-        # "01_single_dose", "01_mult_dose",
-        # "02_single_dose", "02_mult_dose",
-        "03_single_dose", "03_mult_dose",
-        # "04_single_dose", "04_mult_dose",
+        "01_mult_dose",
+        "02_mult_dose",
+        "03_mult_dose",
+        # "04_mult_dose",
         "05",
     ],
     mean_ess=map(c -> mean(mean_ess.(c)),
         [
-            pumas_chn_01_sd, pumas_chn_01_md,
-            pumas_chn_02_sd, pumas_chn_02_md,
-            pumas_chn_03_sd, pumas_chn_03_md,
-            # pumas_chn_04_sd, pumas_chn_04_md,
+            pumas_chn_01_md,
+            pumas_chn_02_md,
+            pumas_chn_03_md,
+            # pumas_chn_04_md,
             pumas_chn_05,
         ]
     ),
     mean_ess_sec=map(c -> mean(mean_ess_sec.(c)),
         [
-            pumas_chn_01_sd, pumas_chn_01_md,
-            pumas_chn_02_sd, pumas_chn_02_md,
-            pumas_chn_03_sd, pumas_chn_03_md,
-            # pumas_chn_04_sd, pumas_chn_04_md,
+            pumas_chn_01_md,
+            pumas_chn_02_md,
+            pumas_chn_03_md,
+            # pumas_chn_04_md,
             pumas_chn_05,
         ]
     ),
     mean_rhat=map(c -> mean(mean_rhat.(c)),
         [
-            pumas_chn_01_sd, pumas_chn_01_md,
-            pumas_chn_02_sd, pumas_chn_02_md,
-            pumas_chn_03_sd, pumas_chn_03_md,
-            # pumas_chn_04_sd, pumas_chn_04_md,
+            pumas_chn_01_md,
+            pumas_chn_02_md,
+            pumas_chn_03_md,
+            # pumas_chn_04_md,
             pumas_chn_05,
         ]
     )
@@ -374,6 +374,7 @@ summ_df = @chain all_df begin
     @combine begin
         :mean_ess = mean(:mean_ess)
         :mean_ess_sec = mean(:mean_ess_sec)
+        :mean_rhat = mean(:mean_rhat)
     end
 end
 
@@ -383,18 +384,15 @@ CSV.write("results/summary.csv", summ_df)
 plt = data(all_df) *
       mapping(
           :model => renamer([
-              "01_single_dose" => "1 SD",
-              "01_mult_dose" => "1 MD",
-              "02_single_dose" => "2 SD",
-              "02_mult_dose" => "2 MD",
-              "03_single_dose" => "3 SD",
-              "03_mult_dose" => "3 MD",
+              "01_mult_dose" => "1",
+              "02_mult_dose" => "2",
+              "03_mult_dose" => "3",
               "05" => "5"
           ]),
-          [:mean_ess, :mean_ess_sec];
+          [:mean_ess, :mean_ess_sec, :mean_rhat];
           color=:software,
           dodge=:software,
-          col=dims(1) => renamer(["Mean ESS", "Mean ESS/sec"])
+          col=dims(1) => renamer(["Mean ESS", "Mean ESS/sec", "Mean Rhat"])
       ) *
       visual(BarPlot)
 
