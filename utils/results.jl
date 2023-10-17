@@ -46,11 +46,11 @@ fig_rhat = draw(
     facet=(; linkyaxes=:none)
 )
 save(joinpath(pwd(), "results", "rhat.png"), fig_rhat; px_per_unit=3)
-    
+
 plt_ess = data(df) *
       mapping(
           :parameters,
-          :rhat;
+          :ess_tail;
           color=:software,
           # dodge=:software,
           row=:model
@@ -65,4 +65,24 @@ fig_ess = draw(
     ),
     facet=(; linkyaxes=:none)
 )
-save(joinpath(pwd(), "results", "ess.png"), fig_ess; px_per_unit=3)
+save(joinpath(pwd(), "results", "ess_tail.png"), fig_ess; px_per_unit=3)
+
+plt_ess_sec = data(df) *
+      mapping(
+          :parameters,
+          :ess_per_sec;
+          color=:software,
+          # dodge=:software,
+          row=:model
+      ) *
+      visual(Scatter; alpha=0.3)
+
+fig_ess_sec = draw(
+    plt_ess;
+    axis=(;
+        xticklabelrotation=π / 3,
+        ylabel=""
+    ),
+    facet=(; linkyaxes=:none)
+)
+save(joinpath(pwd(), "results", "ess_per_sec.png"), plt_ess_sec; px_per_unit=3)
