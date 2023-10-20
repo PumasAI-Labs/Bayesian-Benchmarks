@@ -6,8 +6,6 @@ using CSV
 using Serialization
 using Dates
 using Pumas
-using CairoMakie
-using AlgebraOfGraphics
 
 function get_chains_stan(
     arrow;
@@ -200,45 +198,6 @@ stan_chn_03_md = rename_stan.(get_chains_stan.(stan_files_03_md))
 # stan_chn_04_md = rename_stan.(get_chains_stan.(stan_files_04_md))
 stan_chn_05 = rename_stan.(get_chains_stan.(stan_files_05))
 
-stan_df = DataFrame(;
-    model=[
-        "01_mult_dose",
-        "02_mult_dose",
-        "03_mult_dose",
-        #  "04_mult_dose",
-        "05",
-    ],
-    mean_ess=map(c -> mean(mean_ess.(c)),
-        [
-            stan_chn_01_md,
-            stan_chn_02_md,
-            stan_chn_03_md,
-            # stan_chn_04_md,
-            stan_chn_05,
-        ]
-    ),
-    mean_ess_sec=map(c -> mean(mean_ess_sec.(c)),
-        [
-            stan_chn_01_md,
-            stan_chn_02_md,
-            stan_chn_03_md,
-            #  stan_chn_04_md,
-            stan_chn_05,
-        ]
-    ),
-    mean_rhat=map(c -> mean(mean_rhat.(c)),
-        [
-            stan_chn_01_md,
-            stan_chn_02_md,
-            stan_chn_03_md,
-            # stan_chn_04_md,
-            stan_chn_05,
-        ]
-    )
-)
-
-CSV.write("results/stan/stan.csv", stan_df)
-
 # NONMEM
 # nonmem_files_01_sd = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "NONMEM", "iv-2cmt-linear", "chains"); join=true))
 nonmem_files_01_md = filter(f -> contains(f, r"\d.arrow"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "NONMEM", "iv-2cmt-linear-md", "chains"); join=true))
@@ -260,46 +219,6 @@ nonmem_chn_03_md = rename_nonmem.(get_chains_nonmen.(nonmem_files_03_md))
 # nonmem_chn_04_md = rename_nonmem.(get_chains_nonmen.(nonmem_files_04_md))
 nonmem_chn_05 = rename_nonmem.(get_chains_nonmen.(nonmem_files_05))
 
-nonmem_df = DataFrame(;
-    model=[
-        "01_mult_dose",
-        "02_mult_dose",
-        "03_mult_dose",
-        #  "04_mult_dose",
-        "05",
-    ],
-    mean_ess=map(c -> mean(mean_ess.(c)),
-        [
-            nonmem_chn_01_md,
-            nonmem_chn_02_md,
-            nonmem_chn_03_md,
-            # nonmem_chn_04_md,
-            nonmem_chn_05,
-        ]
-    ),
-    mean_ess_sec=map(c -> mean(mean_ess_sec.(c)),
-        [
-            nonmem_chn_01_md,
-            nonmem_chn_02_md,
-            nonmem_chn_03_md,
-            # nonmem_chn_04_md,
-            nonmem_chn_05,
-        ]
-    ),
-    mean_rhat=map(c -> mean(mean_rhat.(c)),
-        [
-            nonmem_chn_01_md,
-            nonmem_chn_02_md,
-            nonmem_chn_03_md,
-            # nonmem_chn_04_md,
-            nonmem_chn_05,
-        ]
-    )
-)
-
-CSV.write("results/nonmem/nonmem.csv", nonmem_df)
-
-# Pumas
 # Stan
 # pumas_files_01_sd = filter(f -> contains(f, r"single.*\d.jls"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Pumas"); join=true))
 pumas_files_01_md = filter(f -> contains(f, r"multi.*\d.jls"), readdir(joinpath(pwd(), "01-iv_2cmt_linear", "Pumas"); join=true))
@@ -320,92 +239,6 @@ pumas_chn_03_md = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_0
 # pumas_chn_04_sd = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_04_sd))))
 # pumas_chn_04_md = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_04_md))))
 pumas_chn_05 = filter_pumas.(rename_pumas.(Chains.(deserialize.(pumas_files_05))))
-
-pumas_df = DataFrame(;
-    model=[
-        "01_mult_dose",
-        "02_mult_dose",
-        "03_mult_dose",
-        # "04_mult_dose",
-        "05",
-    ],
-    mean_ess=map(c -> mean(mean_ess.(c)),
-        [
-            pumas_chn_01_md,
-            pumas_chn_02_md,
-            pumas_chn_03_md,
-            # pumas_chn_04_md,
-            pumas_chn_05,
-        ]
-    ),
-    mean_ess_sec=map(c -> mean(mean_ess_sec.(c)),
-        [
-            pumas_chn_01_md,
-            pumas_chn_02_md,
-            pumas_chn_03_md,
-            # pumas_chn_04_md,
-            pumas_chn_05,
-        ]
-    ),
-    mean_rhat=map(c -> mean(mean_rhat.(c)),
-        [
-            pumas_chn_01_md,
-            pumas_chn_02_md,
-            pumas_chn_03_md,
-            # pumas_chn_04_md,
-            pumas_chn_05,
-        ]
-    )
-)
-
-CSV.write("results/pumas/pumas.csv", pumas_df)
-
-@rtransform! stan_df :software = "stan"
-@rtransform! nonmem_df :software = "nonmem"
-@rtransform! pumas_df :software = "pumas"
-
-all_df = vcat(stan_df, nonmem_df, pumas_df)
-select!(all_df, :software, All())
-
-CSV.write("results/all.csv", all_df)
-
-summ_df = @chain all_df begin
-    groupby(:software)
-    @combine begin
-        :mean_ess = mean(:mean_ess)
-        :mean_ess_sec = mean(:mean_ess_sec)
-        :mean_rhat = mean(:mean_rhat)
-    end
-end
-
-CSV.write("results/summary.csv", summ_df)
-
-# Plots
-plt = data(all_df) *
-      mapping(
-          :model => renamer([
-              "01_mult_dose" => "1",
-              "02_mult_dose" => "2",
-              "03_mult_dose" => "3",
-              "05" => "5"
-          ]),
-          [:mean_ess, :mean_ess_sec, :mean_rhat];
-          color=:software,
-          dodge=:software,
-          col=dims(1) => renamer(["Mean ESS", "Mean ESS/sec", "Mean Rhat"])
-      ) *
-      visual(BarPlot)
-
-fig = draw(
-    plt;
-    axis=(;
-        xticklabelrotation=π / 3,
-        ylabel=""
-    ),
-    facet=(; linkyaxes=:none)
-)
-
-save("results/results.png", fig; px_per_unit=3)
 
 # More details per model
 function extract_chn_model(chns)
