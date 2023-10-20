@@ -253,7 +253,7 @@ function plot_posterior(chns, param::Symbol, model_specs)
     df = _combine_chains(chns, param)
     plt_data = data(df)
     plt_dens = mapping(param; color=:software) * AlgebraOfGraphics.density()# * visual(; alpha=0.5)
-    plt_true_val = mapping([model_specs[param]]) * visual(VLines; color=:black, linestyle = :dash, linewidth=3)
+    plt_true_val = mapping([model_specs[param]]) * visual(VLines; color=:black, linestyle=:dash, linewidth=3)
     fig = draw(
         plt_data * plt_dens + plt_true_val;
         axis=(;
@@ -266,7 +266,7 @@ function plot_posterior(chns, param::Symbol, model_specs)
     save(
         joinpath(pwd(), "results", "posterior_plots", "$(model_specs[:name])-$(string(param)).png"),
         fig;
-        px_per_unit=3,
+        px_per_unit=3
     )
     return fig
 end
@@ -350,5 +350,3 @@ plot_posterior_01 = map(p -> plot_posterior(chains_01, p, model_specs_01), param
 plot_posterior_02 = map(p -> plot_posterior(chains_02, p, model_specs_02), params_02)
 plot_posterior_03 = map(p -> plot_posterior(chains_03, p, model_specs_03), params_03)
 plot_posterior_05 = map(p -> plot_posterior(chains_05, p, model_specs_05), params_05)
-
-# QR Code to the repo (ask vijay for approval)
