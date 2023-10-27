@@ -25,7 +25,7 @@ stan_df = DataFrame(;
         #  "04_mult_dose",
         "05",
     ],
-    mean_ess=map(c -> mean(mean_ess.(c)),
+    mean_ess=map(c -> mean(mean_ess(c)),
         [
             stan_chn_01_md,
             stan_chn_02_md,
@@ -34,7 +34,7 @@ stan_df = DataFrame(;
             stan_chn_05,
         ]
     ),
-    mean_ess_sec=map(c -> mean(mean_ess_sec.(c)),
+    mean_ess_sec=map(c -> mean(mean_ess_sec(c)),
         [
             stan_chn_01_md,
             stan_chn_02_md,
@@ -43,7 +43,7 @@ stan_df = DataFrame(;
             stan_chn_05,
         ]
     ),
-    mean_rhat=map(c -> mean(mean_rhat.(c)),
+    mean_rhat=map(c -> mean(mean_rhat(c)),
         [
             stan_chn_01_md,
             stan_chn_02_md,
@@ -64,7 +64,7 @@ nonmem_df = DataFrame(;
         #  "04_mult_dose",
         "05",
     ],
-    mean_ess=map(c -> mean(mean_ess.(c)),
+    mean_ess=map(c -> mean(mean_ess(c)),
         [
             nonmem_chn_01_md,
             nonmem_chn_02_md,
@@ -73,7 +73,7 @@ nonmem_df = DataFrame(;
             nonmem_chn_05,
         ]
     ),
-    mean_ess_sec=map(c -> mean(mean_ess_sec.(c)),
+    mean_ess_sec=map(c -> mean(mean_ess_sec(c)),
         [
             nonmem_chn_01_md,
             nonmem_chn_02_md,
@@ -82,7 +82,7 @@ nonmem_df = DataFrame(;
             nonmem_chn_05,
         ]
     ),
-    mean_rhat=map(c -> mean(mean_rhat.(c)),
+    mean_rhat=map(c -> mean(mean_rhat(c)),
         [
             nonmem_chn_01_md,
             nonmem_chn_02_md,
@@ -103,7 +103,7 @@ pumas_df = DataFrame(;
         # "04_mult_dose",
         "05",
     ],
-    mean_ess=map(c -> mean(mean_ess.(c)),
+    mean_ess=map(c -> mean(mean_ess(c)),
         [
             pumas_chn_01_md,
             pumas_chn_02_md,
@@ -112,7 +112,7 @@ pumas_df = DataFrame(;
             pumas_chn_05,
         ]
     ),
-    mean_ess_sec=map(c -> mean(mean_ess_sec.(c)),
+    mean_ess_sec=map(c -> mean(mean_ess_sec(c)),
         [
             pumas_chn_01_md,
             pumas_chn_02_md,
@@ -121,7 +121,7 @@ pumas_df = DataFrame(;
             pumas_chn_05,
         ]
     ),
-    mean_rhat=map(c -> mean(mean_rhat.(c)),
+    mean_rhat=map(c -> mean(mean_rhat(c)),
         [
             pumas_chn_01_md,
             pumas_chn_02_md,

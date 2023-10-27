@@ -78,6 +78,8 @@ function get_chains_nonmen(
     filter!(p -> p ∉ omegas_to_filter, names_df)
     # exponentiate back thetas
     transform!(df, theta_names .=> ByRow(exp); renamecols=false)
+    # get the squareroot of the omegas to convert to the Stan/Pumas scale
+    transform!(df, omegas_to_retain .=> ByRow(sqrt); renamecols=false)
     times = combine(
         groupby(
             df,
