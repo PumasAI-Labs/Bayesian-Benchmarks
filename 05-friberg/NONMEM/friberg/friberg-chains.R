@@ -16,7 +16,7 @@ dir_name <- paste0(root_folder, "/NONMEM/", modelName)
 dir.create(paste0(dir_name, "/chains"))
 
 
-grid_of_runs_and_chains <- expand_grid(run = 1:5, chain = 1:4, friberg=TRUE)
+grid_of_runs_and_chains <- expand_grid(run = 1:10, chain = 1:4, friberg=TRUE)
 
 pwalk(grid_of_runs_and_chains, create_model_file)
 
