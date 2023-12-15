@@ -3,6 +3,7 @@ lowTriMat <- function(x) {
 }
 
 get_theta <- function(run, chain){
+
   read_json(str_c(root_folder, "/data/inits/inits_", run, "_", chain, 
                   ".json")) %>% 
     spread_all() %>% 
@@ -85,6 +86,7 @@ create_model_file <- function(run, chain, friberg=FALSE){
   modelText[modelTextLine] <- get_omega(run, chain)
   
   modelTextLine <- grep("SIGMAUPDATE", modelText)
+
   if (friberg) {
     modelText[modelTextLine] <- get_sigma(run, chain, friberg=TRUE)
   } else {
