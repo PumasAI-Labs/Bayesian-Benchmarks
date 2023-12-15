@@ -1,6 +1,7 @@
 ;Model Desc: 04-depot-1cmt-mm
 ;Project Name: Bayesian Benchmarks
 
+$SIZES PC=10
 $PROB 
 $INPUT ID	AMT	RATE	II	ADDL	CMT	EVID	SS	LLOQ	BLOQ	MDV	TIME	ODV DV
 $DATA ../../../data/single_dose.csv IGNORE=@
